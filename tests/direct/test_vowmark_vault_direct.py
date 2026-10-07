@@ -5,19 +5,10 @@ Run with:
 """
 
 from pathlib import Path
-import sys
-
 import pytest
 
 
 pytest.importorskip("gltest.direct.pytest_plugin")
-pytestmark = pytest.mark.xfail(
-    sys.platform == "win32",
-    reason="genlayer-test 0.29.2 Direct Mode closes its stdin temp file too late on Windows",
-    strict=False,
-)
-
-
 REGISTRY = "0x" + ("11" * 20)
 ISSUER = "0x" + ("22" * 20)
 REMEDY = "0x" + ("33" * 20)

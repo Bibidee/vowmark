@@ -21,4 +21,4 @@ A release is not submission-ready unless all are true:
 - [x] canonical explorer links and source commit recorded
 - [x] docs match actual deployed behavior
 - [x] originality audit passed against `docs/ORIGINALITY.md`: no reference dispute mechanics, copied routes, copied visual identity, hidden backend, centralized AI endpoint, server wallet or fake production state found
-- [x] remaining limitations disclosed (Windows Direct Mode host limitation; expiry not artificially waited)
+- [x] Direct Mode runs on Windows and Linux CI; expiry is only recorded after the enforced deadline

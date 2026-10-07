@@ -25,7 +25,7 @@ Record only values observed from the final build:
 - one canonical inconclusive/recovery path;
 - one canonical breached lifecycle where safe and practical;
 - withdrawal transaction(s);
-- final Direct Mode test result (Linux CI; Windows is an expected host xfail);
+- final Direct Mode test result (Linux CI and the repository's Windows stdin compatibility patch);
 - CI run link;
 - known limitation(s).
 

@@ -26,7 +26,7 @@ VOWMARK V1 is deployed on GenLayer Studionet 61999 and published at [the-vowmark
 - Direct Mode custody tests: `4 passed`
 - Simulator-backed Registry behavior tests: `4 passed`
 - Frontend typecheck, lint, and production build: passed
-- Final CI: [GitHub Actions run 37700496711](https://github.com/Bibidee/vowmark/actions/runs/37700496711), all four jobs passed
+- Final CI: [GitHub Actions run 37700665753](https://github.com/Bibidee/vowmark/actions/runs/37700665753), all four jobs passed
 - Production deployment: [Vercel deployment](https://vercel.com/bibidees-projects/vowmark/6kcbvCcgvFoabB6CKUdYpWXRL71V), READY
 
 ## Honest limitation

@@ -46,7 +46,7 @@ Commitment `#5` used two unlocked accounts: reviewer A `0x7eB2a4B4e913Df62eAe807
 - Direct Mode tests: `4 passed`
 - Simulator-backed Registry behavior tests: `4 passed`
 - Frontend typecheck, lint, and production build: passed
-- Final CI: [GitHub Actions run 37700496711](https://github.com/Bibidee/vowmark/actions/runs/37700496711), all four jobs passed
+- Final CI: [GitHub Actions run 37700665753](https://github.com/Bibidee/vowmark/actions/runs/37700665753), all four jobs passed
 - App logo: retained in the application; no logo removal was made
 
 ## Current limitation

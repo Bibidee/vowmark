@@ -14,12 +14,19 @@ function group(commitments: Commitment[], now: bigint) {
   };
 }
 
+function readableBoardError(cause: unknown) {
+  const message = cause instanceof Error ? cause.message : "";
+  return message.includes("slice") || message.includes("undefined")
+    ? "The finalized public register is temporarily unavailable. Refresh to try the canonical read again."
+    : message || "Unable to read the finalized public board right now.";
+}
+
 export function HomeBoard() {
   const [commitments, setCommitments] = useState<Commitment[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
-  useEffect(() => { setLoading(true); readRegistry("list_recent_commitments", [25n]).then((value) => setCommitments((value as unknown[]).map(normalizeCommitment))).catch((cause) => setError(cause instanceof Error ? cause.message : "Unable to read the public board")).finally(() => setLoading(false)); }, [refreshKey]);
+  useEffect(() => { setLoading(true); readRegistry("list_recent_commitments", [25n]).then((value) => setCommitments((value as unknown[]).map(normalizeCommitment))).catch((cause) => setError(readableBoardError(cause))).finally(() => setLoading(false)); }, [refreshKey]);
   const sections = group(commitments, BigInt(Math.floor(Date.now() / 1000)));
   return (
     <div className="page">

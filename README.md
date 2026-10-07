@@ -79,8 +79,13 @@ Do not confuse these with GenLayer transaction/consensus statuses such as `ACCEP
 
 The frontend should feel like a public accountability register, not a deal dashboard, court, escrow console or developer terminal.
 
-## What this package is
+## Live deployment
 
-This ZIP is a **build handoff**, not a deployed product and not a submission-readiness claim. It freezes the product semantics, trust model, evidence rules, lifecycle, UX direction, testing expectations and release criteria. The builder must implement the real contracts and frontend, verify the current pinned GenLayer toolchain, run the complete test suite, deploy to Studionet, execute real lifecycle proofs and document only evidence that was actually observed.
+VOWMARK V1 is deployed on GenLayer Studionet 61999.
 
-Read `BUILD_PROMPT.txt` before implementation.
+- Production frontend: <https://vowmark.ojikutusarat.chatgpt.site>
+- Registry: `0x2590706b18a1385A23842bdEAe793EE4374a3bE4`
+- Vault: `0x921Ed9F83A89ED9aADD5A02fbDc818D1c244cE7e`
+- Explorer: <https://explorer-studio.genlayer.com>
+
+The complete deployment, configuration readback, lifecycle proof matrix and withdrawal proof are recorded in [`HANDOFF_STATUS.md`](HANDOFF_STATUS.md).

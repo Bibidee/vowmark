@@ -138,10 +138,11 @@ const selectedProof = {
   inconclusive: allProofs[4],
 }[process.env.VOWMARK_PROOF_SET];
 const proofs = selectedProof ? [selectedProof] : allProofs;
+const maturityDelaySeconds = Number(process.env.VOWMARK_MATURITY_DELAY_SECONDS || "300");
 
 const results = [];
 for (const proof of proofs) {
-  const maturity = BigInt(Math.floor(Date.now() / 1000) + 300);
+  const maturity = BigInt(Math.floor(Date.now() / 1000) + maturityDelaySeconds);
   const deadline = maturity + 7200n;
   const created = await write(client, VAULT, "create_commitment", [proof.statement, proof.rule, maturity, deadline, address(REMEDY), [proof.url], [proof.sourceKind], [proof.purpose]], BOND);
   const commitmentId = decodeReturn(created.receipt);

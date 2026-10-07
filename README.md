@@ -42,7 +42,7 @@ There is no application backend, server database, backend signer, cron worker, c
 - Chain ID: `61999`
 - RPC: `https://studio.genlayer.com/api`
 - Explorer: `https://explorer-studio.genlayer.com`
-- Repository-local GenLayer CLI target: `0.39.1`
+- Deployment CLI target: `0.39.2` with live schema validation
 
 Never use Studio-dev or chain `61997`.
 
@@ -81,11 +81,11 @@ The frontend should feel like a public accountability register, not a deal dashb
 
 ## Live deployment
 
-VOWMARK V1 is deployed on GenLayer Studionet 61999.
+VOWMARK V1 is deployed on GenLayer Studionet 61999 and the production frontend is [the-vowmark.vercel.app](https://the-vowmark.vercel.app).
 
-- Production frontend: <https://vowmark.ojikutusarat.chatgpt.site>
-- Registry: `0x2590706b18a1385A23842bdEAe793EE4374a3bE4`
-- Vault: `0x921Ed9F83A89ED9aADD5A02fbDc818D1c244cE7e`
+- Registry: `0xbE235FC7CFb88dd5e0627b5916d8A916dF8680d5`
+- Vault: `0x8AEBe9d98cDbB6460752d002C98D5E5745CA6533`
+- Finalized wiring: `0x43c25bec13059da6839eb677e0af44aa2fcadd76856e5b7771a028eb65773ba3`
 - Explorer: <https://explorer-studio.genlayer.com>
 
 The complete deployment, configuration readback, lifecycle proof matrix and withdrawal proof are recorded in [`HANDOFF_STATUS.md`](HANDOFF_STATUS.md).

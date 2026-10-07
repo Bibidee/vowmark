@@ -1,6 +1,6 @@
 # VOWMARK contract package
 
-This package contains the pinned GenLayer 0.39.1 Intelligent Contract implementation for VOWMARK.
+This package contains the VOWMARK Intelligent Contract implementation validated against the Studionet 61999 schema service and deployment CLI 0.39.2.
 
 - `contracts/vowmark_registry.py` owns immutable commitment terms, frozen evidence anchors, validator review, append-only history, issuer indexes and terminal product outcomes.
 - `contracts/vowmark_vault.py` is the minimal finalized-only custody boundary. It accepts settlement only from the immutable registry address and owns credits/withdrawals.
@@ -14,4 +14,4 @@ Run the version check from the repository root with the local CLI:
 npx genlayer --version
 ```
 
-The expected result is `0.39.1`. Live deployment requires a funded wallet and a current Studionet RPC configuration; no deployment address is claimed until a finalized transaction has been observed.
+Live deployment requires a funded wallet and a current Studionet RPC configuration. The canonical finalized addresses and proof matrix are recorded in the repository handoff status.

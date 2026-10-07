@@ -1,0 +1,75 @@
+{
+  "generatedAt": "2026-10-07T18:52:55.787Z",
+  "network": "GenLayer Studionet",
+  "chainId": 61999,
+  "registry": "0xbE235FC7CFb88dd5e0627b5916d8A916dF8680d5",
+  "vault": "0x8AEBe9d98cDbB6460752d002C98D5E5745CA6533",
+  "account": "0x794678AD7e8B6c87dAb33303a3A512c821e6De9A",
+  "bond": "100000000000000",
+  "results": [
+    {
+      "label": "fulfilled-rfc-publication",
+      "commitmentId": "6",
+      "maturity": "1791399006",
+      "deadline": "1791406206",
+      "createTx": "0x13dda82dc2db97d1fb35fdf36f9106481285b606b6838943adca89cb4711723c",
+      "reviewTx": "0x5e298785949cea115a3804dfb3bbeb3249eadd46f0e01ea829f75e171ed6bccc",
+      "reconcileTx": "0x8e90f8947c6723db5535205182d2c42e340c321623da4eb693568f7c5628f64b",
+      "commitment": {
+        "attempt_count": "1",
+        "bond": "100000000000000",
+        "commitment_id": "6",
+        "created_at": "1791398989",
+        "final_review_deadline": "1791406206",
+        "issuer": "0x794678AD7e8B6c87dAb33303a3A512c821e6De9A",
+        "last_attempt_at": "1791399029",
+        "last_settlement_at": "1791399029",
+        "latest_snapshot_digest": "c5e40c8adc3b66341359e3a81ecad524393f78b8f381984bc87752776696d8ab",
+        "latest_source_set_digest": "287e938f7399e86708d0de4b43e6eea773082bfa1ca2a03c6a8b021ffd45ed61",
+        "latest_verdict": "FULFILLED",
+        "maturity_at": "1791399006",
+        "outcome": "FULFILLED",
+        "remedy": "0xf883bCE8FcB120F714B147446342D7E4545Bc988",
+        "resolved_at": "1791399029",
+        "settlement_attempts": "1",
+        "settlement_recipient": "0x794678AD7e8B6c87dAb33303a3A512c821e6De9A",
+        "settlement_state": "CREDIT_CONFIRMED",
+        "statement": "The versioned VOWMARK public proof fixture was published before maturity.",
+        "verification_rule": "FULFILLED means the frozen versioned publication contains the exact fulfillment_time marker 2026-10-07T18:48:00Z, which is earlier than the recorded maturity timestamp."
+      },
+      "reviews": [
+        {
+          "attempt_id": "0",
+          "requested_at": "1791399029",
+          "requested_by": "0x794678AD7e8B6c87dAb33303a3A512c821e6De9A",
+          "snapshot_digest": "c5e40c8adc3b66341359e3a81ecad524393f78b8f381984bc87752776696d8ab",
+          "source_set_digest": "287e938f7399e86708d0de4b43e6eea773082bfa1ca2a03c6a8b021ffd45ed61",
+          "verdict": "FULFILLED"
+        }
+      ],
+      "issuance": {
+        "bond": "100000000000000",
+        "commitment_id": "6",
+        "created_at": "1791398989",
+        "final_review_deadline": "1791406206",
+        "issuer": "0x794678AD7e8B6c87dAb33303a3A512c821e6De9A",
+        "maturity_at": "1791399006",
+        "registered": false,
+        "remedy": "0xf883bCE8FcB120F714B147446342D7E4545Bc988",
+        "settlement_recipient": "0x0000000000000000000000000000000000000000",
+        "settlement_state": "LOCKED"
+      },
+      "vaultSettlement": {
+        "amount": "100000000000000",
+        "recipient": "0x794678AD7e8B6c87dAb33303a3A512c821e6De9A",
+        "settled": true,
+        "state": "CREDIT_CONFIRMED"
+      }
+    }
+  ],
+  "withdrawal": {
+    "withdrawalTx": "0xc647b9e75ec528b4f8d3f0876a1d0ca64c8c373926e3f8d1415dc2512ccbbce4",
+    "creditBefore": "100000000000000",
+    "creditAfter": "0"
+  }
+}

@@ -77,7 +77,7 @@ const allProofs = [
     purpose: "immutable GitHub release timestamp",
   },
   {
-    label: "fulfilled-rfc-publication",
+    label: "fulfilled-publication-fixture",
     statement: "The versioned VOWMARK public proof fixture was published before maturity.",
     rule: "FULFILLED means the frozen versioned publication contains the exact fulfillment_time marker 2026-10-07T18:48:00Z, which is earlier than the recorded maturity timestamp.",
     url: process.env.VOWMARK_PROOF_URL || "https://raw.githubusercontent.com/Bibidee/vowmark/main/evidence/fulfilled-proof-fixture.txt",

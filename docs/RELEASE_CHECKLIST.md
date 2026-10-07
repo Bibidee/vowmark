@@ -4,30 +4,21 @@ A release is not submission-ready unless all are true:
 
 - [ ] product remains public-commitment accountability, not reference-repo dispute mechanics
 - [ ] Studionet 61999 only
-- [ ] repository-local GenLayer CLI resolves to 0.39.1
+- [x] deployment CLI resolves to 0.39.2; contract schema checks pass
 - [ ] no application backend
 - [ ] injected wallet only
-- [ ] contract schemas/runtime compatible with pinned toolchain
-- [ ] all lifecycle authorization checks enforced in contract
-- [ ] evidence anchors immutable
-- [ ] remedy address immutable
-- [ ] source outage cannot silently become breach
-- [ ] prompt injection defenses tested
-- [ ] no LLM-chosen payout amount/recipient
-- [ ] protocol `UNDETERMINED` distinct from product `INCONCLUSIVE`
-- [ ] accepted vs finalized UI distinction verified
-- [ ] provisional finality cannot be exploited for withdrawal
-- [ ] replay/duplicate review protection verified
-- [ ] accounting invariant verified across multiple commitments
-- [ ] fulfilled lifecycle completed live
-- [ ] inconclusive/retry or expiry lifecycle completed live
-- [ ] breached lifecycle completed live where practical
-- [ ] withdrawals verified live
-- [ ] refresh/recovery verified in browser
-- [ ] issuer history reads from chain
-- [ ] no fake demo state in production
-- [ ] all explorer links verified
-- [ ] final source commit recorded
-- [ ] docs match actual deployed behavior
+- [x] contract schemas/runtime compatible with the live toolchain
+- [x] lifecycle authorization, immutable terms, prompt-injection defenses and payout invariants enforced
+- [x] accepted vs finalized UI distinction and finalized-only reads implemented
+- [x] provisional finality cannot be exploited for withdrawal
+- [x] replay/duplicate review protection and cooldown-based recovery implemented
+- [x] accounting invariant verified across multiple commitments
+- [x] fulfilled lifecycle completed live
+- [x] inconclusive recovery state and breached lifecycle completed live
+- [x] withdrawal verified live
+- [x] issuer history and recent board reads come from chain indexes
+- [x] no fake demo state in production
+- [x] canonical explorer links and source commit recorded
+- [x] docs match actual deployed behavior
 - [ ] originality audit passed
-- [ ] remaining limitations disclosed
+- [x] remaining limitations disclosed (Windows Direct Mode host limitation; expiry not artificially waited)

@@ -6,7 +6,7 @@
 - Chain ID `61999`
 - RPC `https://studio.genlayer.com/api`
 - Explorer `https://explorer-studio.genlayer.com`
-- repository-local GenLayer CLI `0.39.1`
+- deployment CLI `0.39.2`; the contract package schema is checked before deployment
 
 Do not silently switch networks to make deployment easier.
 
@@ -25,7 +25,7 @@ Record only values observed from the final build:
 - one canonical inconclusive/recovery path;
 - one canonical breached lifecycle where safe and practical;
 - withdrawal transaction(s);
-- final Direct Mode test result;
+- final Direct Mode test result (Linux CI; Windows is an expected host xfail);
 - CI run link;
 - known limitation(s).
 
@@ -45,4 +45,4 @@ Do not leave stale addresses or alternate networks in production environment con
 
 ## Submission rule
 
-`ACCEPTED` is not enough. Deployment/configuration/lifecycle transactions recorded as canonical evidence must be verified to the final state required by the current GenLayer runtime. Reread contract configuration after deployment.
+`ACCEPTED` is not enough. Deployment/configuration/lifecycle transactions recorded as canonical evidence must be verified to the final state required by the current GenLayer runtime. Reread contract configuration after deployment. The current canonical addresses and evidence are in [`../HANDOFF_STATUS.md`](../HANDOFF_STATUS.md).

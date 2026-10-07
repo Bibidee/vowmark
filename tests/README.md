@@ -7,4 +7,4 @@ python -m pytest tests -q
 gltest --network studionet -v
 ```
 
-The live GenLayer matrix must still be run with funded accounts and explicit mock/public evidence cases before a release can be called submission-ready. No synthetic test result is used as a live deployment claim.
+The live GenLayer matrix is recorded separately from synthetic tests. Current finalized Studionet evidence is in [`../evidence/live_fulfilled_pinned.json`](../evidence/live_fulfilled_pinned.json) and [`../evidence/live_lifecycle_baseline.md`](../evidence/live_lifecycle_baseline.md). No synthetic test result is used as a live deployment claim.

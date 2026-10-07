@@ -1,0 +1,920 @@
+MEGA PROMPT — Build VOWMARK V1 fully and leave it submission-ready
+
+You are receiving the VOWMARK V1 implementation handoff.
+
+Your job is to BUILD THE PRODUCT FULLY, not merely critique the design, restate the specification or leave placeholders.
+
+This handoff contains the frozen product semantics, trust model, evidence model, lifecycle, originality boundary, UX direction, test matrix and release requirements. Treat those semantics as authoritative unless a concrete current GenLayer Studionet compatibility issue makes a narrow change necessary. If you must change a frozen semantic, document exactly why and preserve the underlying trust guarantee.
+
+Do not claim that a file, contract, test, deployment, transaction, finality state or frontend behavior works merely because code exists. Verify actual behavior.
+
+======================================================================
+ABSOLUTE NETWORK
+======================================================================
+
+Use GenLayer Studionet only.
+
+Network: GenLayer Studionet
+Chain ID: 61999
+RPC: https://studio.genlayer.com/api
+Explorer: https://explorer-studio.genlayer.com
+
+Never use:
+- chain 61997
+- Studio-dev
+- another GenLayer network
+
+Search runtime source/config before final handoff and make sure alternate-network contamination does not exist.
+
+======================================================================
+PINNED TOOLCHAIN
+======================================================================
+
+Use the repository-local GenLayer CLI exactly:
+0.39.1
+
+Do not rely on a global CLI.
+Do not silently upgrade to an RC or a newer CLI just because an API is easier there.
+
+Run and record:
+
+npx genlayer --version
+
+It must resolve to the repository-local 0.39.1 binary.
+
+Use current official GenLayer documentation only to determine the API surface compatible with the pinned CLI/Studionet. If the pinned network/toolchain requires a narrowly different SDK/client dependency, make the smallest compatible change and document it.
+
+======================================================================
+FIRST PRINCIPLE — WHAT VOWMARK IS
+======================================================================
+
+VOWMARK is a public commitment bond protocol.
+
+An issuer makes one externally verifiable public promise, freezes how that promise should be evidenced, chooses a non-issuer remedy address, sets a maturity deadline and final review deadline, and locks GEN behind the promise.
+
+After maturity, any wallet may trigger review. GenLayer validators independently retrieve only the frozen public evidence anchors and answer the bounded semantic question:
+
+“Under the commitment and verification rule exactly as recorded, and considering only the frozen admissible public evidence, does the evidence establish that the commitment was fulfilled by the stated maturity deadline?”
+
+The product outcomes are:
+- FULFILLED
+- BREACHED
+- INCONCLUSIVE
+
+If no reliable conclusive answer exists by the final review deadline, the terminal expiry result is:
+- EXPIRED_UNRESOLVED
+
+Economic consequence:
+- FULFILLED -> issuer receives credit for the locked bond
+- BREACHED -> immutable remedy address receives credit for the locked bond
+- INCONCLUSIVE -> no credit yet; bond remains locked and review may retry when legal
+- EXPIRED_UNRESOLVED -> issuer receives credit for the bond, while the unresolved outcome remains permanently visible
+
+The LLM/validator NEVER chooses a wei amount or payout address.
+
+======================================================================
+SEVEN-STAGE PRODUCT LIFECYCLE
+======================================================================
+
+Preserve this product journey:
+
+1. ISSUE
+2. ACTIVE
+3. MATURE
+4. REVIEW
+5. JUDGMENT
+6. RESOLUTION / RECOVERY
+7. SETTLEMENT + PERMANENT RECORD
+
+Do not create seven redundant storage enums merely to match the wording. Use the smallest explicit state representation that preserves every lifecycle distinction and makes illegal transitions impossible.
+
+======================================================================
+ABSOLUTE CLEAN-ROOM ORIGINALITY
+======================================================================
+
+VOWMARK was derived from first-principles opportunity analysis. It must NOT look like a reskin of the public reference project.
+
+Do not copy, adapt, translate or structurally reproduce from the reference repository:
+- contract code
+- prompts
+- storage schemas
+- contract decomposition
+- method names
+- function names
+- variable names
+- events
+- route hierarchy
+- forms
+- navigation
+- page layout
+- component hierarchy
+- wording
+- README structure/text
+- screenshots
+- logos/icons
+- typography
+- color system
+- animation patterns
+- buyer/seller roles
+- delivery/redelivery flow
+- clause-line mechanics
+- dispute mechanics
+- jury language
+- complaint/dispute bonds
+- freelancer/deal framing
+- seller payout flow
+
+Do not turn VOWMARK into generic arbitration, a court product, a freelance escrow, a marketplace or a prediction market.
+
+VOWMARK’s own product vocabulary is:
+- issuer
+- commitment
+- maturity
+- verification rule
+- evidence anchor
+- review
+- fulfilled
+- breached
+- inconclusive
+- expired unresolved
+- remedy address
+- issuer record
+- Maturity Board
+
+The generic engineering principles you may reuse are limited to things like frozen terms, bounded evidence, independent validator judgment, typed uncertainty, deterministic state machines, replay protection, prompt-injection resistance, canonical contract state and honest transaction finality.
+
+Before release, conduct a hostile originality review. If the final product could reasonably be described as “the reference repo with renamed nouns,” redesign it.
+
+======================================================================
+CANONICAL APPLICATION ARCHITECTURE
+======================================================================
+
+USER
+-> NEXT.JS APP ROUTER + TYPESCRIPT FRONTEND
+-> INJECTED EIP-1193 WALLET
+-> GENLAYER STUDIONET 61999
+-> VOWMARK CONTRACT LAYER
+-> VALIDATOR PUBLIC-EVIDENCE RETRIEVAL + SEMANTIC JUDGMENT
+-> CANONICAL CONTRACT STATE
+-> FRONTEND
+
+NO APPLICATION BACKEND.
+
+Do not add:
+- Supabase
+- Firebase
+- Cloudflare Workers
+- Railway
+- Express
+- Prisma/Postgres/MongoDB or another server DB
+- backend wallet/signers
+- centralized AI inference
+- hidden evidence-fetch API
+- authoritative Next.js API route
+- authoritative Server Action
+- cron
+- queue
+- off-chain settlement operator
+- administrator adjudicator
+- manual verdict override
+
+Static hosting is fine.
+Browser local storage may remember transaction hashes or draft form values only. It must never be authoritative for commitment existence, ownership, lifecycle, verdict, bond accounting, finality or issuer history.
+
+======================================================================
+CONTRACT COUNT — MINIMUM SENSIBLE, FINALITY FIRST
+======================================================================
+
+Prefer one Intelligent Contract, `VowmarkRegistry`, if the real pinned GenLayer/Studionet semantics let you prove that an economically material credit or withdrawal cannot be exploited from a merely ACCEPTED/provisional review state.
+
+The one-contract design should own:
+- commitments
+- immutable terms
+- evidence anchors
+- review attempts
+- semantic judgment
+- resolution status
+- bond accounting
+- credits
+- withdrawals
+- issuer/global indexes
+
+However, economic finality is not negotiable.
+
+If live/toolchain verification shows that a one-contract design cannot safely stop a provisional accepted judgment from enabling irreversible value movement before the judgment is genuinely final, introduce exactly one minimal deterministic `VowmarkVault`.
+
+If a vault is necessary:
+- Registry still owns commitment terms, judgment and public history.
+- Vault owns custody, credits and withdrawals only.
+- Registry -> Vault settlement must use the finalized-only boundary supported by the pinned GenLayer runtime.
+- Vault accepts settlement only from the immutable Registry address.
+- One commitment/bond can be settled once.
+- No model runs in the Vault.
+- The Vault cannot change verdicts.
+- The Registry cannot alter the frozen bond recipient/amount after issuance.
+
+Do not add a second contract for aesthetic reasons. Document the proven reason for the final choice.
+
+======================================================================
+FROZEN COMMITMENT SEMANTICS
+======================================================================
+
+At issuance, the caller becomes the issuer and must provide at minimum:
+- commitment statement
+- verification rule
+- maturity timestamp
+- final review deadline
+- remedy address
+- bond value
+- 1–5 evidence anchors
+
+Creating the commitment is the issuer’s signed acceptance of those immutable terms.
+
+Requirements:
+- bond > 0
+- remedy address must be valid, nonzero and different from issuer
+- maturity must be in the future
+- final review deadline must be later than maturity
+- enforce a sensible nonzero review window; choose the exact bound based on live Studionet usability and document it
+- commitment text bounded
+- verification rule bounded
+- anchor count bounded
+- anchor URL/label lengths bounded
+- duplicate normalized URLs rejected
+- terms cannot be edited after creation
+- evidence policy cannot be replaced after creation
+- remedy address cannot be replaced after creation
+- issuer cannot cancel after issuance merely because the promise looks likely to fail
+- no admin can rewrite terms or outcomes
+
+If you decide V1 needs a narrowly defined pre-maturity cancellation state, STOP and justify it against the product trust model before implementing. Default design is no unilateral cancellation after a funded issuance.
+
+======================================================================
+EVIDENCE MODEL
+======================================================================
+
+Evidence is frozen before outcome pressure exists.
+
+Each evidence anchor must include:
+- exact HTTPS URL
+- source kind
+- concise purpose label
+
+Recommended V1 source kinds:
+- PUBLICATION
+- VERSIONED_SOURCE
+- ONCHAIN_RECORD
+- THIRD_PARTY_RECORD
+
+Do not let source kinds become a centralized trust registry.
+
+V1 must NOT:
+- crawl the open internet
+- use a search engine
+- follow arbitrary links found inside evidence
+- accept private uploads
+- accept reviewer-authored complaint text as evidence
+- let reviewer replace issuer evidence policy
+- use a backend evidence fetcher
+
+Security/admissibility requirements:
+- HTTPS only
+- reject malformed URLs
+- reject userinfo/credential-bearing URL forms
+- reject localhost/loopback/private-network targets as far as practical in the pinned runtime
+- bound URL length
+- bound total anchors
+- bound fetched response bytes
+- bound text/model context
+- do not silently truncate an oversized artifact and then approve it
+- fetched page/code/comment/README text is UNTRUSTED DATA
+- embedded instructions must be ignored
+- do not invent evidence
+- do not use unstated private/world knowledge to fill evidence gaps
+
+For each review, validators should independently reconstruct a material evidence snapshot that binds, where supported:
+- normalized URL
+- host/origin
+- fetch status class
+- bounded content length
+- content-window hash/digest
+- aggregate source-set digest
+
+Do not include inherently non-reproducible per-validator local timestamps in the consensus-critical digest.
+
+======================================================================
+TEMPORAL JUDGMENT
+======================================================================
+
+VOWMARK judges whether a promise was fulfilled BY THE MATURITY DEADLINE.
+
+A page existing at review time is not automatically proof that the obligation was completed in time.
+
+Validators should prefer durable time-bearing evidence such as:
+- commit/tag/release metadata
+- on-chain block/transaction state
+- dated public report metadata
+- other source-backed timestamps
+
+If timing cannot be reliably established, return INCONCLUSIVE.
+
+A source outage is not automatically BREACHED.
+
+BREACHED requires accessible evidence that materially establishes non-fulfillment, lateness, contradiction or another clear failure under the frozen verification rule.
+
+======================================================================
+CONSENSUS-CRITICAL JUDGMENT
+======================================================================
+
+Keep model output small and machine-checkable.
+
+The consensus-critical result must include at minimum:
+- stable commitment/review binding
+- evidence snapshot/source-set digest or equivalent material binding
+- verdict enum: FULFILLED | BREACHED | INCONCLUSIVE
+
+A concise explanation/source assessment may be stored for UX/provenance, but free-form wording must not be the primary field that consensus depends on.
+
+Reject malformed/unknown outputs.
+Never default malformed output to FULFILLED or BREACHED.
+
+If leader/validators cannot reproduce materially compatible evidence/result, allow protocol consensus to fail rather than fabricating certainty.
+
+Protocol UNDETERMINED is NOT the same as product INCONCLUSIVE.
+
+======================================================================
+PRODUCT OUTCOMES
+======================================================================
+
+FULFILLED
+- evidence materially establishes the commitment was satisfied by maturity
+- conclusive
+- no further review
+- bond resolves to issuer
+- permanent issuer record increments fulfilled
+
+BREACHED
+- evidence materially establishes the commitment was not satisfied by maturity
+- conclusive
+- no further review
+- bond resolves to immutable remedy address
+- permanent issuer record increments breached
+
+INCONCLUSIVE
+- evidence cannot reliably support either conclusive outcome
+- nonterminal before final review deadline
+- bond remains locked
+- attempt is append-only
+- retry allowed only after cooldown and while within review window
+- permanent history preserves the attempt
+
+EXPIRED_UNRESOLVED
+- no conclusive verdict by final review deadline
+- terminal
+- bond resolves back to issuer under V1 policy
+- permanent issuer record increments unresolved
+- UI must not describe this as success
+
+======================================================================
+REVIEW / RETRY / REPLAY RULES
+======================================================================
+
+Any wallet may trigger review after maturity and before the final review deadline.
+
+The issuer does not get exclusive review control.
+The remedy address does not get exclusive review control.
+
+Enforce:
+- no review before maturity
+- no review after conclusive result
+- no review after terminal expiry
+- nonzero retry cooldown
+- bounded attempt history if required for storage safety
+- append-only attempt records
+- exact duplicate/same snapshot must not create unbounded duplicate state
+- terminal settlement is idempotent
+- repeated clicks do not double-resolve the bond
+
+If a transaction is submitted and the browser refreshes, recover from the known hash and canonical readback. Never blindly resubmit because a poll timed out.
+
+======================================================================
+ACCOUNTING INVARIANTS
+======================================================================
+
+The contract layer must prove:
+- a commitment locks exactly one declared bond
+- bond amount is immutable
+- model never chooses amount
+- model never chooses recipient
+- issuer/remedy recipient fixed at issuance
+- one bond resolves once
+- INCONCLUSIVE moves no value
+- locked + credited accounting never exceeds custody balance
+- multiple commitments do not leak value into each other
+- withdrawal cannot exceed caller credit
+- withdrawal debits before external send
+- double withdrawal impossible
+- failed send does not silently burn accounting value
+
+If a separate Vault is used, duplicate finalized settlement messages must be rejected/idempotent.
+
+======================================================================
+DO NOT CONFUSE PRODUCT RESULT WITH GENLAYER TRANSACTION STATUS
+======================================================================
+
+VOWMARK product results:
+- FULFILLED
+- BREACHED
+- INCONCLUSIVE
+- EXPIRED_UNRESOLVED
+
+GenLayer transaction/consensus lifecycle can include states such as:
+- submitted/pending
+- ACCEPTED
+- FINALIZED
+- UNDETERMINED
+- execution/runtime failure
+
+These namespaces are different.
+
+If a review transaction reaches GenLayer ACCEPTED:
+- show it as PROVISIONAL
+- do not show final fulfilled/breached settlement yet
+- preserve exact hash
+- continue finality/execution tracking
+
+If protocol consensus becomes UNDETERMINED:
+- do not write or display a fake VOWMARK INCONCLUSIVE result
+- show that no protocol consensus was reached
+- reread canonical contract state
+
+If ACCEPTED later exposes an execution error or fails finality requirements:
+- do not show success
+- surface the actual state
+- reread contract state
+
+======================================================================
+FRONTEND DIRECTION
+======================================================================
+
+Build with Next.js App Router + TypeScript.
+Use ordinary injected EIP-1193 wallets such as MetaMask/Rabby.
+Do not add WalletConnect or private keys unless explicitly required later; V1 default is injected wallets only.
+
+Required routes:
+- /
+- /issue
+- /commitment/[id]
+- /issuer/[address]
+- /activity
+
+Do not add a generic dashboard/sidebar/control-room pattern.
+
+Visual/product direction:
+- public accountability register
+- off-white/paper-like base
+- deep graphite text
+- ultramarine primary accent
+- amber provisional states
+- restrained fulfilled/breached colors paired with text/icons
+- editorial promise typography
+- clean data typography for metadata
+- ledger rows, thin rules, evidence receipts
+- generous whitespace
+- no neon
+- no glassmorphism
+- no blueprint grid
+- no protocol terminal
+- no copied reference UI
+
+Home `/` — Maturity Board
+- commitments grouped by useful state such as Due soon, Ready for review, Awaiting finality, Recently resolved
+- promise is the dominant content, not transaction metadata
+- clear issuer, maturity, bond, remedy and status
+- no fake analytics
+
+Issue `/issue`
+- commitment statement
+- verification rule
+- maturity
+- final review deadline
+- remedy address
+- bond
+- 1–5 evidence anchors
+- source kind + purpose label
+- source quality guidance
+- payload summary before signature
+- explicit immutability warning
+
+Commitment `/commitment/[id]`
+- promise
+- issuer
+- maturity/final deadline
+- bond/remedy
+- verification rule
+- frozen evidence anchors
+- lifecycle timeline
+- append-only review attempts
+- latest verdict
+- source snapshot/provenance where safe/available
+- GenLayer transaction/finality rail
+- settlement/credit/withdrawal state
+- state-appropriate action
+
+Issuer `/issuer/[address]`
+- public chronological record
+- active/reviewable
+- fulfilled
+- breached
+- expired unresolved
+- counts only; no opaque score
+
+Activity `/activity`
+- local submitted hash recovery
+- reconcile live transaction status
+- link to canonical commitment
+- localStorage never determines product state
+
+Frontend must support:
+- connect
+- disconnect/in-app disconnected state
+- account change
+- chain change
+- wrong-network detection
+- switch/add Studionet 61999 guidance
+- form validation
+- wallet signature rejection
+- transaction submission errors
+- exact transaction hash immediately after submission
+- consensus progression
+- ACCEPTED shown provisional
+- FINALIZED shown separately
+- protocol UNDETERMINED shown separately
+- execution failure
+- canonical readback
+- explorer links
+- refresh recovery
+- no blind rebroadcast
+- responsive phone/tablet/desktop layouts
+- keyboard access, labels, focus states, readable error text and semantic headings
+
+======================================================================
+PHASE 1 — READ EVERYTHING BEFORE IMPLEMENTING
+======================================================================
+
+Read in this order:
+1. README.md
+2. PRODUCT_SPEC.md
+3. ARCHITECTURE.md
+4. docs/EVIDENCE_MODEL.md
+5. docs/STATE_MACHINE.md
+6. docs/SECURITY.md
+7. docs/ORIGINALITY.md
+8. docs/UX_DIRECTION.md
+9. docs/TEST_PLAN.md
+10. docs/DEPLOYMENT.md
+11. HANDOFF_STATUS.md
+12. scripts/release_check.py
+
+Write a short internal implementation gap list before modifying anything.
+Do not redesign the product because of personal taste.
+
+======================================================================
+PHASE 2 — INITIALIZE THE REAL REPOSITORY / TOOLCHAIN
+======================================================================
+
+Create the real implementation structure inside this handoff.
+
+Use:
+- Next.js App Router
+- TypeScript
+- repository-local GenLayer CLI 0.39.1
+- current pinned-compatible GenLayer JS/client tooling
+- Python dependencies required by the pinned Intelligent Contract/Direct Mode toolchain
+
+Generate lockfiles.
+Do not use a global GenLayer CLI.
+
+Run:
+- npx genlayer --version
+- python compile/lint commands required by the pinned GenLayer toolchain
+- contract schema generation/checks
+- frontend typecheck/lint/build
+
+If current official docs reveal an incompatibility with the handoff’s suggested implementation shape, preserve semantics and make the smallest compatible correction.
+
+======================================================================
+PHASE 3 — IMPLEMENT THE CONTRACT LAYER
+======================================================================
+
+Implement the final smallest-correct architecture.
+
+At minimum support:
+- create commitment with payable bond
+- frozen issuer
+- frozen remedy address
+- frozen commitment text
+- frozen verification rule
+- frozen maturity + final review deadline
+- frozen evidence anchors
+- global/issuer indexes
+- maturity/review legality
+- anyone-can-review rule
+- independent validator web retrieval
+- evidence snapshot binding
+- strict FULFILLED/BREACHED/INCONCLUSIVE output parsing
+- append-only review history
+- retry cooldown
+- duplicate/replay handling
+- conclusive terminal result
+- expiry to EXPIRED_UNRESOLVED
+- correct economic resolution
+- credits/withdrawals
+- public views needed by every frontend route
+
+If one-contract provisional economic safety is not provable, implement the minimal finalized-only Vault boundary.
+
+No privileged admin method may change terminal truth or money destination.
+
+======================================================================
+PHASE 4 — IMPLEMENT THE FRONTEND
+======================================================================
+
+Build every required route and remove every placeholder.
+
+Do not simulate:
+- wallets
+- chain ID
+- commitments
+- evidence
+- review attempts
+- verdicts
+- transaction hashes
+- consensus status
+- finality
+- credits
+- withdrawals
+- issuer history
+
+All displayed canonical data must come from the contract(s).
+
+Make the first screen useful even without a wallet: public Maturity Board reads should work unauthenticated if RPC access permits.
+
+Preserve the original VOWMARK information architecture and visual direction. Do not import/copy frontend code from the reference repository.
+
+======================================================================
+PHASE 5 — DIRECT MODE / CONTRACT TESTING
+======================================================================
+
+Implement the matrix in docs/TEST_PLAN.md.
+
+Do not optimize for a high test count. Optimize for trust-boundary coverage.
+
+Required areas:
+- creation bounds
+- immutability
+- authorization
+- maturity/deadline transitions
+- evidence URL safety
+- unavailable evidence
+- stale evidence
+- contradiction
+- prompt injection
+- validator disagreement
+- malformed model output
+- temporal reasoning
+- replay/duplicate reviews
+- retry cooldown
+- expiry
+- outcome settlement
+- multiple-commitment accounting isolation
+- withdrawal safety
+- finality boundary
+- if Vault exists, registry-only authorization and duplicate finalized-message protection
+
+Add tests when audit discovers a new failure mode. Do not delete hard tests to get green.
+
+======================================================================
+PHASE 6 — FRONTEND / WALLET / TX TESTING
+======================================================================
+
+Verify in a real browser:
+- MetaMask/injected connect
+- Rabby/injected connect where available
+- disconnect state
+- account change
+- chain change
+- wrong network
+- switch/add Studionet
+- issue form
+- signature rejection
+- submitted hash capture
+- pending/consensus UI
+- accepted provisional UI
+- finalization UI
+- protocol undetermined UI
+- execution error UI
+- canonical readback
+- review request
+- inconclusive retry
+- expiry where applicable
+- settlement/credit
+- withdrawal
+- refresh mid-transaction
+- close tab + return using saved hash
+- fresh browser direct commitment URL
+- fresh browser issuer history
+- responsive layouts
+- accessibility basics
+
+The frontend must never report success solely from a locally optimistic state.
+
+======================================================================
+PHASE 7 — DEPLOY TO STUDIONET 61999
+======================================================================
+
+Before any deployment:
+- run repository-local CLI version check
+- run release guard
+- run contract compile/lint/tests
+- run frontend typecheck/lint/tests/build
+- verify chain ID 61999
+
+Deploy the final contract architecture.
+
+Every canonical deployment/configuration transaction must be verified to the final state required by the current Studionet runtime. Do not record merely ACCEPTED deployment state as final evidence.
+
+After deployment, reread contract configuration and store a real deployment manifest containing:
+- network
+- chain ID
+- registry address
+- vault address only if used
+- deployment transaction hashes
+- immutable cross-contract configuration if used
+- source commit SHA
+
+Verify explorer pages independently.
+
+======================================================================
+PHASE 8 — DEPLOY FRONTEND
+======================================================================
+
+Deploy the final Next.js frontend to Vercel or an equivalent static-capable host without introducing an application backend.
+
+Configure production environment for:
+- chain 61999
+- https://studio.genlayer.com/api
+- https://explorer-studio.genlayer.com
+- real final contract address(es)
+
+Production must build from the final documented source commit.
+Do not leave stale addresses or alternate network settings.
+
+======================================================================
+PHASE 9 — LIVE END-TO-END PROOFS
+======================================================================
+
+Use non-sensitive synthetic public commitments designed specifically for verification.
+
+Complete at least these live paths where technically practical:
+
+A. FULFILLED PATH
+1. Wallet A issues a commitment with real bond, maturity, review window and frozen public evidence anchors.
+2. Verify issuance transaction final state and canonical readback.
+3. After maturity, Wallet B (or another wallet) requests review.
+4. Capture the review transaction hash immediately.
+5. Show ACCEPTED only as provisional if that state occurs.
+6. Verify final review state and canonical FULFILLED result.
+7. Prove economic resolution follows only the correct finality boundary.
+8. Verify issuer credit.
+9. Withdraw a small amount/credit as designed.
+10. Verify double withdrawal fails and accounting returns to expected values.
+11. Open the commitment in a fresh browser with no prior localStorage and verify chain-backed rendering.
+
+B. INCONCLUSIVE / RECOVERY PATH
+1. Issue a commitment whose admissible source is deliberately ambiguous/unavailable in a safe way.
+2. Review it.
+3. Verify it does NOT become BREACHED merely because source retrieval is unavailable/insufficient.
+4. Verify bond remains locked.
+5. Verify retry/cooldown behavior.
+6. If practical, change the public source in a legitimate way so a later snapshot differs and review can progress; otherwise document the unresolved path accurately.
+
+C. BREACHED PATH
+Use a synthetic commitment whose accessible public evidence clearly establishes that the promised event missed the maturity condition.
+1. Review after maturity.
+2. Verify BREACHED.
+3. Verify remedy address, not reviewer/issuer, receives the fixed bond credit.
+4. Verify withdrawal and no duplicate settlement.
+
+D. EXPIRED_UNRESOLVED PATH
+Where practical, allow one commitment to pass its final review deadline without a conclusive verdict.
+1. Expire it.
+2. Verify EXPIRED_UNRESOLVED remains visible.
+3. Verify bond returns to issuer under V1 semantics.
+4. Verify UI never labels it fulfilled.
+
+If a live timing constraint makes one path impractical within the current session, do not fabricate it. Complete every possible path and explicitly mark the missing proof as a submission blocker until real evidence exists.
+
+======================================================================
+PHASE 10 — RELEASE EVIDENCE FOR REVIEWERS
+======================================================================
+
+Update README/release docs with only verified facts:
+- final commit SHA
+- exact contract architecture
+- contract address(es)
+- deployment transaction link(s)
+- production URL
+- canonical fulfilled commitment ID
+- fulfilled review transaction
+- fulfilled withdrawal transaction if applicable
+- canonical inconclusive commitment/review
+- canonical breached commitment/review where completed
+- expired unresolved proof where completed
+- exact Direct Mode test result
+- frontend test/build result
+- CI run link
+- known limitations
+
+Make source -> deployment -> frontend -> live transaction relationships easy to audit.
+
+======================================================================
+PHASE 11 — FINAL HOSTILE AUDIT
+======================================================================
+
+Before calling VOWMARK submission-ready, try to reject it.
+
+Ask:
+- Can issuer edit the promise after issuing it?
+- Can issuer change remedy address after seeing risk?
+- Can issuer set its own verdict?
+- Can an admin override outcome?
+- Can unavailable evidence punish the issuer as BREACHED?
+- Can a mutable page edited later masquerade as timely proof?
+- Can validators be prompt-injected by source content?
+- Can a reviewer feed arbitrary evidence that was not frozen?
+- Can model output choose money amount/recipient?
+- Can the same bond settle twice?
+- Can credits exceed custody?
+- Can another commitment consume this commitment’s funds?
+- Can identical inconclusive snapshots spam history forever?
+- Can review occur before maturity?
+- Can review occur after a conclusive result?
+- Can expiry happen early?
+- Can protocol UNDETERMINED become product INCONCLUSIVE by mistake?
+- Can ACCEPTED/provisional judgment unlock irreversible value before finality?
+- Can the UI call something final before canonical readback?
+- Can refresh cause duplicate transaction submission?
+- Can a public commitment disappear because it depended on localStorage?
+- Is any hidden backend deciding evidence, outcomes or state?
+- Does the UI, vocabulary or lifecycle resemble the reference repo more than VOWMARK’s own public-commitment identity?
+- Are there any 61997/Studio-dev strings in runtime configuration?
+- Do docs claim any test/deployment/finality proof that was not observed?
+
+Fix every material issue, rerun all tests/builds/guards, then repeat the audit.
+
+======================================================================
+SUBMISSION-READY BAR
+======================================================================
+
+Do not call the project submission-ready unless all three dimensions are defensible:
+
+GENLAYER FIT
+- validator judgment is indispensable, bounded and economically consequential
+- independent evidence retrieval is real
+- no trusted operator can secretly decide outcomes
+
+CONTRACT QUALITY
+- lifecycle legality, evidence bounds, uncertainty, replay, accounting, authorization and terminality are correct
+- provisional finality cannot be exploited economically
+- no admin backdoor
+
+ENGINEERING
+- real Studionet deployment
+- real browser/wallet integration
+- honest tx lifecycle UX
+- robust Direct Mode/adversarial tests
+- refresh/recovery
+- verified explorer evidence
+- production frontend from final source
+- accurate documentation
+
+======================================================================
+DELIVERABLE BACK TO OWNER
+======================================================================
+
+Return one compact release report containing:
+- submission-ready YES/NO
+- final commit SHA
+- exact contract architecture used and why
+- exact test/lint/typecheck/build results
+- Studionet 61999 contract address(es)
+- deployment/configuration explorer links
+- production frontend URL
+- canonical commitment IDs for live proof paths
+- canonical transaction hashes
+- fulfilled/breached/inconclusive/expired proof status
+- withdrawal proof
+- any remaining limitation, even if small
+
+Never claim a test, deployment, finalization, verdict, withdrawal, frontend write or explorer proof that you did not actually verify.

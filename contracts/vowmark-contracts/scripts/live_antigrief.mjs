@@ -137,6 +137,17 @@ const evidence = {
   issuer: issuer.account.address,
   reviewerA: reviewerA.account.address,
   reviewerB: reviewerB.account.address,
+  proof: {
+    statement: createArgs[0],
+    rule: createArgs[1],
+    url: ANTI_GRIEF_URL,
+    sourceKind: "VERSIONED_SOURCE",
+    purpose: "mutable public snapshot control",
+  },
+  fixtureCommits: {
+    beforeReviewerA: process.env.VOWMARK_ANTIGRIEF_BEFORE_COMMIT || null,
+    beforeReviewerB: process.env.VOWMARK_ANTIGRIEF_AFTER_COMMIT || null,
+  },
   commitmentId,
   idResolution,
   createTx: create?.hash || null,

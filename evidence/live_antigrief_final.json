@@ -1,0 +1,82 @@
+{
+  "generatedAt": "2026-10-07T23:01:17.888Z",
+  "network": "GenLayer Studionet",
+  "chainId": 61999,
+  "registry": "0x76DE9332010D5F03660Fa2216cb5cc76585dFFE8",
+  "vault": "0x536B5E36d52aC1EFA72d00fFa63B932EfBf42841",
+  "issuer": "0x794678AD7e8B6c87dAb33303a3A512c821e6De9A",
+  "reviewerA": "0x7eB2a4B4e913Df62eAe807eF60509B3B7284C7FA",
+  "reviewerB": "0xf883bCE8FcB120F714B147446342D7E4545Bc988",
+  "proof": {
+    "statement": "The anti-griefing control must remain inconclusive while two wallets submit changed public snapshots.",
+    "rule": "The commitment remains OPEN and INCONCLUSIVE; the test passes only if reviewer B can submit after reviewer A without waiting for the per-reviewer cooldown.",
+    "url": "https://raw.githubusercontent.com/Bibidee/vowmark/main/evidence/anti-grief-live.txt",
+    "sourceKind": "VERSIONED_SOURCE",
+    "purpose": "mutable public snapshot control"
+  },
+  "fixtureCommits": {
+    "beforeReviewerA": "d1d52ad",
+    "beforeReviewerB": "eeeb32d"
+  },
+  "commitmentId": "5",
+  "idResolution": "post_submit_next_id_readback",
+  "createTx": "0x881eb2dbb99a6a656b23b46c0e025088a97a638291e4f50cf32f37b476e2cce7",
+  "reviewATx": "0x2c786fe9d6c9e92c10143ca8806ff63a5c092b73adb73ad47b7cb36baf8c8fcf",
+  "reviewBTx": "0xc7f311f99b313e9639bb8299121acd6668929b72b651550351f38f82cf416711",
+  "maturity": "1791413778",
+  "deadline": "1791420978",
+  "issuance": {
+    "bond": "100000000000000",
+    "commitment_id": "5",
+    "created_at": "1791413690",
+    "final_review_deadline": "1791420978",
+    "issuer": "0x794678ad7e8b6c87dab33303a3a512c821e6de9a",
+    "maturity_at": "1791413778",
+    "registered": true,
+    "remedy": "0xf883bce8fcb120f714b147446342d7e4545bc988",
+    "settlement_recipient": "0x0000000000000000000000000000000000000000",
+    "settlement_state": "LOCKED",
+    "statement": "The anti-griefing control must remain inconclusive while two wallets submit changed public snapshots.",
+    "verification_rule": "The commitment remains OPEN and INCONCLUSIVE; the test passes only if reviewer B can submit after reviewer A without waiting for the per-reviewer cooldown."
+  },
+  "commitment": {
+    "attempt_count": "2",
+    "bond": "100000000000000",
+    "commitment_id": "5",
+    "created_at": "1791413690",
+    "final_review_deadline": "1791420978",
+    "issuer": "0x794678ad7e8b6c87dab33303a3a512c821e6de9a",
+    "last_attempt_at": "1791414028",
+    "last_settlement_at": "0",
+    "latest_snapshot_digest": "aca7a7635f98b206d4143e307329d54fa06387e356f43b83375008fbd7ee10a6",
+    "latest_source_set_digest": "410a4d4b36f36ce08cf00899ad9bb261be8f54961f0e6b0a2f86ccf83e1cf9c0",
+    "latest_verdict": "INCONCLUSIVE",
+    "maturity_at": "1791413778",
+    "outcome": "OPEN",
+    "remedy": "0xf883bce8fcb120f714b147446342d7e4545bc988",
+    "resolved_at": "0",
+    "settlement_attempts": "0",
+    "settlement_recipient": "0x0000000000000000000000000000000000000000",
+    "settlement_state": "LOCKED",
+    "statement": "The anti-griefing control must remain inconclusive while two wallets submit changed public snapshots.",
+    "verification_rule": "The commitment remains OPEN and INCONCLUSIVE; the test passes only if reviewer B can submit after reviewer A without waiting for the per-reviewer cooldown."
+  },
+  "reviews": [
+    {
+      "attempt_id": "0",
+      "requested_at": "1791413781",
+      "requested_by": "0x7eb2a4b4e913df62eae807ef60509b3b7284c7fa",
+      "snapshot_digest": "24aba1262502c36b5c77e02fdafef60414712e443b111f4e46d647b4d7c86c14",
+      "source_set_digest": "ed0d56b1be17c77b205792777e8e0ef543e797107b1394372bf6234ea600a99e",
+      "verdict": "INCONCLUSIVE"
+    },
+    {
+      "attempt_id": "1",
+      "requested_at": "1791414028",
+      "requested_by": "0xf883bce8fcb120f714b147446342d7e4545bc988",
+      "snapshot_digest": "aca7a7635f98b206d4143e307329d54fa06387e356f43b83375008fbd7ee10a6",
+      "source_set_digest": "410a4d4b36f36ce08cf00899ad9bb261be8f54961f0e6b0a2f86ccf83e1cf9c0",
+      "verdict": "INCONCLUSIVE"
+    }
+  ]
+}

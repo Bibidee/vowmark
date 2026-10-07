@@ -1,0 +1,78 @@
+{
+  "generatedAt": "2026-10-07T22:38:20.893Z",
+  "network": "GenLayer Studionet",
+  "chainId": 61999,
+  "registry": "0x76DE9332010D5F03660Fa2216cb5cc76585dFFE8",
+  "vault": "0x536B5E36d52aC1EFA72d00fFa63B932EfBf42841",
+  "account": "0x794678AD7e8B6c87dAb33303a3A512c821e6De9A",
+  "bond": "100000000000000",
+  "deployment": {
+    "registryTx": "0x67519eb9233c69b533b8cdfd66e61d7007429731b0faae05cedfd737d4bde536",
+    "vaultTx": "0xbf94fb658101a257ce8cee2f855e15100044436200492acb5f1b872d789be15b",
+    "wiringTx": "0xe9c028be839b887bdf36e4572599d2cf98fd8b030fb2f45f79cd4795abbd819d"
+  },
+  "results": [
+    {
+      "label": "inconclusive",
+      "proof": {
+        "label": "inconclusive",
+        "statement": "The commitment was fulfilled by maturity with a reliable time-bearing public proof.",
+        "rule": "The frozen page must contain an unambiguous, time-bearing signal proving fulfillment by the recorded maturity timestamp.",
+        "url": "https://vowmark-unavailable-proof.invalid/",
+        "sourceKind": "PUBLICATION",
+        "purpose": "unavailable evidence control"
+      },
+      "commitmentId": "2",
+      "maturity": "1791412654",
+      "deadline": "1791419854",
+      "createTx": "0x05e547ba176e14122ee873e29b1c58d1b6d98ff832e1314b347a58180d2a5241",
+      "reviewTx": "0xcbaa09268f3ae8316dca3ea5cf5724191e68b2e251026232552147523f8b8d9c",
+      "commitment": {
+        "attempt_count": "1",
+        "bond": "100000000000000",
+        "commitment_id": "2",
+        "created_at": "1791412566",
+        "final_review_deadline": "1791419854",
+        "issuer": "0x794678ad7e8b6c87dab33303a3a512c821e6de9a",
+        "last_attempt_at": "1791412657",
+        "last_settlement_at": "0",
+        "latest_snapshot_digest": "2864f9bd931f05860b5649d2ecbb95cddc34a1975c284a4d50c0d4a02877092f",
+        "latest_source_set_digest": "4589d5967235ef7919777eb518d5c828c90a3f5897b56523bf9a1e78762f2881",
+        "latest_verdict": "INCONCLUSIVE",
+        "maturity_at": "1791412654",
+        "outcome": "OPEN",
+        "remedy": "0xf883bce8fcb120f714b147446342d7e4545bc988",
+        "resolved_at": "0",
+        "settlement_attempts": "0",
+        "settlement_recipient": "0x0000000000000000000000000000000000000000",
+        "settlement_state": "LOCKED",
+        "statement": "The commitment was fulfilled by maturity with a reliable time-bearing public proof.",
+        "verification_rule": "The frozen page must contain an unambiguous, time-bearing signal proving fulfillment by the recorded maturity timestamp."
+      },
+      "reviews": [
+        {
+          "attempt_id": "0",
+          "requested_at": "1791412657",
+          "requested_by": "0x794678ad7e8b6c87dab33303a3a512c821e6de9a",
+          "snapshot_digest": "2864f9bd931f05860b5649d2ecbb95cddc34a1975c284a4d50c0d4a02877092f",
+          "source_set_digest": "4589d5967235ef7919777eb518d5c828c90a3f5897b56523bf9a1e78762f2881",
+          "verdict": "INCONCLUSIVE"
+        }
+      ],
+      "issuance": {
+        "bond": "100000000000000",
+        "commitment_id": "2",
+        "created_at": "1791412566",
+        "final_review_deadline": "1791419854",
+        "issuer": "0x794678ad7e8b6c87dab33303a3a512c821e6de9a",
+        "maturity_at": "1791412654",
+        "registered": true,
+        "remedy": "0xf883bce8fcb120f714b147446342d7e4545bc988",
+        "settlement_recipient": "0x0000000000000000000000000000000000000000",
+        "settlement_state": "LOCKED",
+        "statement": "The commitment was fulfilled by maturity with a reliable time-bearing public proof.",
+        "verification_rule": "The frozen page must contain an unambiguous, time-bearing signal proving fulfillment by the recorded maturity timestamp."
+      }
+    }
+  ]
+}

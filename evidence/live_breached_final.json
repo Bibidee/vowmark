@@ -1,0 +1,85 @@
+{
+  "generatedAt": "2026-10-07T22:35:49.483Z",
+  "network": "GenLayer Studionet",
+  "chainId": 61999,
+  "registry": "0x76DE9332010D5F03660Fa2216cb5cc76585dFFE8",
+  "vault": "0x536B5E36d52aC1EFA72d00fFa63B932EfBf42841",
+  "account": "0x794678AD7e8B6c87dAb33303a3A512c821e6De9A",
+  "bond": "100000000000000",
+  "deployment": {
+    "registryTx": "0x67519eb9233c69b533b8cdfd66e61d7007429731b0faae05cedfd737d4bde536",
+    "vaultTx": "0xbf94fb658101a257ce8cee2f855e15100044436200492acb5f1b872d789be15b",
+    "wiringTx": "0xe9c028be839b887bdf36e4572599d2cf98fd8b030fb2f45f79cd4795abbd819d"
+  },
+  "results": [
+    {
+      "label": "breached-candidate",
+      "proof": {
+        "label": "breached-candidate",
+        "statement": "The public evidence page contains the exact phrase VOWMARK-DOES-NOT-EXIST by maturity.",
+        "rule": "FULFILLED requires the exact phrase VOWMARK-DOES-NOT-EXIST to appear in the frozen page content; its absence is direct evidence of breach.",
+        "url": "https://example.com/",
+        "sourceKind": "PUBLICATION",
+        "purpose": "negative control page"
+      },
+      "commitmentId": "1",
+      "maturity": "1791412457",
+      "deadline": "1791419657",
+      "createTx": "0x2223d6116d3dcebba73e1f4e802fc10b26a55bc31abce394074f664378af418d",
+      "reviewTx": "0x1a076522852e147ff557c255634fa8d12b7bf22bda305091310f1b0d990fd03e",
+      "reconcileTx": "0x0c0760686866e68a6bf191237f3e1d7a5b0893eba07a5a164d0c36d9a1df5ab3",
+      "commitment": {
+        "attempt_count": "1",
+        "bond": "100000000000000",
+        "commitment_id": "1",
+        "created_at": "1791412369",
+        "final_review_deadline": "1791419657",
+        "issuer": "0x794678ad7e8b6c87dab33303a3a512c821e6de9a",
+        "last_attempt_at": "1791412461",
+        "last_settlement_at": "1791412461",
+        "latest_snapshot_digest": "fdfcc99fdddff5581a7dba41f92fa1af827ca552efb173c38b5b9a316a54f71d",
+        "latest_source_set_digest": "f31bda61a90d96648c31ac416fde70e873a7d78c1c06887e9c1de72c7761a839",
+        "latest_verdict": "BREACHED",
+        "maturity_at": "1791412457",
+        "outcome": "BREACHED",
+        "remedy": "0xf883bce8fcb120f714b147446342d7e4545bc988",
+        "resolved_at": "1791412461",
+        "settlement_attempts": "1",
+        "settlement_recipient": "0xf883bce8fcb120f714b147446342d7e4545bc988",
+        "settlement_state": "CREDIT_CONFIRMED",
+        "statement": "The public evidence page contains the exact phrase VOWMARK-DOES-NOT-EXIST by maturity.",
+        "verification_rule": "FULFILLED requires the exact phrase VOWMARK-DOES-NOT-EXIST to appear in the frozen page content; its absence is direct evidence of breach."
+      },
+      "reviews": [
+        {
+          "attempt_id": "0",
+          "requested_at": "1791412461",
+          "requested_by": "0x794678ad7e8b6c87dab33303a3a512c821e6de9a",
+          "snapshot_digest": "fdfcc99fdddff5581a7dba41f92fa1af827ca552efb173c38b5b9a316a54f71d",
+          "source_set_digest": "f31bda61a90d96648c31ac416fde70e873a7d78c1c06887e9c1de72c7761a839",
+          "verdict": "BREACHED"
+        }
+      ],
+      "issuance": {
+        "bond": "100000000000000",
+        "commitment_id": "1",
+        "created_at": "1791412369",
+        "final_review_deadline": "1791419657",
+        "issuer": "0x794678ad7e8b6c87dab33303a3a512c821e6de9a",
+        "maturity_at": "1791412457",
+        "registered": true,
+        "remedy": "0xf883bce8fcb120f714b147446342d7e4545bc988",
+        "settlement_recipient": "0x0000000000000000000000000000000000000000",
+        "settlement_state": "LOCKED",
+        "statement": "The public evidence page contains the exact phrase VOWMARK-DOES-NOT-EXIST by maturity.",
+        "verification_rule": "FULFILLED requires the exact phrase VOWMARK-DOES-NOT-EXIST to appear in the frozen page content; its absence is direct evidence of breach."
+      },
+      "vaultSettlement": {
+        "amount": "100000000000000",
+        "recipient": "0xf883bce8fcb120f714b147446342d7e4545bc988",
+        "settled": true,
+        "state": "CREDIT_CONFIRMED"
+      }
+    }
+  ]
+}

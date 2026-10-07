@@ -83,9 +83,9 @@ The frontend should feel like a public accountability register, not a deal dashb
 
 VOWMARK V1 is deployed on GenLayer Studionet 61999 and the production frontend is [the-vowmark.vercel.app](https://the-vowmark.vercel.app).
 
-- Registry: `0xbE235FC7CFb88dd5e0627b5916d8A916dF8680d5`
-- Vault: `0x8AEBe9d98cDbB6460752d002C98D5E5745CA6533`
-- Finalized wiring: `0x43c25bec13059da6839eb677e0af44aa2fcadd76856e5b7771a028eb65773ba3`
+- Registry: `0x76DE9332010D5F03660Fa2216cb5cc76585dFFE8`
+- Vault: `0x536B5E36d52aC1EFA72d00fFa63B932EfBf42841`
+- Finalized wiring: `0xe9c028be839b887bdf36e4572599d2cf98fd8b030fb2f45f79cd4795abbd819d`
 - Explorer: <https://explorer-studio.genlayer.com>
 
-The complete deployment, configuration readback, lifecycle proof matrix and withdrawal proof are recorded in [`HANDOFF_STATUS.md`](HANDOFF_STATUS.md).
+The complete deployment, configuration readback, lifecycle proof matrix and withdrawal proof are recorded in [`HANDOFF_STATUS.md`](HANDOFF_STATUS.md) and [`evidence/FINAL_PROOF_MATRIX.md`](evidence/FINAL_PROOF_MATRIX.md).

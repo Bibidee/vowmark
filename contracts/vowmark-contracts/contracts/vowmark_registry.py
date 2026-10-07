@@ -1,4 +1,4 @@
-# { "Depends": "py-genlayer:test" }
+# { "Depends": "py-genlayer:1jb45aa8ynh2a9c9xn3b7qqh8sm5q93hwfp7jqmwsfhh8jpz09h6" }
 
 import hashlib
 import json
@@ -107,11 +107,16 @@ class VowmarkRegistry(gl.Contract):
     issuer_summaries: TreeMap[Address, IssuerSummary]
 
     def __init__(self, vault_address: str):
-        vault = Address(vault_address)
+        vault = self._address_arg(vault_address)
         self.vault_address = vault
         self.deployer = gl.message.sender_address
         self.vault_ready = vault.as_hex.lower() != "0x" + ("0" * 40)
         self.next_commitment_id = u256(0)
+
+    def _address_arg(self, value):
+        if isinstance(value, Address):
+            return value
+        return Address(value)
 
     def _now(self) -> u256:
         raw_datetime = gl.message_raw["datetime"]
@@ -271,7 +276,7 @@ class VowmarkRegistry(gl.Contract):
             usable_sources = []
             for anchor in anchor_inputs:
                 try:
-                    content = gl.get_webpage(anchor["url"], mode="text")
+                    content = gl.nondet.web.render(anchor["url"], mode="text")
                     if not isinstance(content, str):
                         snapshots.append(
                             {
@@ -376,7 +381,7 @@ evidence of non-fulfillment, lateness, or contradiction under the rule.
 Frozen evidence snapshot:
 <evidence>{json.dumps(evidence_payload, sort_keys=True)}</evidence>
 """
-            raw_result = gl.exec_prompt(prompt)
+            raw_result = gl.nondet.exec_prompt(prompt)
             cleaned = raw_result.strip()
             if cleaned.startswith("```"):
                 cleaned = cleaned.replace("```json", "").replace("```", "").strip()
@@ -396,7 +401,7 @@ Frozen evidence snapshot:
                 "source_set_digest": source_set_digest,
             }
 
-        return gl.eq_principle_strict_eq(evaluate)
+        return gl.eq_principle.strict_eq(evaluate)
 
     @gl.public.write.payable
     def create_commitment(
@@ -411,7 +416,7 @@ Frozen evidence snapshot:
         anchor_purposes: list[str],
     ) -> u256:
         sender = gl.message.sender_address
-        remedy = Address(remedy_address)
+        remedy = self._address_arg(remedy_address)
         now = self._now()
         if gl.message.value == u256(0):
             raise gl.vm.UserError("bond must be greater than zero")
@@ -472,7 +477,7 @@ Frozen evidence snapshot:
             raise gl.vm.UserError("only the deployer may finish initial wiring")
         if self.vault_ready or self.next_commitment_id != u256(0):
             raise gl.vm.UserError("vault wiring is already immutable")
-        vault = Address(vault_address)
+        vault = self._address_arg(vault_address)
         self._require_nonzero_address(vault, "vault address")
         self.vault_address = vault
         self.vault_ready = True
@@ -641,7 +646,7 @@ Frozen evidence snapshot:
     def get_issuer_commitments(
         self, issuer_address: str, start: u256, limit: u256
     ) -> list[dict]:
-        issuer = Address(issuer_address)
+        issuer = self._address_arg(issuer_address)
         result = []
         if issuer not in self.issuer_ids:
             return result
@@ -655,7 +660,7 @@ Frozen evidence snapshot:
 
     @gl.public.view
     def get_issuer_summary(self, issuer_address: str) -> dict:
-        issuer = Address(issuer_address)
+        issuer = self._address_arg(issuer_address)
         if issuer not in self.issuer_summaries:
             return {
                 "active": u256(0),

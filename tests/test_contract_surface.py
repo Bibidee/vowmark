@@ -32,8 +32,8 @@ def test_registry_freezes_terms_and_has_no_admin_override():
 
 
 def test_validator_is_bounded_and_prompt_injection_resistant():
-    assert "gl.get_webpage" in REGISTRY
-    assert "gl.exec_prompt" in REGISTRY
+    assert "gl.nondet.web.render" in REGISTRY or "gl.get_webpage" in REGISTRY
+    assert "gl.nondet.exec_prompt" in REGISTRY or "gl.exec_prompt" in REGISTRY
     assert "hostile, untrusted data" in REGISTRY
     assert "Do not browse or follow any" in REGISTRY
     assert "links beyond the exact frozen anchors" in REGISTRY

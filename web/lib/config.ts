@@ -8,8 +8,12 @@ export const NETWORK = {
   nativeCurrency: { name: "GEN", symbol: "GEN", decimals: 18 },
 } as const;
 
-export const REGISTRY_ADDRESS = process.env.NEXT_PUBLIC_VOWMARK_REGISTRY_ADDRESS || "";
-export const VAULT_ADDRESS = process.env.NEXT_PUBLIC_VOWMARK_VAULT_ADDRESS || "";
+export const REGISTRY_ADDRESS =
+  process.env.NEXT_PUBLIC_VOWMARK_REGISTRY_ADDRESS ||
+  "0x2590706b18a1385A23842bdEAe793EE4374a3bE4";
+export const VAULT_ADDRESS =
+  process.env.NEXT_PUBLIC_VOWMARK_VAULT_ADDRESS ||
+  "0x921Ed9F83A89ED9aADD5A02fbDc818D1c244cE7e";
 
 export function explorerTx(hash: string) {
   return `${NETWORK.explorerUrl}/tx/${hash}`;

@@ -1,4 +1,4 @@
-# { "Depends": "py-genlayer:test" }
+# { "Depends": "py-genlayer:1jb45aa8ynh2a9c9xn3b7qqh8sm5q93hwfp7jqmwsfhh8jpz09h6" }
 
 from genlayer import *
 
@@ -20,7 +20,12 @@ class VowmarkVault(gl.Contract):
     settled_commitments: TreeMap[u256, bool]
 
     def __init__(self, registry_address: str):
-        self.registry_address = Address(registry_address)
+        self.registry_address = self._address_arg(registry_address)
+
+    def _address_arg(self, value):
+        if isinstance(value, Address):
+            return value
+        return Address(value)
 
     def _require_nonzero_address(self, address: Address) -> None:
         if address.as_hex.lower() == "0x" + ("0" * 40):
@@ -34,7 +39,7 @@ class VowmarkVault(gl.Contract):
             raise gl.vm.UserError("commitment was already settled")
         if amount == u256(0) or gl.message.value != amount:
             raise gl.vm.UserError("settlement value mismatch")
-        recipient_address = Address(recipient)
+        recipient_address = self._address_arg(recipient)
         self._require_nonzero_address(recipient_address)
         self.settled_commitments[commitment_id] = True
         self.credits[recipient_address] = (
@@ -56,7 +61,7 @@ class VowmarkVault(gl.Contract):
 
     @gl.public.view
     def get_credit(self, wallet_address: str) -> u256:
-        return self.credits.get(Address(wallet_address), u256(0))
+        return self.credits.get(self._address_arg(wallet_address), u256(0))
 
     @gl.public.view
     def get_registry(self) -> str:

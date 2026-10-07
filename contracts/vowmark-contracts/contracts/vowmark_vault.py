@@ -204,7 +204,7 @@ class VowmarkVault(gl.Contract):
     def create_commitment(self, statement: str, verification_rule: str, maturity_at: u256, final_review_deadline: u256, remedy_address: str, anchor_urls: list[str], anchor_source_kinds: list[str], anchor_purposes: list[str]) -> u256:
         if gl.message.value == u256(0):
             raise gl.vm.UserError("bond must be greater than zero")
-        issuer = gl.message.sender_address
+        issuer = self._address_arg(gl.message.sender_address)
         remedy = self._address_arg(remedy_address)
         anchors = self._validate_terms(issuer, remedy, statement, verification_rule, maturity_at, final_review_deadline, anchor_urls, anchor_source_kinds, anchor_purposes)
         created_at = self._now()
@@ -241,7 +241,7 @@ class VowmarkVault(gl.Contract):
 
     @gl.public.write
     def confirm_registration(self, commitment_id: u256) -> None:
-        if gl.message.sender_address != self.registry_address:
+        if self._address_text(gl.message.sender_address) != self._address_text(self.registry_address):
             raise gl.vm.UserError("only the immutable registry may confirm registration")
         if commitment_id not in self.issuances:
             raise gl.vm.UserError("issuance does not exist")
@@ -249,7 +249,7 @@ class VowmarkVault(gl.Contract):
 
     @gl.public.write
     def settle(self, commitment_id: u256, outcome: str) -> None:
-        if gl.message.sender_address != self.registry_address:
+        if self._address_text(gl.message.sender_address) != self._address_text(self.registry_address):
             raise gl.vm.UserError("only the immutable registry may settle")
         if commitment_id not in self.issuances:
             raise gl.vm.UserError("issuance does not exist")
@@ -270,7 +270,7 @@ class VowmarkVault(gl.Contract):
 
     @gl.public.write
     def withdraw(self, amount: u256) -> None:
-        sender = gl.message.sender_address
+        sender = self._address_arg(gl.message.sender_address)
         if amount == u256(0):
             raise gl.vm.UserError("withdrawal amount must be greater than zero")
         current_credit = self.credits.get(sender, u256(0))

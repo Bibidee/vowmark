@@ -10,10 +10,10 @@ export const NETWORK = {
 
 export const REGISTRY_ADDRESS =
   process.env.NEXT_PUBLIC_VOWMARK_REGISTRY_ADDRESS ||
-  "0x2590706b18a1385A23842bdEAe793EE4374a3bE4";
+  "0xbE235FC7CFb88dd5e0627b5916d8A916dF8680d5";
 export const VAULT_ADDRESS =
   process.env.NEXT_PUBLIC_VOWMARK_VAULT_ADDRESS ||
-  "0x921Ed9F83A89ED9aADD5A02fbDc818D1c244cE7e";
+  "0x8AEBe9d98cDbB6460752d002C98D5E5745CA6533";
 
 export function explorerTx(hash: string) {
   return `${NETWORK.explorerUrl}/tx/${hash}`;

@@ -22,7 +22,10 @@ export type Commitment = {
   latest_source_set_digest: string;
   attempt_count: bigint;
   last_attempt_at: bigint;
-  settlement_scheduled: boolean;
+  settlement_state: "LOCKED" | "SETTLEMENT_PENDING" | "CREDIT_CONFIRMED";
+  settlement_recipient: string;
+  settlement_attempts: bigint;
+  last_settlement_at: bigint;
   resolved_at: bigint;
 };
 
@@ -53,6 +56,7 @@ export type IssuerSummary = {
 export type ActivityRecord = {
   hash: string;
   label: string;
+  kind?: "issue" | "review" | "expire" | "settlement" | "withdraw";
   commitmentId?: string;
   createdAt: string;
 };
@@ -82,7 +86,10 @@ export function normalizeCommitment(value: unknown): Commitment {
     latest_source_set_digest: String(item.latest_source_set_digest || ""),
     attempt_count: asBigInt(item.attempt_count),
     last_attempt_at: asBigInt(item.last_attempt_at),
-    settlement_scheduled: Boolean(item.settlement_scheduled),
+    settlement_state: (item.settlement_state || "LOCKED") as Commitment["settlement_state"],
+    settlement_recipient: String(item.settlement_recipient || ""),
+    settlement_attempts: asBigInt(item.settlement_attempts),
+    last_settlement_at: asBigInt(item.last_settlement_at),
     resolved_at: asBigInt(item.resolved_at),
   };
 }

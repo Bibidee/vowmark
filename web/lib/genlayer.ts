@@ -1,5 +1,5 @@
 import { createClient } from "genlayer-js";
-import type { Address, CalldataEncodable, TransactionHash } from "genlayer-js/types";
+import type { Address, CalldataEncodable, GenLayerTransaction, TransactionHash } from "genlayer-js/types";
 import { TransactionStatus } from "genlayer-js/types";
 import { NETWORK, REGISTRY_ADDRESS, VAULT_ADDRESS } from "@/lib/config";
 
@@ -86,11 +86,11 @@ export function writeClient(address: string) {
 }
 
 export async function readRegistry(functionName: string, args: unknown[] = []) {
-  return readClient().readContract({ address: requireRegistry() as Address, functionName, args: args as CalldataEncodable[] });
+  return readClient().readContract({ address: requireRegistry() as Address, functionName, args: args as CalldataEncodable[], stateStatus: TransactionStatus.FINALIZED });
 }
 
 export async function readVault(functionName: string, args: unknown[] = []) {
-  return readClient().readContract({ address: requireVault() as Address, functionName, args: args as CalldataEncodable[] });
+  return readClient().readContract({ address: requireVault() as Address, functionName, args: args as CalldataEncodable[], stateStatus: TransactionStatus.FINALIZED });
 }
 
 export async function writeRegistry(address: string, functionName: string, args: unknown[], value?: bigint) {
@@ -98,11 +98,23 @@ export async function writeRegistry(address: string, functionName: string, args:
   return client.writeContract({ address: requireRegistry() as Address, functionName, args: args as CalldataEncodable[], value: value ?? 0n });
 }
 
-export async function writeVault(address: string, functionName: string, args: unknown[]) {
+export async function writeVault(address: string, functionName: string, args: unknown[], value?: bigint) {
   const client = writeClient(address);
-  return client.writeContract({ address: requireVault() as Address, functionName, args: args as CalldataEncodable[], value: 0n });
+  return client.writeContract({ address: requireVault() as Address, functionName, args: args as CalldataEncodable[], value: value ?? 0n });
 }
 
 export async function waitForFinality(hash: string) {
-  return readClient().waitForTransactionReceipt({ hash: hash as TransactionHash, status: TransactionStatus.FINALIZED, retries: 200 });
+  const receipt = await readClient().waitForTransactionReceipt({ hash: hash as TransactionHash, status: TransactionStatus.FINALIZED, retries: 200 });
+  const rawLeaderReceipt = receipt.consensus_data?.leader_receipt as unknown;
+  const leaderReceipt = Array.isArray(rawLeaderReceipt) ? rawLeaderReceipt[0] as { execution_result?: string; error?: string | null } : rawLeaderReceipt as { execution_result?: string; error?: string | null } | undefined;
+  const executionResult = leaderReceipt?.execution_result;
+  const executionError = leaderReceipt?.error;
+  if (!leaderReceipt || executionError || typeof executionResult !== "string" || !["SUCCESS", "FINISHED_WITH_RETURN"].includes(executionResult)) {
+    throw new Error(`Finalized transaction did not execute successfully${executionError ? `: ${executionError}` : "."}`);
+  }
+  return receipt;
+}
+
+export async function getTransaction(hash: string): Promise<GenLayerTransaction | null> {
+  return readClient().getTransaction({ hash: hash as TransactionHash });
 }

@@ -1,0 +1,3 @@
+VOWMARK public fulfilled-proof fixture
+fulfillment_time=2026-10-07T18:48:00Z
+This versioned publication was created before the live commitment maturity timestamp.

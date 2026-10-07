@@ -16,8 +16,12 @@ async function waitFinal(client: GenLayerClient<any>, hash: TransactionHash) {
     status: TransactionStatus.FINALIZED,
     retries: 240,
   });
-  const executionResult = receipt.consensus_data?.leader_receipt?.execution_result;
-  if (executionResult && executionResult !== "SUCCESS" && executionResult !== "FINISHED_WITH_RETURN") {
+  const rawLeaderReceipt = receipt.consensus_data?.leader_receipt as unknown;
+  const leaderReceipt = Array.isArray(rawLeaderReceipt)
+    ? rawLeaderReceipt[0] as { execution_result?: string; error?: string | null } | undefined
+    : rawLeaderReceipt as { execution_result?: string; error?: string | null } | undefined;
+  const executionResult = leaderReceipt?.execution_result;
+  if (!leaderReceipt || leaderReceipt.error || typeof executionResult !== "string" || !["SUCCESS", "FINISHED_WITH_RETURN"].includes(executionResult)) {
     throw new Error(`Finalized transaction did not execute successfully: ${JSON.stringify(receipt)}`);
   }
   return receipt;

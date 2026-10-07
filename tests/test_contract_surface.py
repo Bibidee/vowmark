@@ -53,6 +53,8 @@ def test_vault_is_custody_boundary_and_debits_before_external_send():
     assert "only the immutable registry may settle" in VAULT
     assert "settled_commitments" in VAULT
     assert "withdrawal exceeds available credit" in VAULT
+    assert '"statement": issuance.statement' in VAULT
+    assert '"verification_rule": issuance.verification_rule' in VAULT
     debit = VAULT.index("self.credits[sender] = current_credit - amount")
     send = VAULT.index("emit_transfer(value=amount, on=\"finalized\")")
     assert debit < send

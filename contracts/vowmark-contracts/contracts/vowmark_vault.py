@@ -303,6 +303,8 @@ class VowmarkVault(gl.Contract):
             "issuer": self._address_text(issuance.issuer),
             "remedy": self._address_text(issuance.remedy),
             "bond": issuance.bond,
+            "statement": issuance.statement,
+            "verification_rule": issuance.verification_rule,
             "created_at": issuance.created_at,
             "maturity_at": issuance.maturity_at,
             "final_review_deadline": issuance.final_review_deadline,

@@ -4,9 +4,9 @@ import { createAccount, createClient } from "genlayer-js";
 import { TransactionStatus } from "genlayer-js/types";
 
 const RPC = "https://studio.genlayer.com/api";
-const REGISTRY = "0xbE235FC7CFb88dd5e0627b5916d8A916dF8680d5";
-const VAULT = "0x8AEBe9d98cDbB6460752d002C98D5E5745CA6533";
-const REMEDY = "0xf883bce8fcb120f714b147446342d7e4545bc988";
+const REGISTRY = process.env.VOWMARK_REGISTRY_ADDRESS || "0xDe9B1B4E148D8CE973f2268c177A5A4F4e6Db0b2";
+const VAULT = process.env.VOWMARK_VAULT_ADDRESS || "0x830D772E6cc3a993345020f28a83980365Be2471";
+const REMEDY = process.env.VOWMARK_REMEDY_ADDRESS || "0xf883bce8fcb120f714b147446342d7e4545bc988";
 const BOND = 100000000000000n;
 const chain = {
   id: 61999,
@@ -27,9 +27,40 @@ function plain(value) {
   return value;
 }
 function address(value) { return value; }
+function sameNumber(left, right) { return BigInt(left) === BigInt(right); }
 function successfulLeader(receipt) {
   const raw = receipt.consensus_data?.leader_receipt;
   return Array.isArray(raw) ? raw[0] : raw;
+}
+function decodeReturn(receipt) {
+  const result = successfulLeader(receipt)?.result;
+  if (result && typeof result === "object" && result.status === "return") {
+    const readable = result.payload?.readable;
+    if (typeof readable === "string" && /^-?\d+$/.test(readable.trim())) return BigInt(readable.trim());
+    const raw = result.payload?.raw;
+    if (Array.isArray(raw)) return decodeInteger(Uint8Array.from(raw));
+  }
+  if (typeof result === "string") {
+    const bytes = Uint8Array.from(atob(result), (character) => character.charCodeAt(0));
+    if (bytes[0] !== 0) return undefined;
+    return decodeInteger(bytes.slice(1));
+  }
+  return undefined;
+}
+function decodeInteger(bytes) {
+  let value = 0n;
+  let shift = 0n;
+  let index = 0;
+  while (index < bytes.length) {
+    const byte = bytes[index++];
+    value |= BigInt(byte & 0x7f) << shift;
+    if ((byte & 0x80) === 0) break;
+    shift += 7n;
+  }
+  if (index === 0 || (bytes[index - 1] & 0x80) !== 0) return undefined;
+  const type = Number(value & 0x7n);
+  const magnitude = value >> 3n;
+  return type === 1 ? magnitude : type === 2 ? -1n - magnitude : undefined;
 }
 async function final(client, hash) {
   const receipt = await client.waitForTransactionReceipt({ hash, status: TransactionStatus.FINALIZED, retries: 240, interval: 5000 });
@@ -105,14 +136,17 @@ const proofs = process.env.VOWMARK_PROOF_SET === "fulfilled-rfc" ? [allProofs[2]
 
 const results = [];
 for (const proof of proofs) {
-  const maturity = BigInt(Math.floor(Date.now() / 1000) + 20);
+  const maturity = BigInt(Math.floor(Date.now() / 1000) + 300);
   const deadline = maturity + 7200n;
-  const commitmentId = BigInt(await read(client, VAULT, "get_next_commitment_id"));
   const created = await write(client, VAULT, "create_commitment", [proof.statement, proof.rule, maturity, deadline, address(REMEDY), [proof.url], [proof.sourceKind], [proof.purpose]], BOND);
+  const commitmentId = decodeReturn(created.receipt);
+  if (commitmentId === undefined || commitmentId < 0n) throw new Error(`Issuance ${created.hash} returned no canonical commitment id`);
   const issuance = await read(client, VAULT, "get_issuance", [commitmentId]);
+  if (!sameNumber(issuance.commitment_id, commitmentId) || issuance.issuer.toLowerCase() !== account.address.toLowerCase() || issuance.remedy.toLowerCase() !== REMEDY.toLowerCase() || issuance.statement !== proof.statement || issuance.verification_rule !== proof.rule || !sameNumber(issuance.maturity_at, maturity) || !sameNumber(issuance.final_review_deadline, deadline) || !sameNumber(issuance.bond, BOND)) throw new Error(`Vault issuance ${commitmentId} did not match the submitted terms`);
   await waitFor(client, `Registry registration #${commitmentId}`, async () => {
     try { return await read(client, REGISTRY, "get_commitment", [commitmentId]); } catch { return undefined; }
   });
+  await waitFor(client, `Maturity #${commitmentId}`, async () => Math.floor(Date.now() / 1000) >= Number(maturity) ? true : undefined, 120);
   const reviewed = await write(client, REGISTRY, "review_commitment", [commitmentId]);
   const commitment = await read(client, REGISTRY, "get_commitment", [commitmentId]);
   const reviews = await read(client, REGISTRY, "get_reviews", [commitmentId]);
@@ -124,10 +158,10 @@ for (const proof of proofs) {
     });
     const reconciliation = await write(client, REGISTRY, "reconcile_settlement", [commitmentId]);
     const reconciledCommitment = await read(client, REGISTRY, "get_commitment", [commitmentId]);
-    results.push({ label: proof.label, commitmentId, maturity, deadline, createTx: created.hash, reviewTx: reviewed.hash, reconcileTx: reconciliation.hash, commitment: reconciledCommitment, reviews, issuance, vaultSettlement });
+    results.push({ label: proof.label, proof, commitmentId, maturity, deadline, createTx: created.hash, reviewTx: reviewed.hash, reconcileTx: reconciliation.hash, commitment: reconciledCommitment, reviews, issuance, vaultSettlement });
     continue;
   }
-  results.push({ label: proof.label, commitmentId, maturity, deadline, createTx: created.hash, reviewTx: reviewed.hash, commitment, reviews, issuance, vaultSettlement });
+  results.push({ label: proof.label, proof, commitmentId, maturity, deadline, createTx: created.hash, reviewTx: reviewed.hash, commitment, reviews, issuance, vaultSettlement });
 }
 
 const fulfilled = results.find((item) => item.commitment?.outcome === "FULFILLED");
@@ -139,7 +173,7 @@ if (fulfilled?.commitment?.outcome === "FULFILLED") {
   withdrawal = { withdrawalTx: withdrawalTx.hash, creditBefore, creditAfter };
 }
 
-const evidence = { generatedAt: new Date().toISOString(), network: "GenLayer Studionet", chainId: 61999, registry: REGISTRY, vault: VAULT, account: account.address, bond: BOND, results, withdrawal };
+const evidence = { generatedAt: new Date().toISOString(), network: "GenLayer Studionet", chainId: 61999, registry: REGISTRY, vault: VAULT, account: account.address, bond: BOND, deployment: { registryTx: process.env.VOWMARK_REGISTRY_DEPLOYMENT_TX || null, vaultTx: process.env.VOWMARK_VAULT_DEPLOYMENT_TX || null, wiringTx: process.env.VOWMARK_WIRING_TX || null }, results, withdrawal };
 fs.mkdirSync(new URL("../../../evidence", import.meta.url), { recursive: true });
 fs.writeFileSync(new URL(process.env.VOWMARK_EVIDENCE_FILE || "../../../evidence/live_lifecycle_latest.json", import.meta.url), json(evidence));
 console.log(json(evidence));

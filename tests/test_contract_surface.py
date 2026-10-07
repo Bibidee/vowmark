@@ -2,8 +2,8 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-REGISTRY = (ROOT / "contracts/vowmark-contracts/contracts/vowmark_registry.py").read_text()
-VAULT = (ROOT / "contracts/vowmark-contracts/contracts/vowmark_vault.py").read_text()
+REGISTRY = (ROOT / "contracts/vowmark-contracts/contracts/vowmark_registry.py").read_text(encoding="utf-8")
+VAULT = (ROOT / "contracts/vowmark-contracts/contracts/vowmark_vault.py").read_text(encoding="utf-8")
 
 
 def test_only_studionet_runtime_identifiers_are_present():
@@ -12,7 +12,7 @@ def test_only_studionet_runtime_identifiers_are_present():
             if any(part in {"node_modules", ".next", "out", "dist", "build", ".venv", ".venv-direct"} for part in path.parts):
                 continue
             if path.is_file() and path.suffix in {".py", ".ts", ".tsx", ".json", ".js"}:
-                text = path.read_text(errors="ignore").lower()
+                text = path.read_text(encoding="utf-8", errors="ignore").lower()
                 assert "61997" not in text
                 assert "studio-dev" not in text
 
@@ -32,6 +32,8 @@ def test_registry_uses_vault_first_no_value_settlement_and_immutable_terms():
     assert "identical evidence snapshot was already reviewed" in REGISTRY
     assert "RETRY_COOLDOWN" in REGISTRY
     assert "MAX_REVIEW_ATTEMPTS" in REGISTRY
+    assert "reviewer_last_attempt_at" in REGISTRY
+    assert '"review_cooldown_scope": "per_reviewer"' in REGISTRY
 
 
 def test_validator_is_bounded_and_prompt_injection_resistant():
@@ -57,8 +59,12 @@ def test_vault_is_custody_boundary_and_debits_before_external_send():
 
 
 def test_frontend_reads_are_explicitly_finalized_and_next_is_not_static_exported():
-    genlayer = (ROOT / "web/lib/genlayer.ts").read_text()
-    next_config = (ROOT / "web/next.config.ts").read_text()
+    genlayer = (ROOT / "web/lib/genlayer.ts").read_text(encoding="utf-8")
+    issue_form = (ROOT / "web/components/IssueForm.tsx").read_text(encoding="utf-8")
+    next_config = (ROOT / "web/next.config.ts").read_text(encoding="utf-8")
     assert genlayer.count("stateStatus: TransactionStatus.FINALIZED") >= 2
     assert "execution_result" in genlayer
+    assert "extractExecutionReturn" in genlayer
+    assert "get_next_commitment_id" not in issue_form
+    assert "Finalized Vault issuance did not match the signed commitment terms." in issue_form
     assert "output: \"export\"" not in next_config

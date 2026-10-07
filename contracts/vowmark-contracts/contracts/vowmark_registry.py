@@ -113,6 +113,10 @@ class VowmarkRegistry(gl.Contract):
     evidence: TreeMap[u256, TreeMap[u256, EvidenceAnchor]]
     reviews: TreeMap[u256, TreeMap[u256, ReviewAttempt]]
     seen_snapshots: TreeMap[u256, TreeMap[str, bool]]
+    # Per-commitment, per-reviewer cooldowns prevent one wallet from
+    # freezing every other reviewer while keeping reviewer history bounded
+    # by MAX_REVIEW_ATTEMPTS.
+    reviewer_last_attempt_at: TreeMap[u256, TreeMap[Address, u256]]
     # issuer -> local index -> global commitment id
     issuer_ids: TreeMap[Address, TreeMap[u256, u256]]
     issuer_counts: TreeMap[Address, u256]
@@ -121,14 +125,14 @@ class VowmarkRegistry(gl.Contract):
     def __init__(self, vault_address: str):
         vault = self._address_arg(vault_address)
         self.vault_address = vault
-        self.deployer = gl.message.sender_address
-        self.vault_ready = vault.as_hex.lower() != "0x" + ("0" * 40)
+        self.deployer = self._address_arg(gl.message.sender_address)
+        self.vault_ready = self._address_text(vault) != "0x" + ("0" * 40)
         self.next_commitment_id = u256(0)
 
     def _address_arg(self, value):
         if isinstance(value, Address):
             return value
-        return Address(value)
+        return Address(getattr(value, "as_hex", value))
 
     def _now(self) -> u256:
         raw_datetime = gl.message_raw["datetime"]
@@ -137,7 +141,26 @@ class VowmarkRegistry(gl.Contract):
         )
 
     def _address_text(self, address: Address) -> str:
-        return address.as_hex.lower()
+        return str(getattr(address, "as_hex", address)).lower()
+
+    def _anchors_match(self, existing_map, anchors) -> bool:
+        for index in range(MAX_ANCHORS):
+            key = u256(index)
+            exists = key in existing_map
+            expected = index < len(anchors)
+            if exists != expected:
+                return False
+            if exists:
+                existing = existing_map[key]
+                candidate = anchors[index]
+                if (
+                    existing.url != candidate.url
+                    or existing.normalized_url != candidate.normalized_url
+                    or existing.source_kind != candidate.source_kind
+                    or existing.purpose != candidate.purpose
+                ):
+                    return False
+        return True
 
     def _require_nonzero_address(self, address: Address, label: str) -> None:
         if self._address_text(address) == "0x" + ("0" * 40):
@@ -355,7 +378,7 @@ Frozen evidence snapshot:
     @gl.public.write
     def register_commitment(self, commitment_id: u256, issuer_address: str, statement: str, verification_rule: str, created_at: u256, maturity_at: u256, final_review_deadline: u256, remedy_address: str, bond: u256, anchor_urls: list[str], anchor_source_kinds: list[str], anchor_purposes: list[str]) -> None:
         """Register a Vault-funded commitment; callable only by the Vault."""
-        if gl.message.sender_address != self.vault_address:
+        if self._address_text(self._address_arg(gl.message.sender_address)) != self._address_text(self.vault_address):
             raise gl.vm.UserError("only the immutable vault may register commitments")
         issuer = self._address_arg(issuer_address)
         remedy = self._address_arg(remedy_address)
@@ -367,7 +390,7 @@ Frozen evidence snapshot:
 
         if commitment_id in self.commitments:
             existing = self.commitments[commitment_id]
-            if (self._address_text(existing.issuer) != self._address_text(issuer) or self._address_text(existing.remedy) != self._address_text(remedy) or existing.statement != statement.strip() or existing.verification_rule != verification_rule.strip() or existing.created_at != created_at or existing.maturity_at != maturity_at or existing.final_review_deadline != final_review_deadline or existing.bond != bond):
+            if (self._address_text(existing.issuer) != self._address_text(issuer) or self._address_text(existing.remedy) != self._address_text(remedy) or existing.statement != statement.strip() or existing.verification_rule != verification_rule.strip() or existing.created_at != created_at or existing.maturity_at != maturity_at or existing.final_review_deadline != final_review_deadline or existing.bond != bond or not self._anchors_match(self.evidence[commitment_id], anchors)):
                 raise gl.vm.UserError("commitment registration conflicts with existing record")
             gl.get_contract_at(self.vault_address).emit(on="finalized").confirm_registration(commitment_id)
             return
@@ -409,7 +432,7 @@ Frozen evidence snapshot:
 
     @gl.public.write
     def set_vault_address(self, vault_address: str) -> None:
-        if gl.message.sender_address != self.deployer:
+        if self._address_text(self._address_arg(gl.message.sender_address)) != self._address_text(self.deployer):
             raise gl.vm.UserError("only the deployer may finish initial wiring")
         if self.vault_ready or self.next_commitment_id != u256(0):
             raise gl.vm.UserError("vault wiring is already immutable")
@@ -430,8 +453,14 @@ Frozen evidence snapshot:
             raise gl.vm.UserError("review window has closed")
         if commitment.outcome != OUTCOME_OPEN:
             raise gl.vm.UserError("commitment already has a terminal outcome")
-        if commitment.attempt_count > u256(0) and now < commitment.last_attempt_at + u256(RETRY_COOLDOWN):
-            raise gl.vm.UserError("review retry cooldown is active")
+        if commitment.attempt_count >= u256(MAX_REVIEW_ATTEMPTS):
+            raise gl.vm.UserError("maximum review attempts reached")
+
+        reviewer = self._address_arg(gl.message.sender_address)
+        reviewer_attempts = self.reviewer_last_attempt_at.get_or_insert_default(commitment_id)
+        last_reviewer_attempt = reviewer_attempts.get(reviewer, u256(0))
+        if last_reviewer_attempt > u256(0) and now < last_reviewer_attempt + u256(RETRY_COOLDOWN):
+            raise gl.vm.UserError("reviewer retry cooldown is active")
 
         anchors = []
         anchor_map = self.evidence[commitment_id]
@@ -445,7 +474,8 @@ Frozen evidence snapshot:
             raise gl.vm.UserError("identical evidence snapshot was already reviewed")
 
         attempt_id = commitment.attempt_count
-        self.reviews.get_or_insert_default(commitment_id)[attempt_id] = ReviewAttempt(attempt_id=attempt_id, requested_by=gl.message.sender_address, requested_at=now, verdict=result["verdict"], snapshot_digest=snapshot_digest, source_set_digest=result["source_set_digest"])
+        self.reviews.get_or_insert_default(commitment_id)[attempt_id] = ReviewAttempt(attempt_id=attempt_id, requested_by=reviewer, requested_at=now, verdict=result["verdict"], snapshot_digest=snapshot_digest, source_set_digest=result["source_set_digest"])
+        reviewer_attempts[reviewer] = now
         self.seen_snapshots[commitment_id][snapshot_digest] = True
         commitment.attempt_count += u256(1)
         commitment.last_attempt_at = now
@@ -500,8 +530,8 @@ Frozen evidence snapshot:
     def _commitment_view(self, commitment: Commitment) -> dict:
         return {
             "commitment_id": commitment.commitment_id,
-            "issuer": commitment.issuer.as_hex,
-            "remedy": commitment.remedy.as_hex,
+            "issuer": self._address_text(commitment.issuer),
+            "remedy": self._address_text(commitment.remedy),
             "statement": commitment.statement,
             "verification_rule": commitment.verification_rule,
             "created_at": commitment.created_at,
@@ -515,7 +545,7 @@ Frozen evidence snapshot:
             "attempt_count": commitment.attempt_count,
             "last_attempt_at": commitment.last_attempt_at,
             "settlement_state": commitment.settlement_state,
-            "settlement_recipient": commitment.settlement_recipient.as_hex,
+            "settlement_recipient": self._address_text(commitment.settlement_recipient),
             "settlement_attempts": commitment.settlement_attempts,
             "last_settlement_at": commitment.last_settlement_at,
             "resolved_at": commitment.resolved_at,
@@ -526,10 +556,11 @@ Frozen evidence snapshot:
         return {
             "network": "GenLayer Studionet",
             "chain_id": u256(61999),
-            "vault_address": self.vault_address.as_hex,
+            "vault_address": self._address_text(self.vault_address),
             "min_review_window": u256(MIN_REVIEW_WINDOW),
             "max_review_window": u256(MAX_REVIEW_WINDOW),
             "retry_cooldown": u256(RETRY_COOLDOWN),
+            "review_cooldown_scope": "per_reviewer",
             "bounded_review_attempts": u256(MAX_REVIEW_ATTEMPTS),
         }
 
@@ -587,7 +618,7 @@ Frozen evidence snapshot:
             key = u256(index)
             if key in attempt_map:
                 attempt = attempt_map[key]
-                result.append({"attempt_id": attempt.attempt_id, "requested_by": attempt.requested_by.as_hex, "requested_at": attempt.requested_at, "verdict": attempt.verdict, "snapshot_digest": attempt.snapshot_digest, "source_set_digest": attempt.source_set_digest})
+                result.append({"attempt_id": attempt.attempt_id, "requested_by": self._address_text(attempt.requested_by), "requested_at": attempt.requested_at, "verdict": attempt.verdict, "snapshot_digest": attempt.snapshot_digest, "source_set_digest": attempt.source_set_digest})
         return result
 
     @gl.public.view
@@ -595,7 +626,7 @@ Frozen evidence snapshot:
         if commitment_id not in self.commitments:
             raise gl.vm.UserError("commitment does not exist")
         commitment = self.commitments[commitment_id]
-        return {"state": commitment.settlement_state, "recipient": commitment.settlement_recipient.as_hex, "amount": commitment.bond, "attempts": commitment.settlement_attempts, "last_attempt_at": commitment.last_settlement_at}
+        return {"state": commitment.settlement_state, "recipient": self._address_text(commitment.settlement_recipient), "amount": commitment.bond, "attempts": commitment.settlement_attempts, "last_attempt_at": commitment.last_settlement_at}
 
     @gl.public.view
     def get_issuer_commitments(self, issuer_address: str, start: u256, limit: u256) -> list[dict]:

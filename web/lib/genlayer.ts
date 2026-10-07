@@ -115,6 +115,57 @@ export async function waitForFinality(hash: string) {
   return receipt;
 }
 
+type DecodedResult = {
+  status?: string;
+  payload?: { readable?: unknown; raw?: unknown };
+};
+
+function decodeBase64(value: string): Uint8Array {
+  return Uint8Array.from(globalThis.atob(value), (character) => character.charCodeAt(0));
+}
+
+function decodeCalldataInteger(bytes: Uint8Array): bigint | undefined {
+  let value = 0n;
+  let shift = 0n;
+  let index = 0;
+  while (index < bytes.length) {
+    const byte = bytes[index++];
+    value |= BigInt(byte & 0x7f) << shift;
+    if ((byte & 0x80) === 0) break;
+    shift += 7n;
+  }
+  if (index === 0 || (index === bytes.length && (bytes[index - 1] & 0x80) !== 0)) return undefined;
+  const type = Number(value & 0x7n);
+  const magnitude = value >> 3n;
+  if (type === 1) return magnitude;
+  if (type === 2) return -1n - magnitude;
+  return undefined;
+}
+
+/** Read the actual return value from a finalized GenLayer execution result. */
+export function extractExecutionReturn(receipt: unknown): bigint | undefined {
+  const leaderReceipt = (receipt as { consensus_data?: { leader_receipt?: unknown } })?.consensus_data?.leader_receipt;
+  const leader = Array.isArray(leaderReceipt) ? leaderReceipt[0] : leaderReceipt;
+  if (!leader || typeof leader !== "object") return undefined;
+  const result = (leader as { result?: unknown }).result;
+
+  if (result && typeof result === "object") {
+    const decoded = result as DecodedResult;
+    if (decoded.status !== "return") return undefined;
+    const readable = decoded.payload?.readable;
+    if (typeof readable === "string" && /^-?\d+$/.test(readable.trim())) return BigInt(readable.trim());
+    const raw = decoded.payload?.raw;
+    if (Array.isArray(raw)) return decodeCalldataInteger(Uint8Array.from(raw.filter((item): item is number => typeof item === "number")));
+  }
+
+  if (typeof result === "string") {
+    const encoded = decodeBase64(result);
+    if (encoded[0] !== 0) return undefined;
+    return decodeCalldataInteger(encoded.slice(1));
+  }
+  return undefined;
+}
+
 export async function getTransaction(hash: string): Promise<GenLayerTransaction | null> {
   return readClient().getTransaction({ hash: hash as TransactionHash });
 }

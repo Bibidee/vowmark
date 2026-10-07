@@ -10,6 +10,7 @@ VOWMARK V1 is deployed on GenLayer Studionet 61999 and published at [the-vowmark
 - Vault deployment: [`0xbf94fb658101a257ce8cee2f855e15100044436200492acb5f1b872d789be15b`](https://explorer-studio.genlayer.com/tx/0xbf94fb658101a257ce8cee2f855e15100044436200492acb5f1b872d789be15b)
 - Wiring: [`0xe9c028be839b887bdf36e4572599d2cf98fd8b030fb2f45f79cd4795abbd819d`](https://explorer-studio.genlayer.com/tx/0xe9c028be839b887bdf36e4572599d2cf98fd8b030fb2f45f79cd4795abbd819d)
 - Frontend: [the-vowmark.vercel.app](https://the-vowmark.vercel.app)
+- Production deployment: `dpl_6kcbvCcgvFoabB6CKUdYpWXRL71V` (READY)
 
 ## Release state
 
@@ -25,7 +26,8 @@ VOWMARK V1 is deployed on GenLayer Studionet 61999 and published at [the-vowmark
 - Direct Mode custody tests: `4 passed`
 - Simulator-backed Registry behavior tests: `4 passed`
 - Frontend typecheck, lint, and production build: passed
-- Final CI and production deployment records are added here after the release commit completes.
+- Final CI: [GitHub Actions run 37700496711](https://github.com/Bibidee/vowmark/actions/runs/37700496711), all four jobs passed
+- Production deployment: [Vercel deployment](https://vercel.com/bibidees-projects/vowmark/6kcbvCcgvFoabB6CKUdYpWXRL71V), READY
 
 ## Honest limitation
 

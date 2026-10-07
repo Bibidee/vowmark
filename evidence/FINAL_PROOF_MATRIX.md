@@ -10,6 +10,8 @@ This is the canonical evidence set for the final Studionet deployment. Earlier d
 - Registry deployment: [`0x67519eb9233c69b533b8cdfd66e61d7007429731b0faae05cedfd737d4bde536`](https://explorer-studio.genlayer.com/tx/0x67519eb9233c69b533b8cdfd66e61d7007429731b0faae05cedfd737d4bde536)
 - Vault deployment: [`0xbf94fb658101a257ce8cee2f855e15100044436200492acb5f1b872d789be15b`](https://explorer-studio.genlayer.com/tx/0xbf94fb658101a257ce8cee2f855e15100044436200492acb5f1b872d789be15b)
 - Wiring: [`0xe9c028be839b887bdf36e4572599d2cf98fd8b030fb2f45f79cd4795abbd819d`](https://explorer-studio.genlayer.com/tx/0xe9c028be839b887bdf36e4572599d2cf98fd8b030fb2f45f79cd4795abbd819d)
+- Production frontend: [the-vowmark.vercel.app](https://the-vowmark.vercel.app)
+- Production deployment: [`dpl_6kcbvCcgvFoabB6CKUdYpWXRL71V`](https://vercel.com/bibidees-projects/vowmark/6kcbvCcgvFoabB6CKUdYpWXRL71V), READY
 
 The finalized configuration readback is: minimum review window `7200` seconds, maximum review window `7776000` seconds, retry cooldown `3600` seconds, bounded attempts `2161`, and cooldown scope `per_reviewer`.
 
@@ -44,6 +46,7 @@ Commitment `#5` used two unlocked accounts: reviewer A `0x7eB2a4B4e913Df62eAe807
 - Direct Mode tests: `4 passed`
 - Simulator-backed Registry behavior tests: `4 passed`
 - Frontend typecheck, lint, and production build: passed
+- Final CI: [GitHub Actions run 37700496711](https://github.com/Bibidee/vowmark/actions/runs/37700496711), all four jobs passed
 - App logo: retained in the application; no logo removal was made
 
 ## Current limitation

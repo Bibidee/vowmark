@@ -29,8 +29,9 @@ All proof transactions below use the canonical Registry/Vault pair and a 0.0001 
 | #3 | `INCONCLUSIVE`; RFC evidence attempt remains open | [create](https://explorer-studio.genlayer.com/tx/0xc39ce03e4557274d69787282eb2fe185eff00ff180ec56de032fec8c6f18eb32) | [review](https://explorer-studio.genlayer.com/tx/0x6e6b0a1ef481be979a804ba2326e34ea9f2ce6c7b404fd3a2504c316f6aad7a2) |
 | #4 | `INCONCLUSIVE`; alternate RFC evidence attempt remains open | [create](https://explorer-studio.genlayer.com/tx/0xa9309d786fe32070a58a919b42f2691a75b28ffd6d794f8fe6da114b79024535) | [review](https://explorer-studio.genlayer.com/tx/0x7ee6266842a88e445f7480e97ef9e79790ba8700e16645321f051bdda3667a89) |
 | #5 | `BREACHED`; used for the withdrawal proof below | [create](https://explorer-studio.genlayer.com/tx/0x03a5c7a047cfe08c8485ad597cc4cc567e2d7f94fcbc933f086672a76943b74f) | [review](https://explorer-studio.genlayer.com/tx/0xc3ca6078e8e772e9af04f1a249ff6bcb128c33572657177939148424ac7ef95d) |
+| #6 | `INCONCLUSIVE`; compact dated GitHub commit evidence still did not reach validator consensus | [create](https://explorer-studio.genlayer.com/tx/0xf26413b14d55a7c8e94f33dad4638820ec1d87a0b920cbfa153ff1479e861243) | [review](https://explorer-studio.genlayer.com/tx/0x0e2fd01c4436636d9c54a892cb745a85efcb16b9807f9cf421a314d6150971b4) |
 
-No `FULFILLED` proof is claimed: the positive-evidence attempts did not reach a conclusive fulfilled result. No `EXPIRED_UNRESOLVED` proof is claimed: expiry requires the contract’s final review deadline to elapse, and no artificial wait or state shortcut was used.
+No `FULFILLED` proof is claimed: the positive-evidence attempts, including the compact dated GitHub commit record in #6, did not reach a conclusive fulfilled result. No `EXPIRED_UNRESOLVED` proof is claimed: expiry requires the contract’s final review deadline to elapse, and no artificial wait or state shortcut was used.
 
 ## Withdrawal proof
 

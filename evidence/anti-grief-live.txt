@@ -1,3 +1,3 @@
 VOWMARK anti-grief live control
-stage=one
+stage=two
 The public snapshot is intentionally changed between reviewer transactions.

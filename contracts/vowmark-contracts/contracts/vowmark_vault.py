@@ -87,6 +87,12 @@ class VowmarkVault(gl.Contract):
         return Address(value)
 
     def _address_text(self, address: Address) -> str:
+        # Older Direct Mode runtimes expose Address-like values as strings;
+        # current deployments expose the Address object with ``as_hex``.
+        # Keeping this boundary tolerant lets the same contract source be
+        # exercised by both supported runtimes.
+        if isinstance(address, str):
+            return address.lower()
         return address.as_hex.lower()
 
     def _require_nonzero_address(self, address: Address, label: str) -> None:
@@ -181,13 +187,13 @@ class VowmarkVault(gl.Contract):
         urls, source_kinds, purposes = self._registration_args(issuance)
         gl.get_contract_at(self.registry_address).emit(on="finalized").register_commitment(
             issuance.commitment_id,
-            issuance.issuer.as_hex,
+            self._address_text(issuance.issuer),
             issuance.statement,
             issuance.verification_rule,
             issuance.created_at,
             issuance.maturity_at,
             issuance.final_review_deadline,
-            issuance.remedy.as_hex,
+            self._address_text(issuance.remedy),
             issuance.bond,
             urls,
             source_kinds,
@@ -281,7 +287,7 @@ class VowmarkVault(gl.Contract):
 
     @gl.public.view
     def get_registry(self) -> str:
-        return self.registry_address.as_hex
+        return self._address_text(self.registry_address)
 
     @gl.public.view
     def get_next_commitment_id(self) -> u256:
@@ -294,15 +300,15 @@ class VowmarkVault(gl.Contract):
         issuance = self.issuances[commitment_id]
         return {
             "commitment_id": issuance.commitment_id,
-            "issuer": issuance.issuer.as_hex,
-            "remedy": issuance.remedy.as_hex,
+            "issuer": self._address_text(issuance.issuer),
+            "remedy": self._address_text(issuance.remedy),
             "bond": issuance.bond,
             "created_at": issuance.created_at,
             "maturity_at": issuance.maturity_at,
             "final_review_deadline": issuance.final_review_deadline,
             "registered": issuance.registered,
             "settlement_state": issuance.settlement_state,
-            "settlement_recipient": issuance.settlement_recipient.as_hex,
+            "settlement_recipient": self._address_text(issuance.settlement_recipient),
         }
 
     @gl.public.view
@@ -312,7 +318,7 @@ class VowmarkVault(gl.Contract):
         issuance = self.issuances[commitment_id]
         return {
             "state": issuance.settlement_state,
-            "recipient": issuance.settlement_recipient.as_hex,
+            "recipient": self._address_text(issuance.settlement_recipient),
             "amount": issuance.bond,
             "settled": commitment_id in self.settled_commitments,
         }

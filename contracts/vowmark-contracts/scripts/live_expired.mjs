@@ -4,8 +4,8 @@ import { createAccount, createClient } from "genlayer-js";
 import { TransactionStatus } from "genlayer-js/types";
 
 const RPC = "https://studio.genlayer.com/api";
-const REGISTRY = process.env.VOWMARK_REGISTRY_ADDRESS || "0xDe9B1B4E148D8CE973f2268c177A5A4F4e6Db0b2";
-const VAULT = process.env.VOWMARK_VAULT_ADDRESS || "0x830D772E6cc3a993345020f28a83980365Be2471";
+const REGISTRY = process.env.VOWMARK_REGISTRY_ADDRESS || "0x76DE9332010D5F03660Fa2216cb5cc76585dFFE8";
+const VAULT = process.env.VOWMARK_VAULT_ADDRESS || "0x536B5E36d52aC1EFA72d00fFa63B932EfBf42841";
 const COMMITMENT_ID = BigInt(process.env.VOWMARK_EXPIRED_COMMITMENT_ID || "0");
 const BOND = 100000000000000n;
 const chain = {

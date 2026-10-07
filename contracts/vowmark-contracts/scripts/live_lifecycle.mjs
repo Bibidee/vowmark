@@ -4,8 +4,8 @@ import { createAccount, createClient } from "genlayer-js";
 import { TransactionStatus } from "genlayer-js/types";
 
 const RPC = "https://studio.genlayer.com/api";
-const REGISTRY = process.env.VOWMARK_REGISTRY_ADDRESS || "0xDe9B1B4E148D8CE973f2268c177A5A4F4e6Db0b2";
-const VAULT = process.env.VOWMARK_VAULT_ADDRESS || "0x830D772E6cc3a993345020f28a83980365Be2471";
+const REGISTRY = process.env.VOWMARK_REGISTRY_ADDRESS || "0x76DE9332010D5F03660Fa2216cb5cc76585dFFE8";
+const VAULT = process.env.VOWMARK_VAULT_ADDRESS || "0x536B5E36d52aC1EFA72d00fFa63B932EfBf42841";
 const REMEDY = process.env.VOWMARK_REMEDY_ADDRESS || "0xf883bce8fcb120f714b147446342d7e4545bc988";
 const BOND = 100000000000000n;
 const chain = {
@@ -111,7 +111,7 @@ const allProofs = [
     label: "fulfilled-publication-fixture",
     statement: "The versioned VOWMARK public proof fixture was published before maturity.",
     rule: "FULFILLED means the frozen versioned publication contains the exact fulfillment_time marker 2026-10-07T18:48:00Z, which is earlier than the recorded maturity timestamp.",
-    url: process.env.VOWMARK_PROOF_URL || "https://raw.githubusercontent.com/Bibidee/vowmark/main/evidence/fulfilled-proof-fixture.txt",
+    url: process.env.VOWMARK_PROOF_URL || "https://raw.githubusercontent.com/Bibidee/vowmark/ce9121035c3bb7defae49abed8f0e487aa34ab3d/evidence/fulfilled-proof-fixture.txt",
     sourceKind: "VERSIONED_SOURCE",
     purpose: "versioned publication timestamp",
   },

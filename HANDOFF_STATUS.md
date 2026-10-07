@@ -9,6 +9,8 @@ VOWMARK V1 is deployed on GenLayer Studionet and published at [the-vowmark.verce
 - RPC: [studio.genlayer.com/api](https://studio.genlayer.com/api)
 - Explorer: [explorer-studio.genlayer.com](https://explorer-studio.genlayer.com)
 - Frontend: [the-vowmark.vercel.app](https://the-vowmark.vercel.app)
+- Production deployment: `dpl_ej7pBU3NwKKm8ePtpjbKVyhENYH8` (READY)
+- GitHub source: [`3d86e5c`](https://github.com/Bibidee/vowmark/commit/3d86e5c)
 - Source commit used for the public proof fixture: [`ce91210`](https://github.com/Bibidee/vowmark/commit/ce91210)
 
 | Component | Address | Deployment transaction |
@@ -33,9 +35,9 @@ The baseline breached and inconclusive records are summarized in [`evidence/live
 
 - Source contract schema check: passed against the live schema service.
 - Python surface tests: `5 passed, 1 skipped`.
-- Direct Mode custody tests: four expected Windows host xfails; the same suite is configured for Linux CI.
+- Direct Mode custody tests: `4 passed` in GitHub Actions; the Windows host still records four expected host xfails.
 - Frontend typecheck: passed.
-- Production build: must be confirmed by the remote Vercel deployment after this documentation/CI commit; the Windows host has intermittently held Next build files open.
-- CI workflow: included in `.github/workflows/ci.yml` and runs Python, Direct Mode, typecheck, lint, and build checks.
+- Production build: confirmed by Vercel; `/`, `/issue`, `/activity`, `/commitment/6`, and the issuer history route returned HTTP 200.
+- CI workflow: green in [GitHub Actions run 37673309246](https://github.com/Bibidee/vowmark/actions/runs/37673309246), covering Python, Direct Mode, typecheck, lint, and build checks.
 
 The remaining practical limitation is that this host cannot execute GenLayer Direct Mode reliably on Windows because the SDK’s temporary stdin file is still open when the plugin tries to remove it. This is an execution-environment limitation, not a substitute for the Linux CI result.

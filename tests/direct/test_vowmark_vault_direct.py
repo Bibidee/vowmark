@@ -47,20 +47,20 @@ def _issue_args():
 
 
 def test_vault_starts_empty_and_binds_registry(direct_deploy, tmp_path):
-    vault = direct_deploy(_direct_compatible_copy(VAULT, tmp_path), REGISTRY, sdk_version="v0.3.0-rc7")
+    vault = direct_deploy(_direct_compatible_copy(VAULT, tmp_path), REGISTRY)
     assert vault.get_registry() == REGISTRY
     assert vault.get_credit(ISSUER) == 0
     assert vault.get_settled(1) is False
 
 
 def test_vault_rejects_non_registry_settlement(direct_vm, direct_deploy, tmp_path):
-    vault = direct_deploy(_direct_compatible_copy(VAULT, tmp_path), REGISTRY, sdk_version="v0.3.0-rc7")
+    vault = direct_deploy(_direct_compatible_copy(VAULT, tmp_path), REGISTRY)
     with direct_vm.expect_revert("only the immutable registry may settle"):
         vault.settle(1, "FULFILLED")
 
 
 def test_vault_credits_exactly_once_after_registration(direct_vm, direct_deploy, tmp_path):
-    vault = direct_deploy(_direct_compatible_copy(VAULT, tmp_path), REGISTRY, sdk_version="v0.3.0-rc7")
+    vault = direct_deploy(_direct_compatible_copy(VAULT, tmp_path), REGISTRY)
     direct_vm.value = 100
     with direct_vm.prank(ISSUER):
         commitment_id = vault.create_commitment(*_issue_args())
@@ -77,7 +77,7 @@ def test_vault_credits_exactly_once_after_registration(direct_vm, direct_deploy,
 
 
 def test_vault_rejects_withdrawal_above_credit_and_debits_before_send(direct_vm, direct_deploy, tmp_path):
-    vault = direct_deploy(_direct_compatible_copy(VAULT, tmp_path), REGISTRY, sdk_version="v0.3.0-rc7")
+    vault = direct_deploy(_direct_compatible_copy(VAULT, tmp_path), REGISTRY)
     direct_vm.value = 100
     with direct_vm.prank(ISSUER):
         commitment_id = vault.create_commitment(*_issue_args())

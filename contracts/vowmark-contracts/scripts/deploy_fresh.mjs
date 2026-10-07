@@ -18,6 +18,11 @@ const chain = {
 };
 
 function json(value) { return JSON.stringify(value, (_, item) => typeof item === "bigint" ? item.toString() : item, 2); }
+function plain(value) {
+  if (value instanceof Map) return Object.fromEntries(Array.from(value.entries(), ([key, item]) => [key, plain(item)]));
+  if (Array.isArray(value)) return value.map(plain);
+  return value;
+}
 
 async function waitFinal(client, hash) {
   const receipt = await client.waitForTransactionReceipt({ hash, status: TransactionStatus.FINALIZED, retries: 240, interval: 5000 });
@@ -47,6 +52,9 @@ if (!vault) throw new Error(`Vault deployment returned no address: ${json(vaultR
 const wiringTx = await client.writeContract({ address: registry, functionName: "set_vault_address", args: [vault], value: 0n });
 const wiringReceipt = await waitFinal(client, wiringTx);
 
-const registryConfig = await client.readContract({ address: registry, functionName: "get_config", args: [], stateStatus: TransactionStatus.FINALIZED });
+const registryConfig = plain(await client.readContract({ address: registry, functionName: "get_config", args: [], stateStatus: TransactionStatus.FINALIZED }));
 const vaultRegistry = await client.readContract({ address: vault, functionName: "get_registry", args: [], stateStatus: TransactionStatus.FINALIZED });
+if (registryConfig.vault_address?.toLowerCase() !== vault.toLowerCase() || String(registryConfig.review_cooldown_scope) !== "per_reviewer" || String(vaultRegistry).toLowerCase() !== registry.toLowerCase()) {
+  throw new Error(`Fresh deployment wiring/config readback failed: ${json({ registryConfig, vaultRegistry })}`);
+}
 console.log(json({ network: "GenLayer Studionet", chain_id: 61999, account: account.address, registry, vault, registryTx, vaultTx, wiringTx, registryConfig, vaultRegistry, registryReceipt, vaultReceipt, wiringReceipt }));

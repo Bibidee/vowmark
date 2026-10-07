@@ -132,7 +132,12 @@ const allProofs = [
     purpose: "unavailable evidence control",
   },
 ];
-const proofs = process.env.VOWMARK_PROOF_SET === "fulfilled-rfc" ? [allProofs[2]] : allProofs;
+const selectedProof = {
+  "fulfilled-rfc": allProofs[2],
+  breached: allProofs[3],
+  inconclusive: allProofs[4],
+}[process.env.VOWMARK_PROOF_SET];
+const proofs = selectedProof ? [selectedProof] : allProofs;
 
 const results = [];
 for (const proof of proofs) {
@@ -141,11 +146,12 @@ for (const proof of proofs) {
   const created = await write(client, VAULT, "create_commitment", [proof.statement, proof.rule, maturity, deadline, address(REMEDY), [proof.url], [proof.sourceKind], [proof.purpose]], BOND);
   const commitmentId = decodeReturn(created.receipt);
   if (commitmentId === undefined || commitmentId < 0n) throw new Error(`Issuance ${created.hash} returned no canonical commitment id`);
-  const issuance = await read(client, VAULT, "get_issuance", [commitmentId]);
+  let issuance = await read(client, VAULT, "get_issuance", [commitmentId]);
   if (!sameNumber(issuance.commitment_id, commitmentId) || issuance.issuer.toLowerCase() !== account.address.toLowerCase() || issuance.remedy.toLowerCase() !== REMEDY.toLowerCase() || issuance.statement !== proof.statement || issuance.verification_rule !== proof.rule || !sameNumber(issuance.maturity_at, maturity) || !sameNumber(issuance.final_review_deadline, deadline) || !sameNumber(issuance.bond, BOND)) throw new Error(`Vault issuance ${commitmentId} did not match the submitted terms`);
   await waitFor(client, `Registry registration #${commitmentId}`, async () => {
     try { return await read(client, REGISTRY, "get_commitment", [commitmentId]); } catch { return undefined; }
   });
+  issuance = await read(client, VAULT, "get_issuance", [commitmentId]);
   await waitFor(client, `Maturity #${commitmentId}`, async () => Math.floor(Date.now() / 1000) >= Number(maturity) ? true : undefined, 120);
   const reviewed = await write(client, REGISTRY, "review_commitment", [commitmentId]);
   const commitment = await read(client, REGISTRY, "get_commitment", [commitmentId]);

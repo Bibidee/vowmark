@@ -12,6 +12,14 @@ const initialAnchor: Anchor = { url: "", sourceKind: "PUBLICATION", purpose: "" 
 
 function unix(value: string) { return BigInt(Math.floor(new Date(value).getTime() / 1000)); }
 function localValue(secondsFromNow: number) { return new Date(Date.now() + secondsFromNow * 1000).toISOString().slice(0, 16); }
+async function readIssuanceAfterRegistration(commitmentId: bigint) {
+  let issuance = await readVault("get_issuance", [commitmentId]) as Record<string, unknown>;
+  for (let attempt = 0; attempt < 20 && issuance.registered !== true; attempt += 1) {
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+    issuance = await readVault("get_issuance", [commitmentId]) as Record<string, unknown>;
+  }
+  return issuance;
+}
 
 export function IssueForm() {
   const [statement, setStatement] = useState("");
@@ -57,7 +65,7 @@ export function IssueForm() {
       const receipt = await waitForFinality(txHash);
       const actualId = extractExecutionReturn(receipt);
       if (actualId === undefined || actualId < 0n) throw new Error("Finalized issuance did not return a canonical commitment id.");
-      const issuance = await readVault("get_issuance", [actualId]) as Record<string, unknown>;
+      const issuance = await readIssuanceAfterRegistration(actualId);
       const sameAddress = (left: unknown, right: string) => typeof left === "string" && left.toLowerCase() === right.toLowerCase();
       if (
         asBigInt(issuance.commitment_id) !== actualId
@@ -68,6 +76,7 @@ export function IssueForm() {
         || asBigInt(issuance.maturity_at) !== maturitySeconds
         || asBigInt(issuance.final_review_deadline) !== deadlineSeconds
         || asBigInt(issuance.bond) !== parseGen(bond)
+        || issuance.registered !== true
       ) throw new Error("Finalized Vault issuance did not match the signed commitment terms.");
       rememberActivity({ hash: txHash, kind: "issue", label: "Issue commitment", commitmentId: actualId.toString(), createdAt: new Date().toISOString() });
       setCommitmentId(actualId.toString());

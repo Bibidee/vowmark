@@ -69,4 +69,5 @@ def test_frontend_reads_are_explicitly_finalized_and_next_is_not_static_exported
     assert "extractExecutionReturn" in genlayer
     assert "get_next_commitment_id" not in issue_form
     assert "Finalized Vault issuance did not match the signed commitment terms." in issue_form
+    assert "readIssuanceAfterRegistration" in issue_form
     assert "output: \"export\"" not in next_config

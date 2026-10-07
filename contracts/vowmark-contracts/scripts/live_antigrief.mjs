@@ -119,6 +119,8 @@ await waitFor(`Maturity #${commitmentId}`, async () => Math.floor(Date.now() / 1
 const reviewA = await write(reviewerA.client, REGISTRY, "review_commitment", [commitmentId]);
 const afterReviewA = await read(issuer.client, REGISTRY, "get_reviews", [commitmentId]);
 if (afterReviewA.length !== 1) throw new Error(`Reviewer A transaction did not apply canonically: ${json(afterReviewA)}`);
+const pauseBeforeReviewerB = Number(process.env.VOWMARK_PAUSE_BEFORE_REVIEW_B_SECONDS || "0");
+if (pauseBeforeReviewerB > 0) await new Promise((resolve) => setTimeout(resolve, pauseBeforeReviewerB * 1000));
 const reviewB = await write(reviewerB.client, REGISTRY, "review_commitment", [commitmentId]);
 const commitment = await read(issuer.client, REGISTRY, "get_commitment", [commitmentId]);
 const reviews = await read(issuer.client, REGISTRY, "get_reviews", [commitmentId]);

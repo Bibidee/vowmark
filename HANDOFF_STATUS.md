@@ -10,7 +10,7 @@ VOWMARK V1 is deployed on GenLayer Studionet and published at [the-vowmark.verce
 - Explorer: [explorer-studio.genlayer.com](https://explorer-studio.genlayer.com)
 - Frontend: [the-vowmark.vercel.app](https://the-vowmark.vercel.app)
 - Production deployment: `dpl_ej7pBU3NwKKm8ePtpjbKVyhENYH8` (READY)
-- GitHub source: [`3d86e5c`](https://github.com/Bibidee/vowmark/commit/3d86e5c)
+- GitHub source: [`25b597a`](https://github.com/Bibidee/vowmark/commit/25b597a)
 - Source commit used for the public proof fixture: [`ce91210`](https://github.com/Bibidee/vowmark/commit/ce91210)
 
 | Component | Address | Deployment transaction |
@@ -29,15 +29,17 @@ The current fulfilled proof is [`evidence/live_fulfilled_pinned.json`](evidence/
 - `100000000000000` wei credited to the issuer exactly once;
 - withdrawal transaction `0xc647b9e75ec528b4f8d3f0876a1d0ca64c8c373926e3f8d1415dc2512ccbbce4`, with credit changing from `100000000000000` to `0`.
 
-The baseline breached and inconclusive records are summarized in [`evidence/live_lifecycle_baseline.md`](evidence/live_lifecycle_baseline.md). The breached record used commitment `#3`; the inconclusive record used commitment `#4`. No expired proof is claimed because expiry requires waiting for the configured review deadline.
+The baseline breached and inconclusive records are summarized in [`evidence/live_lifecycle_baseline.md`](evidence/live_lifecycle_baseline.md). The breached record used commitment `#3`; the inconclusive record used commitment `#4`.
+
+The expired proof is [`evidence/live_expired_pinned.json`](evidence/live_expired_pinned.json). Commitment `#0` reached its real final review deadline and was recorded as `EXPIRED_UNRESOLVED`; the finalized expiry transaction is [0x6c153fcea7390dcad77b45247be71c15cb2c7b1a04555598774586e14af3fdd6](https://explorer-studio.genlayer.com/tx/0x6c153fcea7390dcad77b45247be71c15cb2c7b1a04555598774586e14af3fdd6). Vault settlement was reconciled with [0xf1a83a8a67f9601e29635cb359294d61292e31cab711ebac4b972b0e1c639bab](https://explorer-studio.genlayer.com/tx/0xf1a83a8a67f9601e29635cb359294d61292e31cab711ebac4b972b0e1c639bab), crediting the issuer exactly once; withdrawal was verified with [0x579cd0114c67cadb947e91a1947c650d4918e16a54a02bfcc6195c06f85397ec](https://explorer-studio.genlayer.com/tx/0x579cd0114c67cadb947e91a1947c650d4918e16a54a02bfcc6195c06f85397ec).
 
 ## Verification status
 
 - Source contract schema check: passed against the live schema service.
 - Python surface tests: `5 passed, 1 skipped`.
-- Direct Mode custody tests: `4 passed` in GitHub Actions; the Windows host still records four expected host xfails.
+- Direct Mode custody tests: `4 passed` locally on Windows and in GitHub Actions.
 - Frontend typecheck: passed.
 - Production build: confirmed by Vercel; `/`, `/issue`, `/activity`, `/commitment/6`, and the issuer history route returned HTTP 200.
-- CI workflow: green in [GitHub Actions run 37673309246](https://github.com/Bibidee/vowmark/actions/runs/37673309246), covering Python, Direct Mode, typecheck, lint, and build checks.
+- CI workflow: green in [GitHub Actions run 37679212500](https://github.com/Bibidee/vowmark/actions/runs/37679212500), covering Python, Direct Mode, typecheck, lint, and build checks.
 
-The remaining practical limitation is that this host cannot execute GenLayer Direct Mode reliably on Windows because the SDK’s temporary stdin file is still open when the plugin tries to remove it. This is an execution-environment limitation, not a substitute for the Linux CI result.
+No known release-blocking limitations remain. The Windows Direct Mode cleanup is handled in `tests/direct/conftest.py`, and the expired proof was produced only after the deployed contract’s actual deadline.

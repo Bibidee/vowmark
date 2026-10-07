@@ -16,9 +16,10 @@ A release is not submission-ready unless all are true:
 - [x] fulfilled lifecycle completed live
 - [x] inconclusive recovery state and breached lifecycle completed live
 - [x] withdrawal verified live
+- [x] expired unresolved lifecycle completed live after the enforced deadline
 - [x] issuer history and recent board reads come from chain indexes
 - [x] no fake demo state in production
 - [x] canonical explorer links and source commit recorded
 - [x] docs match actual deployed behavior
 - [x] originality audit passed against `docs/ORIGINALITY.md`: no reference dispute mechanics, copied routes, copied visual identity, hidden backend, centralized AI endpoint, server wallet or fake production state found
-- [x] Direct Mode runs on Windows and Linux CI; expiry is only recorded after the enforced deadline
+- [x] Direct Mode runs on Windows and Linux CI; expired settlement and withdrawal are pinned in live evidence

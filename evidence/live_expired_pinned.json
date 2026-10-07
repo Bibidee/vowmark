@@ -1,0 +1,44 @@
+{
+  "generatedAt": "2026-10-07T20:33:13.508Z",
+  "network": "GenLayer Studionet",
+  "chainId": 61999,
+  "registry": "0xbE235FC7CFb88dd5e0627b5916d8A916dF8680d5",
+  "vault": "0x8AEBe9d98cDbB6460752d002C98D5E5745CA6533",
+  "account": "0x794678AD7e8B6c87dAb33303a3A512c821e6De9A",
+  "commitmentId": "0",
+  "expireTx": "0x6c153fcea7390dcad77b45247be71c15cb2c7b1a04555598774586e14af3fdd6",
+  "reconcileTx": "0xf1a83a8a67f9601e29635cb359294d61292e31cab711ebac4b972b0e1c639bab",
+  "commitment": {
+    "attempt_count": "1",
+    "bond": "100000000000000",
+    "commitment_id": "0",
+    "created_at": "1791397822",
+    "final_review_deadline": "1791405039",
+    "issuer": "0x794678AD7e8B6c87dAb33303a3A512c821e6De9A",
+    "last_attempt_at": "1791397863",
+    "last_settlement_at": "1791405067",
+    "latest_snapshot_digest": "d85ed509ee489648375036a3ec894bbd58ef4cf5235ec82aed0e10b4aa66bafa",
+    "latest_source_set_digest": "5520ea96962ef88144d1d8305a2a1614493d03014639775e36b6cf91f5f65cd0",
+    "latest_verdict": "INCONCLUSIVE",
+    "maturity_at": "1791397839",
+    "outcome": "EXPIRED_UNRESOLVED",
+    "remedy": "0xf883bCE8FcB120F714B147446342D7E4545Bc988",
+    "resolved_at": "1791405067",
+    "settlement_attempts": "1",
+    "settlement_recipient": "0x794678AD7e8B6c87dAb33303a3A512c821e6De9A",
+    "settlement_state": "CREDIT_CONFIRMED",
+    "statement": "The frozen GitHub commit record identifies commit b0ceb52a380b20221e5be749160aeb13bf3904d0 with an author timestamp before maturity.",
+    "verification_rule": "FULFILLED means the frozen GitHub API record contains the exact commit SHA and shows its author timestamp before the recorded maturity timestamp."
+  },
+  "vaultSettlement": {
+    "amount": "100000000000000",
+    "recipient": "0x794678AD7e8B6c87dAb33303a3A512c821e6De9A",
+    "settled": true,
+    "state": "CREDIT_CONFIRMED"
+  },
+  "withdrawal": {
+    "withdrawalTx": "0x579cd0114c67cadb947e91a1947c650d4918e16a54a02bfcc6195c06f85397ec",
+    "creditBefore": "100000000000000",
+    "creditAfter": "0"
+  }
+}

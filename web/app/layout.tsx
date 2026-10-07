@@ -4,8 +4,8 @@ import "./globals.css";
 import { WalletBar } from "@/components/WalletBar";
 
 export const metadata: Metadata = {
-  title: "VOWMARK — public commitments with a memory",
-  description: "A public commitment bond with frozen evidence and GenLayer review.",
+  title: "VOWMARK — Neon Oath Machine",
+  description: "A public commitment protocol for frozen terms, evidence, and GenLayer review.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
@@ -13,21 +13,25 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="en">
       <body>
         <header className="site-header">
-          <Link className="wordmark" href="/" aria-label="VOWMARK home">
-            <span className="wordmark-mark">V</span>
-            <span>VOWMARK</span>
-          </Link>
+          <div className="header-brand">
+            <Link className="wordmark" href="/" aria-label="VOWMARK home">
+              <span className="wordmark-mark">V</span>
+              <span>VOWMARK</span>
+            </Link>
+            <span className="brand-sub">NEON OATH MACHINE / PUBLIC RECORD</span>
+          </div>
+          <div className="protocol-rail" aria-hidden="true"><span>PUBLIC COMMITMENT PROTOCOL</span><span>GENLAYER</span></div>
+          <div className="header-meta"><span className="network-tag">STUDIONET / 61999</span><WalletBar /></div>
           <nav className="nav-links" aria-label="Primary navigation">
-            <Link href="/">Maturity Board</Link>
-            <Link href="/issue">Make a commitment</Link>
-            <Link href="/activity">Activity</Link>
+            <Link href="/"><span className="nav-index">01</span>MATURITY BOARD</Link>
+            <Link href="/issue"><span className="nav-index">02</span>MAKE A VOW</Link>
+            <Link href="/activity"><span className="nav-index">03</span>ACTIVITY TRACE</Link>
           </nav>
-          <WalletBar />
         </header>
         <main>{children}</main>
         <footer className="site-footer">
-          <span>VOWMARK / Studionet 61999</span>
-          <span>Public commitments. Frozen terms. No private adjudicator.</span>
+          <span>VOWMARK // STUDIONET 61999 // GENLAYER</span>
+          <span>PUBLIC COMMITMENTS / FROZEN TERMS / NO PRIVATE ADJUDICATOR</span>
         </footer>
       </body>
     </html>

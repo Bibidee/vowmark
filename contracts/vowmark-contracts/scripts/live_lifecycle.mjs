@@ -152,7 +152,10 @@ for (const proof of proofs) {
   await waitFor(client, `Registry registration #${commitmentId}`, async () => {
     try { return await read(client, REGISTRY, "get_commitment", [commitmentId]); } catch { return undefined; }
   });
-  issuance = await read(client, VAULT, "get_issuance", [commitmentId]);
+  issuance = await waitFor(client, `Vault registration #${commitmentId}`, async () => {
+    const current = await read(client, VAULT, "get_issuance", [commitmentId]);
+    return current.registered ? current : undefined;
+  });
   await waitFor(client, `Maturity #${commitmentId}`, async () => Math.floor(Date.now() / 1000) >= Number(maturity) ? true : undefined, 120);
   const reviewed = await write(client, REGISTRY, "review_commitment", [commitmentId]);
   const commitment = await read(client, REGISTRY, "get_commitment", [commitmentId]);

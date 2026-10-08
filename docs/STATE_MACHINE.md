@@ -31,6 +31,10 @@ Keep storage smaller than the UX vocabulary. A sensible design is:
 - `CREDITED`
 - `WITHDRAWN`
 
+Review history is append-only but read in bounded pages: `get_review_count(commitment_id)` reports the total and `get_reviews(commitment_id, start, limit)` returns at most 25 newest-first records per call. The frontend loads the newest page first and explicitly requests older pages.
+
+Withdrawal is supported for a direct EOA caller only. The Vault requires `gl.message.sender_address == gl.message.origin_address`, debits finalized credit before the external finalized transfer, and does not claim automatic recovery for unsupported contract recipients.
+
 The final implementation may refine these names, but must preserve the distinctions.
 
 ## Timing
@@ -39,6 +43,8 @@ The final implementation may refine these names, but must preserve the distincti
 - At/after maturity and before final review deadline: review allowed if commitment unresolved and retry rules permit.
 - After a conclusive result: no more review.
 - After final review deadline with no conclusive result: anyone may expire as `EXPIRED_UNRESOLVED`.
+
+Review liveness is permissioned, not guaranteed convergence: while a commitment is `OPEN` and inside the review window, a reviewer may submit only after that reviewer's cooldown, with a changed snapshot, and while the current hourly epoch has capacity. The configured capacity is 32 attempts per epoch and attempts are not lifetime-capped. Validator availability, consensus, and a conclusive verdict are not promised; if no conclusive result is finalized by the deadline, expiry remains the terminal path.
 
 ## Product outcome branches
 

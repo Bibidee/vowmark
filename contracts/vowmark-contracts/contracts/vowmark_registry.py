@@ -22,6 +22,7 @@ RETRY_COOLDOWN = 3_600
 # commitment remains open, but it never creates a permanent lifetime cap.
 REVIEW_EPOCH_SECONDS = RETRY_COOLDOWN
 MAX_REVIEW_ATTEMPTS_PER_EPOCH = 32
+MAX_REVIEW_PAGE = 25
 
 OUTCOME_OPEN = "OPEN"
 OUTCOME_FULFILLED = "FULFILLED"
@@ -576,6 +577,7 @@ Frozen evidence snapshot:
             "review_cooldown_scope": "per_reviewer",
             "review_epoch_seconds": u256(REVIEW_EPOCH_SECONDS),
             "max_review_attempts_per_epoch": u256(MAX_REVIEW_ATTEMPTS_PER_EPOCH),
+            "max_review_page": u256(MAX_REVIEW_PAGE),
             "review_attempts_are_not_lifetime_capped": True,
         }
 
@@ -621,15 +623,26 @@ Frozen evidence snapshot:
         return result
 
     @gl.public.view
-    def get_reviews(self, commitment_id: u256) -> list[dict]:
+    def get_review_count(self, commitment_id: u256) -> u256:
         if commitment_id not in self.commitments:
             raise gl.vm.UserError("commitment does not exist")
+        return self.commitments[commitment_id].attempt_count
+
+    @gl.public.view
+    def get_reviews(self, commitment_id: u256, start: u256, limit: u256) -> list[dict]:
+        if commitment_id not in self.commitments:
+            raise gl.vm.UserError("commitment does not exist")
+        safe_limit = min(int(limit), MAX_REVIEW_PAGE)
         result = []
-        if commitment_id not in self.reviews:
+        if commitment_id not in self.reviews or safe_limit == 0:
             return result
         attempt_map = self.reviews[commitment_id]
         count = int(self.commitments[commitment_id].attempt_count)
-        for index in range(count):
+        offset = int(start)
+        for page_offset in range(safe_limit):
+            index = count - 1 - offset - page_offset
+            if index < 0:
+                break
             key = u256(index)
             if key in attempt_map:
                 attempt = attempt_map[key]

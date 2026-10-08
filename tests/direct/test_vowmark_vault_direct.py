@@ -76,10 +76,18 @@ def test_vault_rejects_withdrawal_above_credit_and_debits_before_send(direct_vm,
         vault.confirm_registration(commitment_id)
         vault.settle(commitment_id, "BREACHED")
     assert vault.get_credit(REMEDY) == 100
+    assert vault.get_withdrawal_policy()["requires_sender_equals_origin"] is True
+    direct_vm.origin = REMEDY
     with direct_vm.prank(REMEDY):
+        with direct_vm.expect_revert("withdrawal amount must be greater than zero"):
+            vault.withdraw(0)
         with direct_vm.expect_revert("withdrawal exceeds available credit"):
             vault.withdraw(101)
         vault.withdraw(60)
         with direct_vm.expect_revert("withdrawal exceeds available credit"):
             vault.withdraw(60)
+        direct_vm.origin = ISSUER
+        with direct_vm.expect_revert("withdrawal requires a direct EOA caller"):
+            vault.withdraw(1)
+        direct_vm.origin = None
     assert vault.get_credit(REMEDY) == 40

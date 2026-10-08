@@ -1,16 +1,17 @@
 # VOWMARK V1 handoff status
 
-VOWMARK V1 is deployed on GenLayer Studionet 61999 and published at [the-vowmark.vercel.app](https://the-vowmark.vercel.app). The canonical deployment and evidence are documented in [`evidence/FINAL_PROOF_MATRIX.md`](evidence/FINAL_PROOF_MATRIX.md).
+VOWMARK V1 is deployed on GenLayer Studionet 61999. The final frontend URL and source/CI provenance are recorded below after the release freeze. The canonical deployment and evidence are documented in [`evidence/FINAL_PROOF_MATRIX.md`](evidence/FINAL_PROOF_MATRIX.md).
 
 ## Canonical deployment
 
-- Registry: [`0xd1F0B0Ac5E148e6b16e6684dcb01C3a68B842f2d`](https://explorer-studio.genlayer.com/address/0xd1F0B0Ac5E148e6b16e6684dcb01C3a68B842f2d)
-- Vault: [`0x925Dd2d3fd74b4C8d5205FEA48131d5fEF3e83ff`](https://explorer-studio.genlayer.com/address/0x925Dd2d3fd74b4C8d5205FEA48131d5fEF3e83ff)
-- Registry deployment: [`0xee41807eaf5c63dd7d0eede4e0bfc4573b0daaa7b235b7fd84e7eec95febc8ea`](https://explorer-studio.genlayer.com/tx/0xee41807eaf5c63dd7d0eede4e0bfc4573b0daaa7b235b7fd84e7eec95febc8ea)
-- Vault deployment: [`0x109d8012bfaab6561e112492e7808eb72f1bd0b7b1ef23095fde8adb7220d36c`](https://explorer-studio.genlayer.com/tx/0x109d8012bfaab6561e112492e7808eb72f1bd0b7b1ef23095fde8adb7220d36c)
-- Wiring: [`0x3001c417be1cb12530fa1fe1163d10e8cd899f1341f41a97494fe867de76c5ee`](https://explorer-studio.genlayer.com/tx/0x3001c417be1cb12530fa1fe1163d10e8cd899f1341f41a97494fe867de76c5ee)
-- Frontend: [the-vowmark.vercel.app](https://the-vowmark.vercel.app), aliased to the fresh Vercel production deployment [`dpl_2NpFUVUW4rg1MVyHuKhQUf67Sr5k`](https://vercel.com/bibidees-projects/vowmark/2NpFUVUW4rg1MVyHuKhQUf67Sr5k)
-- Application source: [`d4c4f87`](https://github.com/Bibidee/vowmark/commit/d4c4f87e67ff04c138fb87d2dc06c9c9deeb29b3) on `main`
+- Registry: [`0xb2Fb628484f7b1C10D35d11A49B660f0aE924F37`](https://explorer-studio.genlayer.com/address/0xb2Fb628484f7b1C10D35d11A49B660f0aE924F37)
+- Vault: [`0x59E28386C2804fbECCeC37D4A093b43f901af15b`](https://explorer-studio.genlayer.com/address/0x59E28386C2804fbECCeC37D4A093b43f901af15b)
+- Registry deployment: [`0x4266951edc54215356e3be610912f96b04f220f4367daa5050d503c54654cd26`](https://explorer-studio.genlayer.com/tx/0x4266951edc54215356e3be610912f96b04f220f4367daa5050d503c54654cd26)
+- Vault deployment: [`0x8fb975a3bcbe90e7df315a724145114c689c1b1225127fcba3bd0a63b2413235`](https://explorer-studio.genlayer.com/tx/0x8fb975a3bcbe90e7df315a724145114c689c1b1225127fcba3bd0a63b2413235)
+- Wiring: [`0x246e7ba161c52967b3603e121d0b8ccee6d98c8dd09c575924fcadf464fe2208`](https://explorer-studio.genlayer.com/tx/0x246e7ba161c52967b3603e121d0b8ccee6d98c8dd09c575924fcadf464fe2208)
+- Configuration readback: [`fresh_deployment_2026-10-08_pagination.md`](evidence/fresh_deployment_2026-10-08_pagination.md)
+- Frontend: final deployment URL and immutable deployment ID recorded after the final source commit is pushed.
+- Application source: final release commit recorded after the expiry evidence is completed.
 
 ## Release state
 
@@ -19,18 +20,20 @@ VOWMARK V1 is deployed on GenLayer Studionet 61999 and published at [the-vowmark
 - The issue flow persists its hash immediately, extracts the canonical returned commitment ID only after successful finality, verifies all Vault issuance terms, and exposes recoverable Registry registration retry from Issue and Activity.
 - Public reads use the configured Studionet RPC and normalize GenLayer map readbacks before rendering; wallet injection remains write-only.
 - Reviewer cooldown is isolated per reviewer, with a per-hour epoch capacity that does not impose a permanent lifetime attempt cap.
+- Review liveness is permissioned rather than guaranteed convergence: a changed snapshot, per-reviewer cooldown, epoch capacity and final deadline still constrain retries, and no validator availability or conclusive verdict is promised.
 - `get_issuance` exposes the full statement and verification rule for exact readback.
+- `get_review_count` plus bounded `get_reviews(start, limit)` provide newest-first review history without unbounded read payloads; the contract caps each page at 25 records.
+- Withdrawals are intentionally bounded to the supported direct-EOA path (`sender_address == origin_address`); credit is debited before the finalized external transfer.
 - The app logo remains present in the frontend.
 
 ## Verification
 
 - Contract surface tests: `5 passed`
 - Direct Mode custody tests: `4 passed`
-- Simulator-backed Registry behavior tests: `6 passed`
+- Simulator-backed Registry behavior tests: `7 passed`
 - Frontend typecheck, lint, and production build: passed
-- Final CI: [passed](https://github.com/Bibidee/vowmark/actions/runs/37745086746) for `d4c4f87`
-- Production deployment: ready at [the-vowmark.vercel.app](https://the-vowmark.vercel.app)
-- Production route checks: `/`, `/issue`, `/activity`, and `/commitment/6` returned HTTP 200
+- Final CI and production deployment: recorded after the final source commit is pushed.
+- Production route checks: recorded against the final deployment.
 
 ## Honest limitation
 

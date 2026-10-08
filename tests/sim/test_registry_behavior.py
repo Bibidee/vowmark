@@ -102,6 +102,7 @@ def _mock_review_evidence(engine: SimEngine, body: str) -> None:
 def test_unrelated_reviewer_is_not_blocked_by_another_reviewer(deployed):
     engine, registry_address, vault_address = deployed
     commitment_id = _issue(engine, vault_address)
+    assert engine.call_method(registry_address, "get_review_count", [commitment_id], sender=REVIEWER_B) == 0
     _warp(engine, "2030-01-02T01:00:00Z")
 
     _mock_review_evidence(engine, "snapshot from reviewer A")
@@ -112,10 +113,10 @@ def test_unrelated_reviewer_is_not_blocked_by_another_reviewer(deployed):
     engine.vm.clear_mocks()
     _mock_review_evidence(engine, "snapshot from reviewer B")
     engine.call_method(registry_address, "review_commitment", [commitment_id], sender=REVIEWER_B)
-    reviews = engine.call_method(registry_address, "get_reviews", [commitment_id], sender=REVIEWER_B)
+    reviews = engine.call_method(registry_address, "get_reviews", [commitment_id, 0, 25], sender=REVIEWER_B)
     assert len(reviews) == 2
-    assert reviews[0]["requested_by"].lower() == REVIEWER_A
-    assert reviews[1]["requested_by"].lower() == REVIEWER_B
+    assert reviews[0]["requested_by"].lower() == REVIEWER_B
+    assert reviews[1]["requested_by"].lower() == REVIEWER_A
 
     _mock_review_evidence(engine, "snapshot from reviewer A again")
     with pytest.raises(Exception, match="reviewer retry cooldown is active"):
@@ -148,6 +149,36 @@ def test_sybil_reviewers_cannot_exhaust_future_review_capacity(deployed):
     record = engine.call_method(registry_address, "get_commitment", [commitment_id], sender=REVIEWER_C)
     assert int(record["attempt_count"]) == 33
     assert int(record["review_epoch_attempts"]) == 1
+    assert engine.call_method(registry_address, "get_review_count", [commitment_id], sender=REVIEWER_C) == 33
+    bounded = engine.call_method(registry_address, "get_reviews", [commitment_id, 0, 10_000], sender=REVIEWER_C)
+    assert len(bounded) == 25
+    assert [int(item["attempt_id"]) for item in bounded] == list(range(32, 7, -1))
+
+
+def test_review_history_is_bounded_and_pages_without_gaps(deployed):
+    engine, registry_address, vault_address = deployed
+    commitment_id = _issue(engine, vault_address, statement="A paginated review history commitment")
+    _warp(engine, "2030-01-02T01:00:00Z")
+
+    for index in range(26):
+        reviewer = "0x" + f"{200 + index:040x}"
+        engine.vm.clear_mocks()
+        _mock_review_evidence(engine, f"paged snapshot {index}")
+        engine.call_method(registry_address, "review_commitment", [commitment_id], sender=reviewer)
+
+    assert engine.call_method(registry_address, "get_review_count", [commitment_id], sender=REVIEWER_A) == 26
+    first_page = engine.call_method(registry_address, "get_reviews", [commitment_id, 0, 25], sender=REVIEWER_A)
+    second_page = engine.call_method(registry_address, "get_reviews", [commitment_id, 25, 25], sender=REVIEWER_A)
+    capped_page = engine.call_method(registry_address, "get_reviews", [commitment_id, 0, 10_000], sender=REVIEWER_A)
+    assert len(first_page) == 25
+    assert len(second_page) == 1
+    assert len(capped_page) == 25
+    first_ids = [int(item["attempt_id"]) for item in first_page]
+    second_ids = [int(item["attempt_id"]) for item in second_page]
+    assert first_ids == list(range(25, 0, -1))
+    assert second_ids == [0]
+    assert set(first_ids).isdisjoint(second_ids)
+    assert first_ids + second_ids == list(range(25, -1, -1))
 
 
 def test_identical_snapshot_is_rejected_even_for_a_new_reviewer(deployed):

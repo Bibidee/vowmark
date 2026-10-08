@@ -1,92 +1,71 @@
 {
-  "generatedAt": "2026-10-08T07:41:43.234Z",
+  "generatedAt": "2026-10-08T09:44:22.375Z",
   "network": "GenLayer Studionet",
   "chainId": 61999,
   "accountName": "live-alice",
-  "registry": "0xd1F0B0Ac5E148e6b16e6684dcb01C3a68B842f2d",
-  "vault": "0x925Dd2d3fd74b4C8d5205FEA48131d5fEF3e83ff",
+  "registry": "0xb2Fb628484f7b1C10D35d11A49B660f0aE924F37",
+  "vault": "0x59E28386C2804fbECCeC37D4A093b43f901af15b",
   "account": "0x7eB2a4B4e913Df62eAe807eF60509B3B7284C7FA",
-  "bond": "100000000000000",
-  "deployment": {
-    "registryTx": "0xee41807eaf5c63dd7d0eede4e0bfc4573b0daaa7b235b7fd84e7eec95febc8ea",
-    "vaultTx": "0x109d8012bfaab6561e112492e7808eb72f1bd0b7b1ef23095fde8adb7220d36c",
-    "wiringTx": "0x3001c417be1cb12530fa1fe1163d10e8cd899f1341f41a97494fe867de76c5ee"
-  },
-  "results": [
+  "commitmentId": "0",
+  "reviewTx": "0x8575994c362261b0453d7d7ffb8b05e1b8f8de80bcd6252802d9cf6e9a0782e5",
+  "reconcileTx": "0x5d3dbf17dfa5c3351e8e02d95560b75e6dd48166bffd836f4d84e4e058660782",
+  "reviewCount": 1,
+  "reviews": [
     {
-      "label": "fulfilled-publication-fixture",
-      "proof": {
-        "label": "fulfilled-publication-fixture",
-        "statement": "The versioned VOWMARK public proof fixture was published before maturity.",
-        "rule": "FULFILLED means the frozen versioned publication contains the exact fulfillment_time marker 2026-10-07T18:48:00Z, which is earlier than the recorded maturity timestamp.",
-        "url": "https://raw.githubusercontent.com/Bibidee/vowmark/ce9121035c3bb7defae49abed8f0e487aa34ab3d/evidence/fulfilled-proof-fixture.txt",
-        "sourceKind": "VERSIONED_SOURCE",
-        "purpose": "versioned publication timestamp"
-      },
-      "commitmentId": "6",
-      "maturity": "1791445157",
-      "deadline": "1791452357",
-      "createTx": "0x3fbe3b37b414aa2c09cc036215314ab69ffe63af1ccd28f5eb5f06c4bbfda1c8",
-      "reviewTx": "0x8ee5fd1032e6552a518696139554c26e8c47c59ba62b607ca56752cfbdf42248",
-      "reconcileTx": "0x2306a148fce13dc387427365244aded99bf7e3fdab250f847db0d6ccf217c4df",
-      "commitment": {
-        "attempt_count": 1,
-        "bond": 100000000000000,
-        "commitment_id": 6,
-        "created_at": 1791445070,
-        "final_review_deadline": 1791452357,
-        "issuer": "0x7eb2a4b4e913df62eae807ef60509b3b7284c7fa",
-        "last_attempt_at": 1791445162,
-        "last_settlement_at": 1791445162,
-        "latest_snapshot_digest": "6554b61c2b6b19ea714c908e2e73c6cfe9b65613b182bbedfd64a14c98762e52",
-        "latest_source_set_digest": "7ca703853549188daaca4c5b6c76713119246c9a1b12d19a70e93cbddc0521f6",
-        "latest_verdict": "FULFILLED",
-        "maturity_at": 1791445157,
-        "outcome": "FULFILLED",
-        "remedy": "0xf883bce8fcb120f714b147446342d7e4545bc988",
-        "resolved_at": 1791445162,
-        "review_epoch": 497623,
-        "review_epoch_attempts": 1,
-        "settlement_attempts": 1,
-        "settlement_recipient": "0x7eb2a4b4e913df62eae807ef60509b3b7284c7fa",
-        "settlement_state": "CREDIT_CONFIRMED",
-        "statement": "The versioned VOWMARK public proof fixture was published before maturity.",
-        "verification_rule": "FULFILLED means the frozen versioned publication contains the exact fulfillment_time marker 2026-10-07T18:48:00Z, which is earlier than the recorded maturity timestamp."
-      },
-      "reviews": [
-        {
-          "attempt_id": 0,
-          "requested_at": 1791445162,
-          "requested_by": "0x7eb2a4b4e913df62eae807ef60509b3b7284c7fa",
-          "snapshot_digest": "6554b61c2b6b19ea714c908e2e73c6cfe9b65613b182bbedfd64a14c98762e52",
-          "source_set_digest": "7ca703853549188daaca4c5b6c76713119246c9a1b12d19a70e93cbddc0521f6",
-          "verdict": "FULFILLED"
-        }
-      ],
-      "issuance": {
-        "bond": 100000000000000,
-        "commitment_id": 6,
-        "created_at": 1791445070,
-        "final_review_deadline": 1791452357,
-        "issuer": "0x7eb2a4b4e913df62eae807ef60509b3b7284c7fa",
-        "maturity_at": 1791445157,
-        "registered": true,
-        "remedy": "0xf883bce8fcb120f714b147446342d7e4545bc988",
-        "settlement_recipient": "0x0000000000000000000000000000000000000000",
-        "settlement_state": "LOCKED",
-        "statement": "The versioned VOWMARK public proof fixture was published before maturity.",
-        "verification_rule": "FULFILLED means the frozen versioned publication contains the exact fulfillment_time marker 2026-10-07T18:48:00Z, which is earlier than the recorded maturity timestamp."
-      },
-      "vaultSettlement": {
-        "amount": 100000000000000,
-        "recipient": "0x7eb2a4b4e913df62eae807ef60509b3b7284c7fa",
-        "settled": true,
-        "state": "CREDIT_CONFIRMED"
-      }
+      "attempt_id": 0,
+      "requested_at": 1791452523,
+      "requested_by": "0x7eb2a4b4e913df62eae807ef60509b3b7284c7fa",
+      "snapshot_digest": "6554b61c2b6b19ea714c908e2e73c6cfe9b65613b182bbedfd64a14c98762e52",
+      "source_set_digest": "e4da3a0b9490a0b492691810f981c14bb55a90b8d58800527882de11009a2a76",
+      "verdict": "FULFILLED"
     }
   ],
+  "commitment": {
+    "attempt_count": 1,
+    "bond": 100000000000000,
+    "commitment_id": 0,
+    "created_at": 1791451693,
+    "final_review_deadline": 1791458981,
+    "issuer": "0x7eb2a4b4e913df62eae807ef60509b3b7284c7fa",
+    "last_attempt_at": 1791452523,
+    "last_settlement_at": 1791452523,
+    "latest_snapshot_digest": "6554b61c2b6b19ea714c908e2e73c6cfe9b65613b182bbedfd64a14c98762e52",
+    "latest_source_set_digest": "e4da3a0b9490a0b492691810f981c14bb55a90b8d58800527882de11009a2a76",
+    "latest_verdict": "FULFILLED",
+    "maturity_at": 1791451781,
+    "outcome": "FULFILLED",
+    "remedy": "0xf883bce8fcb120f714b147446342d7e4545bc988",
+    "resolved_at": 1791452523,
+    "review_epoch": 497625,
+    "review_epoch_attempts": 1,
+    "settlement_attempts": 1,
+    "settlement_recipient": "0x7eb2a4b4e913df62eae807ef60509b3b7284c7fa",
+    "settlement_state": "CREDIT_CONFIRMED",
+    "statement": "The versioned VOWMARK public proof fixture was published before maturity.",
+    "verification_rule": "FULFILLED means the frozen versioned publication contains the exact fulfillment_time marker 2026-10-07T18:48:00Z, which is earlier than the recorded maturity timestamp."
+  },
+  "issuance": {
+    "bond": 100000000000000,
+    "commitment_id": 0,
+    "created_at": 1791451693,
+    "final_review_deadline": 1791458981,
+    "issuer": "0x7eb2a4b4e913df62eae807ef60509b3b7284c7fa",
+    "maturity_at": 1791451781,
+    "registered": true,
+    "remedy": "0xf883bce8fcb120f714b147446342d7e4545bc988",
+    "settlement_recipient": "0x0000000000000000000000000000000000000000",
+    "settlement_state": "LOCKED",
+    "statement": "The versioned VOWMARK public proof fixture was published before maturity.",
+    "verification_rule": "FULFILLED means the frozen versioned publication contains the exact fulfillment_time marker 2026-10-07T18:48:00Z, which is earlier than the recorded maturity timestamp."
+  },
+  "vaultSettlement": {
+    "amount": 100000000000000,
+    "recipient": "0x7eb2a4b4e913df62eae807ef60509b3b7284c7fa",
+    "settled": true,
+    "state": "CREDIT_CONFIRMED"
+  },
   "withdrawal": {
-    "withdrawalTx": "0x7b692dd5f70225e133abfaa91100896dd146fbac4d29b33c64a6e897fa82a620",
+    "withdrawalTx": "0x50785bcbe88a5d1d1e61699955fc9000ef6488b97ab19c27be57451748d2f3e7",
     "creditBefore": 100000000000000,
     "creditAfter": 0
   }

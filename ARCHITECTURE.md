@@ -33,7 +33,7 @@ VOWMARK uses exactly two contracts because GenLayer's internal value-message sem
 - The Registry's one-time `set_vault_address` wiring is deployer-only and becomes immutable once set or once commitments exist.
 - Settlement amount and recipient are derived from immutable issuance terms and the conclusive outcome; no model or caller chooses either value.
 
-The fresh canonical deployment and finalized wiring readback are in [`evidence/fresh_deployment_2026-10-08.md`](evidence/fresh_deployment_2026-10-08.md). The withdrawal path is documented as an EOA wallet flow; a reverting contract recipient is outside the supported path and is not claimed to have automatic recovery.
+The fresh canonical deployment and finalized wiring readback are in [`evidence/fresh_deployment_2026-10-08_pagination.md`](evidence/fresh_deployment_2026-10-08_pagination.md). The withdrawal path is documented as direct-EOA only; a reverting contract recipient is outside the supported path and is not claimed to have automatic recovery.
 
 ## Deterministic responsibilities
 

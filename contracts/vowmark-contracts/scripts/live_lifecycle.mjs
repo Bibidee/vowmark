@@ -5,8 +5,8 @@ import { studionet } from "genlayer-js/chains";
 import { TransactionStatus } from "genlayer-js/types";
 
 const RPC = "https://studio.genlayer.com/api";
-const REGISTRY = process.env.VOWMARK_REGISTRY_ADDRESS || "0xd1F0B0Ac5E148e6b16e6684dcb01C3a68B842f2d";
-const VAULT = process.env.VOWMARK_VAULT_ADDRESS || "0x925Dd2d3fd74b4C8d5205FEA48131d5fEF3e83ff";
+const REGISTRY = process.env.VOWMARK_REGISTRY_ADDRESS || "0xb2Fb628484f7b1C10D35d11A49B660f0aE924F37";
+const VAULT = process.env.VOWMARK_VAULT_ADDRESS || "0x59E28386C2804fbECCeC37D4A093b43f901af15b";
 const REMEDY = process.env.VOWMARK_REMEDY_ADDRESS || "0xf883bce8fcb120f714b147446342d7e4545bc988";
 const BOND = 100000000000000n;
 const chain = { ...studionet, rpcUrls: { ...studionet.rpcUrls, default: { http: [RPC] } } };
@@ -156,7 +156,8 @@ for (const proof of proofs) {
   await waitFor(client, `Maturity #${commitmentId}`, async () => Math.floor(Date.now() / 1000) >= Number(maturity) ? true : undefined, 120);
   const reviewed = await write(client, REGISTRY, "review_commitment", [commitmentId]);
   const commitment = await read(client, REGISTRY, "get_commitment", [commitmentId]);
-  const reviews = await read(client, REGISTRY, "get_reviews", [commitmentId]);
+  const reviewCount = await read(client, REGISTRY, "get_review_count", [commitmentId]);
+  const reviews = await read(client, REGISTRY, "get_reviews", [commitmentId, 0n, 25n]);
   let vaultSettlement;
   if (commitment.outcome !== "OPEN") {
     vaultSettlement = await waitFor(client, `Vault settlement #${commitmentId}`, async () => {
@@ -165,10 +166,10 @@ for (const proof of proofs) {
     });
     const reconciliation = await write(client, REGISTRY, "reconcile_settlement", [commitmentId]);
     const reconciledCommitment = await read(client, REGISTRY, "get_commitment", [commitmentId]);
-    results.push({ label: proof.label, proof, commitmentId, maturity, deadline, createTx: created.hash, reviewTx: reviewed.hash, reconcileTx: reconciliation.hash, commitment: reconciledCommitment, reviews, issuance, vaultSettlement });
+    results.push({ label: proof.label, proof, commitmentId, maturity, deadline, createTx: created.hash, reviewTx: reviewed.hash, reconcileTx: reconciliation.hash, reviewCount, reviews, commitment: reconciledCommitment, issuance, vaultSettlement });
     continue;
   }
-  results.push({ label: proof.label, proof, commitmentId, maturity, deadline, createTx: created.hash, reviewTx: reviewed.hash, commitment, reviews, issuance, vaultSettlement });
+  results.push({ label: proof.label, proof, commitmentId, maturity, deadline, createTx: created.hash, reviewTx: reviewed.hash, reviewCount, commitment, reviews, issuance, vaultSettlement });
 }
 
 const fulfilled = results.find((item) => item.commitment?.outcome === "FULFILLED");

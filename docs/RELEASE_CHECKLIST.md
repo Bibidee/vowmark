@@ -12,13 +12,16 @@ A release is not submission-ready unless all are true:
 - [x] accepted vs finalized UI distinction and finalized-only reads implemented
 - [x] provisional finality cannot be exploited for withdrawal
 - [x] replay/duplicate review protection and cooldown-based recovery implemented
+- [x] review history is bounded and paginated with an explicit count
 - [x] accounting invariant verified across multiple commitments
 - [x] fulfilled lifecycle completed live against the fresh canonical deployment
 - [x] inconclusive recovery state and breached lifecycle completed live against the fresh canonical deployment
 - [x] withdrawal verified live against the fresh canonical deployment
+- [x] withdrawal caller boundary is explicit: direct EOA only; debit-before-send is tested
 - [ ] expired unresolved lifecycle completed live after the enforced deadline (pending the real deadline; no result is claimed early)
 - [x] issuer history and recent board reads come from chain indexes
 - [x] no fake demo state in production
+- [x] production dependency audit reports zero findings; development-only lint-chain findings are documented in `docs/DEPENDENCY_AUDIT.md`
 - [x] canonical explorer links and source commit recorded
 - [x] docs match actual deployed behavior
 - [x] originality audit passed against `docs/ORIGINALITY.md`: no reference dispute mechanics, copied routes, copied visual identity, hidden backend, centralized AI endpoint, server wallet or fake production state found

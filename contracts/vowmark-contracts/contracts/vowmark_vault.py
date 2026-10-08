@@ -99,6 +99,13 @@ class VowmarkVault(gl.Contract):
         if self._address_text(address) == "0x" + ("0" * 40):
             raise gl.vm.UserError(label + " must be nonzero")
 
+    def _direct_eoa_sender(self) -> Address:
+        sender = self._address_arg(gl.message.sender_address)
+        origin = self._address_arg(gl.message.origin_address)
+        if self._address_text(sender) != self._address_text(origin):
+            raise gl.vm.UserError("withdrawal requires a direct EOA caller")
+        return sender
+
     def _now(self) -> u256:
         raw_datetime = gl.message_raw["datetime"]
         from datetime import datetime
@@ -270,7 +277,7 @@ class VowmarkVault(gl.Contract):
 
     @gl.public.write
     def withdraw(self, amount: u256) -> None:
-        sender = self._address_arg(gl.message.sender_address)
+        sender = self._direct_eoa_sender()
         if amount == u256(0):
             raise gl.vm.UserError("withdrawal amount must be greater than zero")
         current_credit = self.credits.get(sender, u256(0))
@@ -280,6 +287,15 @@ class VowmarkVault(gl.Contract):
         # cannot be replayed by submitting the same amount twice.
         self.credits[sender] = current_credit - amount
         _Recipient(sender).emit_transfer(value=amount, on="finalized")
+
+    @gl.public.view
+    def get_withdrawal_policy(self) -> dict:
+        return {
+            "supported_caller": "direct EOA",
+            "requires_sender_equals_origin": True,
+            "delivery": "external finalized transfer",
+            "debit_order": "before transfer",
+        }
 
     @gl.public.view
     def get_credit(self, wallet_address: str) -> u256:

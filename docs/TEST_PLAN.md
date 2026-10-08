@@ -58,6 +58,8 @@ The final suite should emphasize invariants and adversarial behavior, not vanity
 46. retry after inconclusive obeys cooldown
 47. new changed snapshot can be reviewed when retry is legal
 
+Review-history scalability requirement: the Registry exposes a separate count and bounded newest-first pages. Every page is capped at 25 records, and the frontend must request older pages explicitly rather than loading an unbounded array.
+
 ## Outcome and economics
 
 48. fulfilled credits exactly bond amount to issuer
@@ -73,6 +75,8 @@ The final suite should emphasize invariants and adversarial behavior, not vanity
 58. aggregate locked + credited balance invariant holds
 59. model never chooses wei amount
 60. model never chooses settlement recipient
+
+The supported withdrawal boundary is a direct EOA caller: sender and origin must match, the finalized credit is debited before the external transfer, and no arbitrary contract-recipient recovery guarantee is claimed.
 
 ## GenLayer protocol/finality
 

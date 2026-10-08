@@ -1,6 +1,6 @@
-# Fresh Studionet deployment readback — 2026-10-08
+# Historical Studionet deployment readback — 2026-10-08
 
-This artifact supersedes the earlier Registry/Vault pair because `vowmark_registry.py` changed. It records only finalized transactions and direct configuration readbacks observed from GenLayer Studionet chain `61999`.
+This artifact is retained for audit history only. It is superseded by [`fresh_deployment_2026-10-08_pagination.md`](fresh_deployment_2026-10-08_pagination.md), which records the current Registry/Vault pair after bounded review pagination and direct-EOA withdrawal hardening.
 
 ## Canonical addresses
 

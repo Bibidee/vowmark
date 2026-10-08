@@ -4,6 +4,22 @@ This matrix distinguishes exact, non-overlapping test categories from aggregate
 collection totals, browser checks, and tooling-limited work. It does not treat
 an unrun benchmark or a passing typecheck as proof of validator correctness.
 
+## V3 hardening supplement
+
+The `v3-evidence-hardening` branch adds evidence-only regression coverage
+without changing the frozen contract tree:
+
+| Surface | Check | Result | Classification |
+| --- | --- | --- | --- |
+| Evidence churn and parser boundaries | `tests/sim/test_registry_behavior.py` | 32 passed after the V2 baseline | AUTOMATED |
+| Multi-commitment custody conservation | `tests/sim/test_economic_accounting.py` | 1 passed | AUTOMATED |
+| Full Python collection | `pytest tests -q` | 51 passed after the V2 baseline | AUTOMATED |
+| Withdrawal evidence preparation | `scripts/withdrawal_evidence_helpers.mjs` | syntax-checked; live use remains separately authorized | TOOLING-LIMITED |
+
+The V3 supplement is intentionally not a contract release or deployment claim.
+It records raw evidence churn behavior, parser rejection boundaries, internal
+ledger conservation, and the exact limits of recipient-balance observation.
+
 ## Executed automated coverage
 
 | Surface | Check | Result | Classification |

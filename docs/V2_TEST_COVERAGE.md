@@ -1,18 +1,21 @@
 # VOWMARK V2 Test Coverage and Evidence Matrix
 
-This matrix distinguishes executed automated checks from browser checks and from work that remains tooling-limited. It does not treat an unrun benchmark or a passing typecheck as proof of validator correctness.
+This matrix distinguishes exact, non-overlapping test categories from aggregate
+collection totals, browser checks, and tooling-limited work. It does not treat
+an unrun benchmark or a passing typecheck as proof of validator correctness.
 
 ## Executed automated coverage
 
 | Surface | Check | Result | Classification |
 | --- | --- | --- | --- |
-| Vault Direct Mode | Constructor, custody, settlement, registration, withdrawal, input bounds | 9 passed | AUTOMATED |
-| Registry simulator | Timing, review lifecycle, wiring, anchor policy, parser, evidence bounds, replay, capacity | 18 passed | AUTOMATED |
-| Full Python surface | `pytest tests -q --basetemp .pytest-v2-final` | 32 passed | AUTOMATED |
+| Vault Direct Mode | `pytest tests/direct -q` | 9 passed | AUTOMATED |
+| Registry simulator | `pytest tests/sim -q` | 18 passed | AUTOMATED |
+| Contract/source surface | `tests/test_contract_surface.py` | 5 passed | AUTOMATED |
+| Mutation harness self-test | `tests/test_mutation_harness.py` | 4 passed | AUTOMATED |
+| Full Python collection | `pytest tests -q --basetemp .pytest-v2-final` | 36 passed, aggregate of the four rows above | AUTOMATED |
 | Contract syntax | `compileall` | PASS | AUTOMATED |
 | Mutation gate | 31 valid mutants, 31 killed, 0 survived, 0 invalid, 0 tooling-limited; invalid/tooling-limited are blocking | PASS | AUTOMATED |
-| Mutation harness self-test | all killed → 0; survivor/invalid/tooling-limited → nonzero | 4 passed | AUTOMATED |
-| Release consistency | network, V1 defaults, SHAs, Vercel wording, strict equality, mutation report | PASS | AUTOMATED |
+| Release consistency | frozen SHAs, V1 defaults, app/evidence ancestry, post-application path allowlist, Vercel wording, strict equality, mutation report | PASS | AUTOMATED |
 | Judgment corpus | 24 frozen cases | Not executed; 24 tooling-limited | TOOLING-LIMITED |
 | Web typecheck | `npm run typecheck` | PASS | AUTOMATED |
 | Web lint | `npm run lint` | PASS | AUTOMATED |
@@ -20,6 +23,10 @@ This matrix distinguishes executed automated checks from browser checks and from
 | Web production build | `npm run build` | PASS | AUTOMATED |
 | Production dependency audit | `npm audit --omit=dev` | 0 vulnerabilities | AUTOMATED |
 | Full development dependency audit | `npm audit --audit-level=high` | 5 high findings in existing ESLint/Next dev chain | KNOWN LIMITATION |
+
+The 36-test full Python collection is an aggregate total, not an additional
+category: 9 Direct Mode + 18 simulator + 5 contract/source surface + 4
+mutation-harness self-tests = 36.
 
 ## Behavioral invariants covered
 
@@ -48,7 +55,14 @@ PLAYWRIGHT EXECUTIONS: 38
 PROJECTS: desktop Chromium, 390px mobile Chromium, 360px mobile Chromium, tablet Chromium
 ```
 
-Distinct scenarios cover the public landing journey, issue validation and wallet boundary, wallet rejection, wrong network, switch failure, account changes, app-local Forget, keyboard/focus/labels/live announcements, canonical commitment fallback, pending hash reload, ACCEPTED provisional state, finalized execution failure, UNDETERMINED, registration pending, successful registration retry/readback, stale local state precedence, and responsive controls. The suite deliberately does not claim a live wallet signature, live transaction, validator finality, or real judgment outcome.
+Distinct scenarios cover the public landing journey, issue validation and wallet
+boundary, wallet rejection, wrong network, switch failure, account changes,
+app-local Forget, keyboard/focus/labels/live announcements, canonical
+commitment fallback, pending hash reload, ACCEPTED provisional state, finalized
+execution failure, UNDETERMINED, registration pending, successful registration
+retry/readback, stale local state precedence, and responsive controls. The suite
+deliberately does not claim a live wallet signature, live transaction, validator
+finality, or real judgment outcome.
 
 ## Tooling-limited gaps
 
@@ -60,4 +74,7 @@ Distinct scenarios cover the public landing journey, issue validation and wallet
 
 ## Release interpretation
 
-The V2 branch has a zero-survivor result for the executable security mutation set, but it is not a deployed replacement for V1 and does not claim live V2 contract or validator evidence. The appropriate release label must account for that boundary.
+The V2 branch has a zero-survivor result for the executable security mutation
+set, but it is not a deployed replacement for V1 and does not claim live V2
+contract or validator evidence. The appropriate release label must account for
+that boundary.

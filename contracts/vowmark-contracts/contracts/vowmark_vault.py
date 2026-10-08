@@ -79,6 +79,7 @@ class VowmarkVault(gl.Contract):
 
     def __init__(self, registry_address: str):
         self.registry_address = self._address_arg(registry_address)
+        self._require_nonzero_address(self.registry_address, "registry address")
         self.next_commitment_id = u256(0)
 
     def _address_arg(self, value):

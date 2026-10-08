@@ -8,6 +8,7 @@ messages or the resulting custody state.
 from __future__ import annotations
 
 from datetime import datetime, timezone
+import os
 import re
 
 import pytest
@@ -20,8 +21,8 @@ from glsim.engine import SimEngine
 from glsim.state import StateStore
 
 
-REGISTRY_CODE = "contracts/vowmark-contracts/contracts/vowmark_registry.py"
-VAULT_CODE = "contracts/vowmark-contracts/contracts/vowmark_vault.py"
+REGISTRY_CODE = os.environ.get("VOWMARK_REGISTRY_CODE", "contracts/vowmark-contracts/contracts/vowmark_registry.py")
+VAULT_CODE = os.environ.get("VOWMARK_VAULT_CODE", "contracts/vowmark-contracts/contracts/vowmark_vault.py")
 DEPLOYER = "0x" + ("aa" * 20)
 ISSUER = "0x" + ("11" * 20)
 REMEDY = "0x" + ("22" * 20)
@@ -109,6 +110,136 @@ def _mock_conclusive_evidence(engine: SimEngine, body: str, verdict: str) -> Non
     engine.vm.mock_llm(".*", f'```json\n{{"verdict":"{verdict}"}}\n```')
 
 
+def _create_attempt(
+    engine,
+    vault_address: str,
+    *,
+    value=100,
+    statement="A commitment with frozen evidence",
+    verification_rule="Fulfilled means the frozen evidence contains the required record.",
+    maturity="2030-01-02T00:00:00Z",
+    deadline="2030-01-03T00:00:00Z",
+    remedy=REMEDY,
+    urls=None,
+    source_kinds=None,
+    purposes=None,
+):
+    _warp(engine, "2030-01-01T00:00:00Z")
+    engine.vm.value = value
+    return engine.call_method(
+        vault_address,
+        "create_commitment",
+        [
+            statement,
+            verification_rule,
+            _timestamp(maturity),
+            _timestamp(deadline),
+            remedy,
+            urls or ["https://example.com/vowmark-proof"],
+            source_kinds or ["PUBLICATION"],
+            purposes or ["immutable test evidence"],
+        ],
+        sender=ISSUER,
+    )
+
+
+def test_creation_rejects_zero_bond_invalid_roles_and_invalid_time_order(deployed):
+    engine, registry_address, vault_address = deployed
+    with pytest.raises(Exception, match="bond must be greater than zero"):
+        _create_attempt(engine, vault_address, value=0)
+    with pytest.raises(Exception, match="remedy address must be nonzero"):
+        _create_attempt(engine, vault_address, remedy=ZERO)
+    with pytest.raises(Exception, match="remedy address must differ from issuer"):
+        _create_attempt(engine, vault_address, remedy=ISSUER)
+    with pytest.raises(Exception, match="maturity must be in the future"):
+        _create_attempt(engine, vault_address, maturity="2030-01-01T00:00:00Z")
+    with pytest.raises(Exception, match="final review deadline must be after maturity"):
+        _create_attempt(engine, vault_address, maturity="2030-01-02T00:00:00Z", deadline="2030-01-02T00:00:00Z")
+    with pytest.raises(Exception, match="review window is outside the allowed bounds"):
+        _create_attempt(engine, vault_address, maturity="2030-01-02T00:00:00Z", deadline="2030-01-02T00:14:59Z")
+
+
+def test_creation_rejects_anchor_policy_violations(deployed):
+    engine, registry_address, vault_address = deployed
+    with pytest.raises(Exception, match="evidence URL must use HTTPS"):
+        _create_attempt(engine, vault_address, urls=["http://example.com/proof"])
+    with pytest.raises(Exception, match="duplicate normalized evidence URL"):
+        _create_attempt(engine, vault_address, urls=["https://example.com/proof", "https://example.com/proof"], source_kinds=["PUBLICATION", "PUBLICATION"], purposes=["one", "two"])
+    with pytest.raises(Exception, match="unsupported evidence source kind"):
+        _create_attempt(engine, vault_address, source_kinds=["UNKNOWN"])
+    with pytest.raises(Exception, match="evidence purpose label length is invalid"):
+        _create_attempt(engine, vault_address, purposes=[""])
+    with pytest.raises(Exception, match="evidence anchor fields are invalid"):
+        _create_attempt(engine, vault_address, urls=[f"https://example.com/proof-{index}" for index in range(6)], source_kinds=["PUBLICATION"] * 6, purposes=["proof"] * 6)
+
+
+def test_vault_constructor_and_registry_wiring_are_nonzero_and_immutable(deployed):
+    engine, registry_address, vault_address = deployed
+    with pytest.raises(Exception):
+        engine.deploy(VAULT_CODE, args=[ZERO], sender=DEPLOYER)
+    with pytest.raises(Exception, match="only the deployer may finish initial wiring"):
+        engine.call_method(registry_address, "set_vault_address", [vault_address], sender=ISSUER)
+    with pytest.raises(Exception, match="vault wiring is already immutable"):
+        engine.call_method(registry_address, "set_vault_address", [vault_address], sender=DEPLOYER)
+
+
+def test_registry_write_callers_and_terminal_replays_are_rejected(deployed):
+    engine, registry_address, vault_address = deployed
+    commitment_id = _issue(engine, vault_address, statement="A terminal replay boundary")
+    with pytest.raises(Exception, match="only the immutable vault may register commitments"):
+        engine.call_method(registry_address, "register_commitment", [commitment_id, ISSUER, "x", "y", 1, 2, 902, REMEDY, 100, ["https://example.com/proof"], ["PUBLICATION"], ["p"]], sender=ISSUER)
+    _warp(engine, "2030-01-02T00:00:00Z")
+    _mock_conclusive_evidence(engine, "fulfilled before deadline", "FULFILLED")
+    engine.call_method(registry_address, "review_commitment", [commitment_id], sender=REVIEWER_A)
+    with pytest.raises(Exception, match="commitment already has a terminal outcome"):
+        engine.call_method(registry_address, "review_commitment", [commitment_id], sender=REVIEWER_B)
+    with pytest.raises(Exception, match="commitment already has a terminal outcome"):
+        engine.call_method(registry_address, "expire_commitment", [commitment_id], sender=REVIEWER_B)
+
+
+def test_rejected_duplicate_snapshot_does_not_mutate_history(deployed):
+    engine, registry_address, vault_address = deployed
+    commitment_id = _issue(engine, vault_address, statement="A duplicate snapshot accounting boundary")
+    _warp(engine, "2030-01-02T00:00:00Z")
+    _mock_review_evidence(engine, "one immutable snapshot")
+    engine.call_method(registry_address, "review_commitment", [commitment_id], sender=REVIEWER_A)
+    before = engine.call_method(registry_address, "get_commitment", [commitment_id], sender=REVIEWER_A)
+    _mock_review_evidence(engine, "one immutable snapshot")
+    with pytest.raises(Exception, match="identical evidence snapshot was already reviewed"):
+        engine.call_method(registry_address, "review_commitment", [commitment_id], sender=REVIEWER_C)
+    after = engine.call_method(registry_address, "get_commitment", [commitment_id], sender=REVIEWER_A)
+    assert after["attempt_count"] == before["attempt_count"] == 1
+    assert engine.call_method(registry_address, "get_review_count", [commitment_id], sender=REVIEWER_A) == 1
+
+
+def test_unknown_validator_verdict_is_rejected_without_a_review_record(deployed):
+    engine, registry_address, vault_address = deployed
+    commitment_id = _issue(engine, vault_address, statement="An unknown verdict boundary")
+    _warp(engine, "2030-01-02T00:00:00Z")
+    engine.vm.mock_web(re.escape("https://example.com/vowmark-proof"), {"body": "evidence"})
+    engine.vm.mock_llm(".*", '```json\n{"verdict":"MAYBE"}\n```')
+    with pytest.raises(Exception, match="unknown verdict"):
+        engine.call_method(registry_address, "review_commitment", [commitment_id], sender=REVIEWER_A)
+    assert engine.call_method(registry_address, "get_review_count", [commitment_id], sender=REVIEWER_A) == 0
+
+
+def test_unavailable_or_oversized_evidence_stays_inconclusive(deployed):
+    engine, registry_address, vault_address = deployed
+    unavailable_id = _issue(engine, vault_address, statement="An unavailable evidence boundary")
+    _warp(engine, "2030-01-02T00:00:00Z")
+    engine.vm.mock_llm(".*", '```json\n{"verdict":"FULFILLED"}\n```')
+    engine.call_method(registry_address, "review_commitment", [unavailable_id], sender=REVIEWER_A)
+    assert engine.call_method(registry_address, "get_commitment", [unavailable_id], sender=REVIEWER_A)["latest_verdict"] == "INCONCLUSIVE"
+
+    oversized_id = _issue(engine, vault_address, statement="An oversized evidence boundary")
+    _warp(engine, "2030-01-02T00:00:00Z")
+    engine.vm.clear_mocks()
+    engine.vm.mock_web(re.escape("https://example.com/vowmark-proof"), {"body": "x" * 12_001})
+    engine.vm.mock_llm(".*", '```json\n{"verdict":"FULFILLED"}\n```')
+    engine.call_method(registry_address, "review_commitment", [oversized_id], sender=REVIEWER_A)
+    assert engine.call_method(registry_address, "get_commitment", [oversized_id], sender=REVIEWER_A)["latest_verdict"] == "INCONCLUSIVE"
+
+
 def test_review_window_boundaries_and_review_at_exact_maturity(deployed):
     engine, registry_address, vault_address = deployed
     engine.vm.value = 100
@@ -185,6 +316,8 @@ def test_review_deadline_and_expiry_boundaries_are_exact(deployed):
     # A prior inconclusive review leaves the bond locked and expiry remains legal.
     engine.call_method(registry_address, "expire_commitment", [commitment_id], sender=REVIEWER_B)
     assert engine.call_method(registry_address, "get_commitment", [commitment_id], sender=REVIEWER_B)["outcome"] == "EXPIRED_UNRESOLVED"
+    with pytest.raises(Exception, match="commitment already has a terminal outcome"):
+        engine.call_method(registry_address, "expire_commitment", [commitment_id], sender=REVIEWER_B)
 
 
 def test_conclusive_review_before_deadline_prevents_expiry(deployed):

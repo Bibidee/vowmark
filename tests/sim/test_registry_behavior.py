@@ -65,10 +65,15 @@ def deployed():
         loader._mock_embeddings_for_direct_mode = original_embedding_patch
 
 
-def _issue(engine, vault_address: str, *, statement: str = "A commitment with frozen evidence") -> int:
+def _issue(
+    engine,
+    vault_address: str,
+    *,
+    statement: str = "A commitment with frozen evidence",
+    maturity: str = "2030-01-02T00:00:00Z",
+    deadline: str = "2030-01-03T00:00:00Z",
+) -> int:
     created = "2030-01-01T00:00:00Z"
-    maturity = "2030-01-02T00:00:00Z"
-    deadline = "2030-01-03T00:00:00Z"
     _warp(engine, created)
     engine.vm.value = 100
     result = engine.call_method(
@@ -97,6 +102,100 @@ def _mock_review_evidence(engine: SimEngine, body: str) -> None:
     # The simulator auto-parses valid JSON mocks; the contract intentionally
     # accepts a fenced response and parses it itself.
     engine.vm.mock_llm(".*", '```json\n{"verdict":"INCONCLUSIVE"}\n```')
+
+
+def _mock_conclusive_evidence(engine: SimEngine, body: str, verdict: str) -> None:
+    engine.vm.mock_web(re.escape("https://example.com/vowmark-proof"), {"body": body})
+    engine.vm.mock_llm(".*", f'```json\n{{"verdict":"{verdict}"}}\n```')
+
+
+def test_review_window_boundaries_and_review_at_exact_maturity(deployed):
+    engine, registry_address, vault_address = deployed
+    engine.vm.value = 100
+    _warp(engine, "2030-01-01T00:00:00Z")
+    with pytest.raises(Exception, match="review window is outside the allowed bounds"):
+        engine.call_method(
+            vault_address,
+            "create_commitment",
+            [
+                "A too-short review window commitment",
+                "Fulfilled means the frozen evidence contains the required record.",
+                _timestamp("2030-01-02T00:00:00Z"),
+                _timestamp("2030-01-02T00:14:59Z"),
+                REMEDY,
+                ["https://example.com/vowmark-proof"],
+                ["PUBLICATION"],
+                ["immutable test evidence"],
+            ],
+            sender=ISSUER,
+        )
+
+    exact_id = _issue(engine, vault_address, statement="An exact fifteen minute review window", maturity="2030-01-02T01:00:00Z", deadline="2030-01-02T01:15:00Z")
+    _warp(engine, "2030-01-02T00:59:59Z")
+    _mock_review_evidence(engine, "before maturity snapshot")
+    with pytest.raises(Exception, match="commitment is not mature"):
+        engine.call_method(registry_address, "review_commitment", [exact_id], sender=REVIEWER_A)
+    _warp(engine, "2030-01-02T01:00:00Z")
+    _mock_review_evidence(engine, "exact maturity snapshot")
+    engine.call_method(registry_address, "review_commitment", [exact_id], sender=REVIEWER_A)
+    review = engine.call_method(registry_address, "get_reviews", [exact_id, 0, 25], sender=REVIEWER_A)[0]
+    assert int(review["requested_at"]) == _timestamp("2030-01-02T01:00:00Z")
+
+
+def test_retry_cooldown_boundaries_and_different_reviewer_eligibility(deployed):
+    engine, registry_address, vault_address = deployed
+    commitment_id = _issue(engine, vault_address, statement="A five minute retry boundary")
+    _warp(engine, "2030-01-02T00:00:00Z")
+    _mock_review_evidence(engine, "first snapshot")
+    engine.call_method(registry_address, "review_commitment", [commitment_id], sender=REVIEWER_A)
+
+    _warp(engine, "2030-01-02T00:04:59Z")
+    engine.vm.clear_mocks()
+    _mock_review_evidence(engine, "too soon snapshot")
+    with pytest.raises(Exception, match="reviewer retry cooldown is active"):
+        engine.call_method(registry_address, "review_commitment", [commitment_id], sender=REVIEWER_A)
+
+    engine.vm.clear_mocks()
+    _mock_review_evidence(engine, "different reviewer snapshot")
+    engine.call_method(registry_address, "review_commitment", [commitment_id], sender=REVIEWER_B)
+    _warp(engine, "2030-01-02T00:05:00Z")
+    engine.vm.clear_mocks()
+    _mock_review_evidence(engine, "exact cooldown snapshot")
+    engine.call_method(registry_address, "review_commitment", [commitment_id], sender=REVIEWER_A)
+
+
+def test_review_deadline_and_expiry_boundaries_are_exact(deployed):
+    engine, registry_address, vault_address = deployed
+    commitment_id = _issue(engine, vault_address, statement="A final deadline timestamp commitment", maturity="2030-01-02T01:00:00Z", deadline="2030-01-02T01:15:00Z")
+    _warp(engine, "2030-01-02T01:14:59Z")
+    _mock_review_evidence(engine, "submitted before final deadline")
+    engine.call_method(registry_address, "review_commitment", [commitment_id], sender=REVIEWER_A)
+    review = engine.call_method(registry_address, "get_reviews", [commitment_id, 0, 25], sender=REVIEWER_A)[0]
+    assert int(review["requested_at"]) == _timestamp("2030-01-02T01:14:59Z")
+
+    _warp(engine, "2030-01-02T01:15:00Z")
+    with pytest.raises(Exception, match="review window has closed"):
+        engine.call_method(registry_address, "review_commitment", [commitment_id], sender=REVIEWER_B)
+    with pytest.raises(Exception, match="commitment cannot expire before final deadline"):
+        # The exact-deadline attempt below is the legal expiry boundary; this
+        # negative check runs one second before it.
+        _warp(engine, "2030-01-02T01:14:59Z")
+        engine.call_method(registry_address, "expire_commitment", [commitment_id], sender=REVIEWER_B)
+    _warp(engine, "2030-01-02T01:15:00Z")
+    # A prior inconclusive review leaves the bond locked and expiry remains legal.
+    engine.call_method(registry_address, "expire_commitment", [commitment_id], sender=REVIEWER_B)
+    assert engine.call_method(registry_address, "get_commitment", [commitment_id], sender=REVIEWER_B)["outcome"] == "EXPIRED_UNRESOLVED"
+
+
+def test_conclusive_review_before_deadline_prevents_expiry(deployed):
+    engine, registry_address, vault_address = deployed
+    commitment_id = _issue(engine, vault_address, statement="A conclusive review deadline commitment", maturity="2030-01-02T01:00:00Z", deadline="2030-01-02T01:15:00Z")
+    _warp(engine, "2030-01-02T01:00:00Z")
+    _mock_conclusive_evidence(engine, "fulfilled before deadline", "FULFILLED")
+    engine.call_method(registry_address, "review_commitment", [commitment_id], sender=REVIEWER_A)
+    with pytest.raises(Exception, match="commitment already has a terminal outcome"):
+        _warp(engine, "2030-01-02T01:15:00Z")
+        engine.call_method(registry_address, "expire_commitment", [commitment_id], sender=REVIEWER_B)
 
 
 def test_unrelated_reviewer_is_not_blocked_by_another_reviewer(deployed):

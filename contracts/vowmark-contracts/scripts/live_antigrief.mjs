@@ -88,7 +88,7 @@ for (const item of [issuer, reviewerA, reviewerB]) await item.client.initializeC
 
 const existingCommitmentId = process.env.VOWMARK_EXISTING_COMMITMENT_ID ? BigInt(process.env.VOWMARK_EXISTING_COMMITMENT_ID) : undefined;
 const maturity = BigInt(Math.floor(Date.now() / 1000) + Number(process.env.VOWMARK_MATURITY_DELAY_SECONDS || "90"));
-const deadline = maturity + 7200n;
+const deadline = maturity + BigInt(process.env.VOWMARK_REVIEW_WINDOW_SECONDS || "1800");
 const createArgs = [
   "The anti-griefing control must remain inconclusive while two wallets submit changed public snapshots.",
   "The commitment remains OPEN and INCONCLUSIVE; the test passes only if reviewer B can submit after reviewer A without waiting for the per-reviewer cooldown.",

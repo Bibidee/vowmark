@@ -44,6 +44,14 @@ NEXT_PUBLIC_VOWMARK_VAULT_ADDRESS=0x59E28386C2804fbECCeC37D4A093b43f901af15b
 
 Do not leave stale addresses or alternate networks in production environment configuration.
 
+The deployed Registry must read back this timing policy from `get_config()`:
+
+- `min_review_window`: `900` seconds;
+- `retry_cooldown`: `300` seconds, scoped per reviewer;
+- `review_epoch_seconds`: `3600` seconds;
+- `max_review_attempts_per_epoch`: `32`;
+- `max_review_window`: `7776000` seconds (90 days).
+
 ## Submission rule
 
 `ACCEPTED` is not enough. Deployment/configuration/lifecycle transactions recorded as canonical evidence must be verified to the final state required by the current GenLayer runtime. Reread contract configuration after deployment. The current canonical addresses and evidence are in [`../HANDOFF_STATUS.md`](../HANDOFF_STATUS.md) and [`../evidence/fresh_deployment_2026-10-08_pagination.md`](../evidence/fresh_deployment_2026-10-08_pagination.md).

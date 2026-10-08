@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { connectWallet, extractExecutionReturn, getWalletState, readRegistry, readVault, waitForFinality, writeVault } from "@/lib/genlayer";
-import { formatGen, parseGen } from "@/lib/config";
+import { formatGen, parseGen, REVIEW_POLICY } from "@/lib/config";
 import { rememberActivity, updateActivity } from "@/lib/activity";
 import { asBigInt, type SourceKind } from "@/lib/types";
 
@@ -52,7 +52,7 @@ export function IssueForm() {
     if (rule.trim().length < 10) throw new Error("Describe how validators can decide the promise.");
     if (maturitySeconds <= BigInt(Math.floor(Date.now() / 1000))) throw new Error("Maturity must be in the future.");
     if (deadlineSeconds <= maturitySeconds) throw new Error("The final review deadline must be after maturity.");
-    if (deadlineSeconds - maturitySeconds < 2n * 60n * 60n) throw new Error("The review window must be at least two hours.");
+    if (deadlineSeconds - maturitySeconds < BigInt(REVIEW_POLICY.minimumWindowSeconds)) throw new Error("The review window must be at least 15 minutes.");
     if (!/^0x[0-9a-fA-F]{40}$/.test(remedy) || /^0x0{40}$/i.test(remedy)) throw new Error("Enter a valid nonzero remedy address.");
     if (anchors.some((item) => !item.url.startsWith("https://") || !item.purpose.trim())) throw new Error("Every evidence anchor needs an HTTPS URL and purpose.");
   }
@@ -161,7 +161,7 @@ export function IssueForm() {
           </section>
           <section className="form-section">
             <h2>02 / The clock &amp; remedy</h2>
-            <div className="field-row"><div className="field"><label htmlFor="maturity">When the clock stops</label><input id="maturity" type="datetime-local" value={maturity} onChange={(event) => setMaturity(event.target.value)} required /></div><div className="field"><label htmlFor="deadline">Last call for judgment</label><input id="deadline" type="datetime-local" value={deadline} onChange={(event) => setDeadline(event.target.value)} required /></div></div>
+            <div className="field-row"><div className="field"><label htmlFor="maturity">When the clock stops</label><input id="maturity" type="datetime-local" value={maturity} onChange={(event) => setMaturity(event.target.value)} required /></div><div className="field"><label htmlFor="deadline">Last call for judgment</label><input id="deadline" type="datetime-local" value={deadline} onChange={(event) => setDeadline(event.target.value)} required /></div></div><p className="hint">The final review deadline must be at least 15 minutes after maturity. Review retries use a 5-minute per-reviewer cooldown, with 32 attempts per 1-hour epoch.</p>
             <div className="field"><label htmlFor="remedy">If you break it</label><input id="remedy" value={remedy} onChange={(event) => setRemedy(event.target.value)} placeholder="0x... where the bond goes if BREACHED" spellCheck={false} required /><span className="hint">A nonzero address different from yours. This is immutable and receives the bond only if validators conclude BREACHED.</span></div>
             <div className="field"><label htmlFor="bond">Skin in the game / GEN</label><input id="bond" inputMode="decimal" value={bond} onChange={(event) => setBond(event.target.value)} placeholder="How much GEN backs your word?" required /><span className="hint">The bond is held by the Vault from issuance and can only leave through an evidenced terminal outcome or withdrawal.</span></div>
           </section>

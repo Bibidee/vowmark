@@ -69,6 +69,16 @@ These are product phases, not a requirement to invent seven redundant storage en
 
 Do not confuse these with GenLayer transaction/consensus statuses such as `ACCEPTED`, `FINALIZED`, `UNDETERMINED` or runtime failure.
 
+## Review timing policy
+
+- Minimum review window: **15 minutes** after maturity (`900` seconds).
+- Same-reviewer retry cooldown: **5 minutes** (`300` seconds), and the evidence snapshot must change.
+- Review capacity epoch: **1 hour** (`3600` seconds).
+- Maximum accepted attempts per epoch: **32**.
+- Maximum review window: **90 days**.
+
+The cooldown is per reviewer; the hourly capacity is per commitment. A coordinated Sybil set may still temporarily consume an epoch's capacity, but there is no permanent lifetime attempt cap.
+
 ## Core frontend routes
 
 - `/` — Maturity Board

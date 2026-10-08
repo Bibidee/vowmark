@@ -33,7 +33,11 @@ def test_registry_uses_vault_first_no_value_settlement_and_immutable_terms():
     assert "RETRY_COOLDOWN" in REGISTRY
     assert "MAX_REVIEW_ATTEMPTS_PER_EPOCH" in REGISTRY
     assert "MAX_REVIEW_PAGE" in REGISTRY
+    assert "MIN_REVIEW_WINDOW = 15 * 60" in REGISTRY
+    assert "RETRY_COOLDOWN = 5 * 60" in REGISTRY
+    assert "REVIEW_EPOCH_SECONDS = 60 * 60" in REGISTRY
     assert "def get_review_count(" in REGISTRY
+    assert "def get_reviewer_last_attempt_at(" in REGISTRY
     assert "def get_reviews(self, commitment_id: u256, start: u256, limit: u256)" in REGISTRY
     assert "review_epoch_attempts" in REGISTRY
     assert "reviewer_last_attempt_at" in REGISTRY
@@ -56,6 +60,7 @@ def test_vault_is_custody_boundary_and_debits_before_external_send():
     assert "def create_commitment(" in VAULT
     assert "def retry_registration(" in VAULT
     assert "only the immutable registry may settle" in VAULT
+    assert "MIN_REVIEW_WINDOW = 15 * 60" in VAULT
     assert "settled_commitments" in VAULT
     assert "withdrawal exceeds available credit" in VAULT
     assert "withdrawal requires a direct EOA caller" in VAULT

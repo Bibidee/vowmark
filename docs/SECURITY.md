@@ -46,7 +46,7 @@
 
 **Risk:** repeated clicks or repeated transactions create duplicate attempts or economic consequences.
 
-**Mitigation:** terminal checks, attempt nonces/IDs, snapshot-digest handling, cooldowns and idempotent settlement rules. One bond resolves once.
+**Mitigation:** terminal checks, attempt nonces/IDs, snapshot-digest handling, a 5-minute per-reviewer cooldown, a 32-attempt-per-1-hour capacity epoch and idempotent settlement rules. One bond resolves once. This bounds one address's retry rate but does not make coordinated Sybil exhaustion impossible.
 
 ## Threat: unauthorized settlement
 

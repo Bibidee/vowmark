@@ -14,13 +14,13 @@ MAX_ANCHORS = 5
 MAX_URL = 500
 MAX_LABEL = 180
 MAX_EVIDENCE_TEXT = 12_000
-MIN_REVIEW_WINDOW = 2 * 3_600
+MIN_REVIEW_WINDOW = 15 * 60
 MAX_REVIEW_WINDOW = 90 * 24 * 60 * 60
-RETRY_COOLDOWN = 3_600
+RETRY_COOLDOWN = 5 * 60
 # A reviewer can retry once per cooldown window. A bounded per-window budget
 # prevents a Sybil set from consuming all storage or review capacity while the
 # commitment remains open, but it never creates a permanent lifetime cap.
-REVIEW_EPOCH_SECONDS = RETRY_COOLDOWN
+REVIEW_EPOCH_SECONDS = 60 * 60
 MAX_REVIEW_ATTEMPTS_PER_EPOCH = 32
 MAX_REVIEW_PAGE = 25
 
@@ -627,6 +627,15 @@ Frozen evidence snapshot:
         if commitment_id not in self.commitments:
             raise gl.vm.UserError("commitment does not exist")
         return self.commitments[commitment_id].attempt_count
+
+    @gl.public.view
+    def get_reviewer_last_attempt_at(self, commitment_id: u256, reviewer_address: str) -> u256:
+        if commitment_id not in self.commitments:
+            raise gl.vm.UserError("commitment does not exist")
+        reviewer = self._address_arg(reviewer_address)
+        if commitment_id not in self.reviewer_last_attempt_at:
+            return u256(0)
+        return self.reviewer_last_attempt_at[commitment_id].get(reviewer, u256(0))
 
     @gl.public.view
     def get_reviews(self, commitment_id: u256, start: u256, limit: u256) -> list[dict]:

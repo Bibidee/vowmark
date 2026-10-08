@@ -13,7 +13,7 @@ The final suite should emphasize invariants and adversarial behavior, not vanity
 7. empty/oversized verification rule rejected
 8. maturity not in future rejected
 9. review deadline not after maturity rejected
-10. inadequate review window rejected if the final design enforces a minimum
+10. review window 14m59s rejected; exactly 15m and greater accepted
 11. zero evidence anchors rejected
 12. more than maximum anchors rejected
 13. duplicate normalized URL rejected
@@ -57,6 +57,8 @@ The final suite should emphasize invariants and adversarial behavior, not vanity
 45. repeated identical snapshot does not create unbounded duplicate history
 46. retry after inconclusive obeys cooldown
 47. new changed snapshot can be reviewed when retry is legal
+
+Timing boundary coverage includes review before maturity, review at exact maturity, same-reviewer retry before and at 5 minutes, independent reviewer eligibility, 32 accepted attempts in one 1-hour epoch, rejection of attempt 33 in that epoch, reset in the next epoch, review at 1 second before the deadline, rejection at/after the deadline, expiry before and at the deadline, conclusive outcome blocking expiry, and an inconclusive bond remaining locked until retry or expiry.
 
 Review-history scalability requirement: the Registry exposes a separate count and bounded newest-first pages. Every page is capped at 25 records, and the frontend must request older pages explicitly rather than loading an unbounded array.
 

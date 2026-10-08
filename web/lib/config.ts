@@ -15,6 +15,14 @@ export const VAULT_ADDRESS =
   process.env.NEXT_PUBLIC_VOWMARK_VAULT_ADDRESS ||
   "0x59E28386C2804fbECCeC37D4A093b43f901af15b";
 
+export const REVIEW_POLICY = {
+  minimumWindowSeconds: 15 * 60,
+  retryCooldownSeconds: 5 * 60,
+  epochSeconds: 60 * 60,
+  maxAttemptsPerEpoch: 32,
+  maximumWindowSeconds: 90 * 24 * 60 * 60,
+} as const;
+
 export function explorerTx(hash: string) {
   return `${NETWORK.explorerUrl}/tx/${hash}`;
 }

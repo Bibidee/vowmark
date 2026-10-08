@@ -136,11 +136,12 @@ const selectedProof = {
 }[process.env.VOWMARK_PROOF_SET];
 const proofs = selectedProof ? [selectedProof] : allProofs;
 const maturityDelaySeconds = Number(process.env.VOWMARK_MATURITY_DELAY_SECONDS || "300");
+const reviewWindowSeconds = BigInt(process.env.VOWMARK_REVIEW_WINDOW_SECONDS || "1800");
 
 const results = [];
 for (const proof of proofs) {
   const maturity = BigInt(Math.floor(Date.now() / 1000) + maturityDelaySeconds);
-  const deadline = maturity + 7200n;
+  const deadline = maturity + reviewWindowSeconds;
   const created = await write(client, VAULT, "create_commitment", [proof.statement, proof.rule, maturity, deadline, address(REMEDY), [proof.url], [proof.sourceKind], [proof.purpose]], BOND);
   const commitmentId = decodeReturn(created.receipt);
   if (commitmentId === undefined || commitmentId < 0n) throw new Error(`Issuance ${created.hash} returned no canonical commitment id`);

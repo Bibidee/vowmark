@@ -172,7 +172,41 @@ def test_terminal_settlement_and_reconciliation_are_idempotent(deployed):
     engine.call_method(registry_address, "expire_commitment", [commitment_id], sender=REVIEWER_B)
     engine.call_method(vault_address, "get_issuance", [commitment_id], sender=ISSUER)
     assert engine.call_method(vault_address, "get_settled", [commitment_id], sender=ISSUER) is True
-    engine.call_method(registry_address, "retry_settlement", [commitment_id], sender=REVIEWER_B)
+    pending = engine.call_method(registry_address, "get_settlement", [commitment_id], sender=REVIEWER_B)
+    assert pending["state"] == "SETTLEMENT_PENDING"
+    credit_after_vault_settlement = engine.call_method(vault_address, "get_credit", [ISSUER], sender=ISSUER)
+
+    # Case A: Vault credit exists while Registry's settlement callback is
+    # still pending. Reconciliation should only advance Registry state.
     engine.call_method(registry_address, "reconcile_settlement", [commitment_id], sender=REVIEWER_B)
     settlement = engine.call_method(registry_address, "get_settlement", [commitment_id], sender=REVIEWER_B)
     assert settlement["state"] == "CREDIT_CONFIRMED"
+    assert engine.call_method(vault_address, "get_credit", [ISSUER], sender=ISSUER) == credit_after_vault_settlement
+
+    # Case B: retrying after completion must not emit another settlement or
+    # duplicate the issuer's credit.
+    engine.call_method(registry_address, "retry_settlement", [commitment_id], sender=REVIEWER_B)
+    engine.call_method(registry_address, "reconcile_settlement", [commitment_id], sender=REVIEWER_B)
+    assert engine.call_method(vault_address, "get_credit", [ISSUER], sender=ISSUER) == credit_after_vault_settlement
+
+
+def test_retry_registration_is_immutable_and_does_not_duplicate_bond(deployed):
+    engine, registry_address, vault_address = deployed
+    commitment_id = _issue(engine, vault_address, statement="A registration recovery replay")
+
+    before = engine.call_method(vault_address, "get_issuance", [commitment_id], sender=ISSUER)
+    before_commitment = engine.call_method(registry_address, "get_commitment", [commitment_id], sender=ISSUER)
+    before_total = engine.call_method(registry_address, "get_total_commitments", [], sender=ISSUER)
+
+    # genlayer-test delivers the initial registration child before the next
+    # top-level call, so it cannot suppress that child to reproduce a missing
+    # initial callback. This deterministic path still verifies that the
+    # public recovery entrypoint is safe to replay after registration.
+    engine.call_method(vault_address, "retry_registration", [commitment_id], sender=ISSUER)
+    after = engine.call_method(vault_address, "get_issuance", [commitment_id], sender=ISSUER)
+    after_commitment = engine.call_method(registry_address, "get_commitment", [commitment_id], sender=ISSUER)
+
+    assert before["registered"] is True
+    assert after == before
+    assert after_commitment == before_commitment
+    assert engine.call_method(registry_address, "get_total_commitments", [], sender=ISSUER) == before_total == 1

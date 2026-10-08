@@ -17,3 +17,9 @@ export function rememberActivity(record: ActivityRecord) {
   const next = [record, ...loadActivity().filter((item) => item.hash !== record.hash)].slice(0, 30);
   window.localStorage.setItem(KEY, JSON.stringify(next));
 }
+
+export function updateActivity(hash: string, patch: Partial<ActivityRecord>) {
+  const current = loadActivity().find((item) => item.hash === hash);
+  if (!current) return;
+  rememberActivity({ ...current, ...patch, hash });
+}

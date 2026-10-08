@@ -21,6 +21,10 @@ function leader(receipt) {
   const raw = receipt.consensus_data?.leader_receipt;
   return Array.isArray(raw) ? raw[0] : raw;
 }
+function isSuccessfulFinalizedReceipt(receipt, currentLeader) {
+  const decodedStatus = currentLeader?.result && typeof currentLeader.result === "object" ? currentLeader.result.status : undefined;
+  return receipt.status === TransactionStatus.FINALIZED && currentLeader && currentLeader.error == null && currentLeader.execution_result === "SUCCESS" && (decodedStatus === undefined || decodedStatus === "return");
+}
 function decodeInteger(bytes) {
   let value = 0n;
   let shift = 0n;
@@ -48,7 +52,7 @@ function executionReturn(receipt) {
 async function finalized(client, hash) {
   const receipt = await client.waitForTransactionReceipt({ hash, status: TransactionStatus.FINALIZED, retries: 240, interval: 5000 });
   const currentLeader = leader(receipt);
-  if (!currentLeader || currentLeader.error || !["SUCCESS", "FINISHED_WITH_RETURN"].includes(currentLeader.execution_result)) throw new Error(`Finalized transaction did not execute successfully: ${json(receipt)}`);
+  if (!isSuccessfulFinalizedReceipt(receipt, currentLeader)) throw new Error(`Finalized transaction did not execute successfully: ${json(receipt)}`);
   return receipt;
 }
 async function read(client, address, functionName, args = []) {

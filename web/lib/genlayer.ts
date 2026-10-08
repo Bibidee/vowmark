@@ -23,6 +23,35 @@ const chain = {
   rpcUrls: { default: { http: [NETWORK.rpcUrl] } },
 } as never;
 type GLClient = ReturnType<typeof createClient>;
+type LeaderReceipt = { error?: unknown; execution_result?: unknown; result?: unknown };
+
+function leaderReceipt(receipt: unknown): LeaderReceipt | undefined {
+  const raw = (receipt as { consensus_data?: { leader_receipt?: unknown } })?.consensus_data?.leader_receipt;
+  return Array.isArray(raw) ? raw[0] as LeaderReceipt | undefined : raw as LeaderReceipt | undefined;
+}
+
+/**
+ * genlayer-js@0.9.0 has no success helper. The installed receipt contract is
+ * FINALIZED + leader execution_result SUCCESS, with no leader error. When the
+ * SDK has decoded the result, rollback/error statuses are rejected as well.
+ */
+export function isSuccessfulFinalizedExecution(receipt: unknown): boolean {
+  const transaction = receipt as { status?: unknown } | undefined;
+  const leader = leaderReceipt(receipt);
+  if (String(transaction?.status || "") !== TransactionStatus.FINALIZED || !leader) return false;
+  if (leader.error !== undefined && leader.error !== null && leader.error !== "") return false;
+  if (leader.execution_result !== "SUCCESS") return false;
+  const decodedStatus = leader.result && typeof leader.result === "object" ? (leader.result as { status?: unknown }).status : undefined;
+  return decodedStatus === undefined || decodedStatus === "return";
+}
+
+export function executionFailureDescription(receipt: unknown): string {
+  const leader = leaderReceipt(receipt);
+  if (leader?.error) return String(leader.error);
+  if (leader?.execution_result && leader.execution_result !== "SUCCESS") return String(leader.execution_result);
+  const decodedStatus = leader?.result && typeof leader.result === "object" ? (leader.result as { status?: unknown }).status : undefined;
+  return decodedStatus && decodedStatus !== "return" ? String(decodedStatus) : "Finalized transaction did not execute successfully";
+}
 
 function requireRegistry() {
   if (!REGISTRY_ADDRESS) {
@@ -105,13 +134,7 @@ export async function writeVault(address: string, functionName: string, args: un
 
 export async function waitForFinality(hash: string) {
   const receipt = await readClient().waitForTransactionReceipt({ hash: hash as TransactionHash, status: TransactionStatus.FINALIZED, retries: 200 });
-  const rawLeaderReceipt = receipt.consensus_data?.leader_receipt as unknown;
-  const leaderReceipt = Array.isArray(rawLeaderReceipt) ? rawLeaderReceipt[0] as { execution_result?: string; error?: string | null } : rawLeaderReceipt as { execution_result?: string; error?: string | null } | undefined;
-  const executionResult = leaderReceipt?.execution_result;
-  const executionError = leaderReceipt?.error;
-  if (!leaderReceipt || executionError || typeof executionResult !== "string" || !["SUCCESS", "FINISHED_WITH_RETURN"].includes(executionResult)) {
-    throw new Error(`Finalized transaction did not execute successfully${executionError ? `: ${executionError}` : "."}`);
-  }
+  if (!isSuccessfulFinalizedExecution(receipt)) throw new Error(executionFailureDescription(receipt));
   return receipt;
 }
 
@@ -144,6 +167,7 @@ function decodeCalldataInteger(bytes: Uint8Array): bigint | undefined {
 
 /** Read the actual return value from a finalized GenLayer execution result. */
 export function extractExecutionReturn(receipt: unknown): bigint | undefined {
+  if (!isSuccessfulFinalizedExecution(receipt)) return undefined;
   const leaderReceipt = (receipt as { consensus_data?: { leader_receipt?: unknown } })?.consensus_data?.leader_receipt;
   const leader = Array.isArray(leaderReceipt) ? leaderReceipt[0] : leaderReceipt;
   if (!leader || typeof leader !== "object") return undefined;

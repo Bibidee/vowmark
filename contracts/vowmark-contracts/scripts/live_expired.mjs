@@ -6,8 +6,9 @@ import { TransactionStatus } from "genlayer-js/types";
 const RPC = "https://studio.genlayer.com/api";
 const REGISTRY = process.env.VOWMARK_REGISTRY_ADDRESS || "0x76DE9332010D5F03660Fa2216cb5cc76585dFFE8";
 const VAULT = process.env.VOWMARK_VAULT_ADDRESS || "0x536B5E36d52aC1EFA72d00fFa63B932EfBf42841";
-const COMMITMENT_ID = BigInt(process.env.VOWMARK_EXPIRED_COMMITMENT_ID || "0");
-const BOND = 100000000000000n;
+const rawCommitmentId = process.env.VOWMARK_EXPIRED_COMMITMENT_ID;
+if (!rawCommitmentId) throw new Error("VOWMARK_EXPIRED_COMMITMENT_ID is required");
+const COMMITMENT_ID = BigInt(rawCommitmentId);
 const chain = {
   id: 61999,
   name: "GenLayer Studionet",
@@ -34,11 +35,15 @@ function leaderReceipt(receipt) {
   const raw = receipt.consensus_data?.leader_receipt;
   return Array.isArray(raw) ? raw[0] : raw;
 }
+function isSuccessfulFinalizedReceipt(receipt, leader) {
+  const decodedStatus = leader?.result && typeof leader.result === "object" ? leader.result.status : undefined;
+  return receipt.status === TransactionStatus.FINALIZED && leader && leader.error == null && leader.execution_result === "SUCCESS" && (decodedStatus === undefined || decodedStatus === "return");
+}
 
 async function finalized(client, hash) {
   const receipt = await client.waitForTransactionReceipt({ hash, status: TransactionStatus.FINALIZED, retries: 240, interval: 5000 });
   const leader = leaderReceipt(receipt);
-  if (!leader || leader.error || !["SUCCESS", "FINISHED_WITH_RETURN"].includes(leader.execution_result)) {
+  if (!isSuccessfulFinalizedReceipt(receipt, leader)) {
     throw new Error(`Finalized transaction did not execute successfully: ${json(receipt)}`);
   }
   return receipt;
@@ -70,7 +75,16 @@ const account = createAccount(privateKey);
 const client = createClient({ chain, endpoint: RPC, account });
 await client.initializeConsensusSmartContract();
 
-const before = await read(client, REGISTRY, "get_commitment", [COMMITMENT_ID]);
+const registryConfig = await read(client, REGISTRY, "get_config");
+const vaultRegistry = await read(client, VAULT, "get_registry");
+if (String(registryConfig.vault_address).toLowerCase() !== VAULT.toLowerCase() || String(vaultRegistry).toLowerCase() !== REGISTRY.toLowerCase()) {
+  throw new Error(`Registry/Vault deployment wiring does not match configured addresses: ${json({ registryConfig, vaultRegistry, REGISTRY, VAULT })}`);
+}
+
+let before = await read(client, REGISTRY, "get_commitment", [COMMITMENT_ID]);
+if (!["OPEN", "EXPIRED_UNRESOLVED"].includes(before.outcome)) {
+  throw new Error(`Commitment #${COMMITMENT_ID} is ${before.outcome}; expiry runner only accepts OPEN or EXPIRED_UNRESOLVED`);
+}
 if (before.outcome === "OPEN") {
   await waitUntil(`Commitment #${COMMITMENT_ID}`, async () => {
     const commitment = await read(client, REGISTRY, "get_commitment", [COMMITMENT_ID]);
@@ -78,9 +92,15 @@ if (before.outcome === "OPEN") {
   });
 }
 
+before = await read(client, REGISTRY, "get_commitment", [COMMITMENT_ID]);
+if (before.outcome === "OPEN" && Math.floor(Date.now() / 1000) < Number(before.final_review_deadline)) {
+  throw new Error(`Commitment #${COMMITMENT_ID} has not passed its final review deadline`);
+}
 const expireTx = before.outcome === "EXPIRED_UNRESOLVED" ? null : await write(client, REGISTRY, "expire_commitment", [COMMITMENT_ID]);
 let commitment = await read(client, REGISTRY, "get_commitment", [COMMITMENT_ID]);
 if (commitment.outcome !== "EXPIRED_UNRESOLVED") throw new Error(`Expected EXPIRED_UNRESOLVED, got ${commitment.outcome}`);
+const issuance = await read(client, VAULT, "get_issuance", [COMMITMENT_ID]);
+const BOND = BigInt(issuance.bond);
 
 const settlement = await waitUntil(`Vault settlement #${COMMITMENT_ID}`, async () => {
   const value = await read(client, VAULT, "get_settlement", [COMMITMENT_ID]);
@@ -100,6 +120,7 @@ const evidence = {
   vault: VAULT,
   account: account.address,
   commitmentId: COMMITMENT_ID,
+  deployment: { registry: REGISTRY, vault: VAULT, registryConfig, vaultRegistry },
   expireTx,
   reconcileTx,
   commitment,

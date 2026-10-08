@@ -28,8 +28,10 @@ async function waitFinal(client, hash) {
   const receipt = await client.waitForTransactionReceipt({ hash, status: TransactionStatus.FINALIZED, retries: 240, interval: 5000 });
   const rawLeader = receipt.consensus_data?.leader_receipt;
   const leader = Array.isArray(rawLeader) ? rawLeader[0] : rawLeader;
-  const result = leader?.execution_result;
-  if (!leader || leader.error || !["SUCCESS", "FINISHED_WITH_RETURN"].includes(result)) throw new Error(`Finalized transaction did not execute successfully: ${json(receipt)}`);
+  const decodedStatus = leader?.result && typeof leader.result === "object" ? leader.result.status : undefined;
+  if (receipt.status !== TransactionStatus.FINALIZED || !leader || leader.error != null || leader.execution_result !== "SUCCESS" || (decodedStatus !== undefined && decodedStatus !== "return")) {
+    throw new Error(`Finalized transaction did not execute successfully: ${json(receipt)}`);
+  }
   return receipt;
 }
 

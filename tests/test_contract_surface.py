@@ -63,11 +63,20 @@ def test_vault_is_custody_boundary_and_debits_before_external_send():
 def test_frontend_reads_are_explicitly_finalized_and_next_is_not_static_exported():
     genlayer = (ROOT / "web/lib/genlayer.ts").read_text(encoding="utf-8")
     issue_form = (ROOT / "web/components/IssueForm.tsx").read_text(encoding="utf-8")
+    transaction_rail = (ROOT / "web/components/TransactionRail.tsx").read_text(encoding="utf-8")
+    activity_view = (ROOT / "web/components/ActivityView.tsx").read_text(encoding="utf-8")
     next_config = (ROOT / "web/next.config.ts").read_text(encoding="utf-8")
     assert genlayer.count("stateStatus: TransactionStatus.FINALIZED") >= 2
     assert "execution_result" in genlayer
+    assert "FINISHED_WITH_RETURN" not in genlayer
+    assert "isSuccessfulFinalizedExecution" in genlayer
     assert "extractExecutionReturn" in genlayer
     assert "get_next_commitment_id" not in issue_form
     assert "Finalized Vault issuance did not match the signed commitment terms." in issue_form
     assert "readIssuanceAfterRegistration" in issue_form
+    assert 'state: "REGISTRATION_PENDING"' in issue_form
+    assert "retry_registration" in issue_form
+    assert 'type TransactionStage = "IDLE" | "SUBMITTED" | "ACCEPTED" | "FINALIZED" | "ERROR"' in (ROOT / "web/lib/types.ts").read_text(encoding="utf-8")
+    assert "stageRank" in transaction_rail
+    assert "registration === \"REGISTRATION_PENDING\"" in activity_view
     assert "output: \"export\"" not in next_config

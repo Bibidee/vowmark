@@ -53,11 +53,17 @@ export type IssuerSummary = {
   expired_unresolved: bigint;
 };
 
+export type TransactionStage = "IDLE" | "SUBMITTED" | "ACCEPTED" | "FINALIZED" | "ERROR";
+export type ActivityState = "SUBMITTED" | "FINALIZED_EXECUTION" | "ISSUANCE_FOUND" | "REGISTRATION_PENDING" | "REGISTERED" | "FAILED";
+
 export type ActivityRecord = {
   hash: string;
   label: string;
-  kind?: "issue" | "review" | "expire" | "settlement" | "withdraw";
+  kind?: "issue" | "registration" | "review" | "expire" | "settlement" | "withdraw";
   commitmentId?: string;
+  issuer?: string;
+  state?: ActivityState;
+  error?: string;
   createdAt: string;
 };
 

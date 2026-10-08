@@ -2,9 +2,9 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { connectWallet, extractExecutionReturn, getWalletState, readVault, waitForFinality, writeVault } from "@/lib/genlayer";
+import { connectWallet, extractExecutionReturn, getWalletState, readRegistry, readVault, waitForFinality, writeVault } from "@/lib/genlayer";
 import { formatGen, parseGen } from "@/lib/config";
-import { rememberActivity } from "@/lib/activity";
+import { rememberActivity, updateActivity } from "@/lib/activity";
 import { asBigInt, type SourceKind } from "@/lib/types";
 
 type Anchor = { url: string; sourceKind: SourceKind; purpose: string };
@@ -12,6 +12,8 @@ const initialAnchor: Anchor = { url: "", sourceKind: "PUBLICATION", purpose: "" 
 
 function unix(value: string) { return BigInt(Math.floor(new Date(value).getTime() / 1000)); }
 function localValue(secondsFromNow: number) { return new Date(Date.now() + secondsFromNow * 1000).toISOString().slice(0, 16); }
+function sameAddress(left: unknown, right: string) { return typeof left === "string" && left.toLowerCase() === right.toLowerCase(); }
+
 async function readIssuanceAfterRegistration(commitmentId: bigint) {
   let issuance = await readVault("get_issuance", [commitmentId]) as Record<string, unknown>;
   for (let attempt = 0; attempt < 20 && issuance.registered !== true; attempt += 1) {
@@ -33,6 +35,10 @@ export function IssueForm() {
   const [submitted, setSubmitted] = useState("");
   const [commitmentId, setCommitmentId] = useState("");
   const [finalized, setFinalized] = useState(false);
+  const [registrationPending, setRegistrationPending] = useState(false);
+  const [retryingRegistration, setRetryingRegistration] = useState(false);
+  const [recoveryHash, setRecoveryHash] = useState("");
+  const [issuance, setIssuance] = useState<Record<string, unknown>>();
   const [submitting, setSubmitting] = useState(false);
   const maturitySeconds = useMemo(() => maturity ? unix(maturity) : 0n, [maturity]);
   const deadlineSeconds = useMemo(() => deadline ? unix(deadline) : 0n, [deadline]);
@@ -51,38 +57,88 @@ export function IssueForm() {
     if (anchors.some((item) => !item.url.startsWith("https://") || !item.purpose.trim())) throw new Error("Every evidence anchor needs an HTTPS URL and purpose.");
   }
 
+  function verifyIssuanceTerms(value: Record<string, unknown>, actualId: bigint, issuer: string) {
+    if (
+      asBigInt(value.commitment_id) !== actualId
+      || !sameAddress(value.issuer, issuer)
+      || !sameAddress(value.remedy, remedy)
+      || value.statement !== statement.trim()
+      || value.verification_rule !== rule.trim()
+      || asBigInt(value.maturity_at) !== maturitySeconds
+      || asBigInt(value.final_review_deadline) !== deadlineSeconds
+      || asBigInt(value.bond) !== parseGen(bond)
+    ) throw new Error("Finalized Vault issuance did not match the signed commitment terms.");
+  }
+
+  async function markOriginalRegistered(actualId: bigint, originalHash = submitted) {
+    await readRegistry("get_commitment", [actualId]);
+    updateActivity(originalHash, { state: "REGISTERED", commitmentId: actualId.toString(), error: undefined });
+    setRegistrationPending(false);
+    setFinalized(true);
+  }
+
+  async function retryRegistration() {
+    if (!submitted || !commitmentId) return;
+    setError(""); setRetryingRegistration(true);
+    let retryHash = "";
+    let registrationStillPending = false;
+    try {
+      let wallet = await getWalletState().catch(() => null);
+      if (!wallet?.address) wallet = await connectWallet();
+      if (!wallet.isCorrectNetwork) throw new Error("Switch your wallet to GenLayer Studionet before retrying registration.");
+      if (issuance?.issuer && !sameAddress(issuance.issuer, wallet.address)) throw new Error("Connect the issuer wallet that created this commitment to retry registration.");
+      retryHash = String(await writeVault(wallet.address, "retry_registration", [BigInt(commitmentId)]));
+      setRecoveryHash(retryHash);
+      rememberActivity({ hash: retryHash, kind: "registration", label: `Retry Registry registration #${commitmentId}`, commitmentId, issuer: wallet.address, state: "SUBMITTED", createdAt: new Date().toISOString() });
+      await waitForFinality(retryHash);
+      updateActivity(retryHash, { state: "FINALIZED_EXECUTION" });
+      const current = await readIssuanceAfterRegistration(BigInt(commitmentId));
+      setIssuance(current);
+      if (current.registered !== true) {
+        registrationStillPending = true;
+        updateActivity(retryHash, { state: "REGISTRATION_PENDING", error: "Registry registration is still pending after the finalized retry." });
+        throw new Error("The retry finalized, but Registry registration is still pending. Keep this transaction in Activity and retry again.");
+      }
+      await markOriginalRegistered(BigInt(commitmentId));
+      updateActivity(retryHash, { state: "REGISTERED", error: undefined });
+    } catch (cause) {
+      const message = cause instanceof Error ? cause.message : "Registry registration retry failed.";
+      if (retryHash) updateActivity(retryHash, { state: registrationStillPending ? "REGISTRATION_PENDING" : "FAILED", error: message });
+      setError(message);
+    } finally { setRetryingRegistration(false); }
+  }
+
   async function submit(event: React.FormEvent) {
     event.preventDefault();
-    setError(""); setSubmitted(""); setCommitmentId(""); setFinalized(false); setSubmitting(true);
+    setError(""); setSubmitted(""); setCommitmentId(""); setFinalized(false); setRegistrationPending(false); setIssuance(undefined); setSubmitting(true);
+    let txHash = "";
     try {
       validate();
       let wallet = await getWalletState().catch(() => null);
       if (!wallet?.address) wallet = await connectWallet();
       if (!wallet.isCorrectNetwork) throw new Error("Switch your wallet to GenLayer Studionet before signing.");
-      const hash = await writeVault(wallet.address, "create_commitment", [statement, rule, maturitySeconds, deadlineSeconds, remedy, anchors.map((item) => item.url), anchors.map((item) => item.sourceKind), anchors.map((item) => item.purpose)], parseGen(bond));
-      const txHash = String(hash);
+      txHash = String(await writeVault(wallet.address, "create_commitment", [statement, rule, maturitySeconds, deadlineSeconds, remedy, anchors.map((item) => item.url), anchors.map((item) => item.sourceKind), anchors.map((item) => item.purpose)], parseGen(bond)));
       setSubmitted(txHash);
+      rememberActivity({ hash: txHash, kind: "issue", label: "Issue commitment", issuer: wallet.address, state: "SUBMITTED", createdAt: new Date().toISOString() });
       const receipt = await waitForFinality(txHash);
+      updateActivity(txHash, { state: "FINALIZED_EXECUTION" });
       const actualId = extractExecutionReturn(receipt);
       if (actualId === undefined || actualId < 0n) throw new Error("Finalized issuance did not return a canonical commitment id.");
-      const issuance = await readIssuanceAfterRegistration(actualId);
-      const sameAddress = (left: unknown, right: string) => typeof left === "string" && left.toLowerCase() === right.toLowerCase();
-      if (
-        asBigInt(issuance.commitment_id) !== actualId
-        || !sameAddress(issuance.issuer, wallet.address)
-        || !sameAddress(issuance.remedy, remedy)
-        || issuance.statement !== statement.trim()
-        || issuance.verification_rule !== rule.trim()
-        || asBigInt(issuance.maturity_at) !== maturitySeconds
-        || asBigInt(issuance.final_review_deadline) !== deadlineSeconds
-        || asBigInt(issuance.bond) !== parseGen(bond)
-        || issuance.registered !== true
-      ) throw new Error("Finalized Vault issuance did not match the signed commitment terms.");
-      rememberActivity({ hash: txHash, kind: "issue", label: "Issue commitment", commitmentId: actualId.toString(), createdAt: new Date().toISOString() });
       setCommitmentId(actualId.toString());
-      setFinalized(true);
+      const current = await readIssuanceAfterRegistration(actualId);
+      setIssuance(current);
+      verifyIssuanceTerms(current, actualId, wallet.address);
+      updateActivity(txHash, { state: "ISSUANCE_FOUND", commitmentId: actualId.toString() });
+      if (current.registered !== true) {
+        updateActivity(txHash, { state: "REGISTRATION_PENDING", commitmentId: actualId.toString() });
+        setRegistrationPending(true);
+        return;
+      }
+      await markOriginalRegistered(actualId, txHash);
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "The commitment could not be submitted.");
+      const message = cause instanceof Error ? cause.message : "The commitment could not be submitted.";
+      if (txHash) updateActivity(txHash, { state: "FAILED", error: message });
+      setError(message);
     } finally { setSubmitting(false); }
   }
 
@@ -116,20 +172,22 @@ export function IssueForm() {
             {anchors.length < 5 ? <button type="button" className="secondary-button" onClick={() => setAnchors((items) => [...items, { ...initialAnchor }])}>+ Insert evidence node</button> : null}
           </section>
           {error ? <div className="error-box" role="alert" aria-live="assertive">{error}</div> : null}
-          {submitted && finalized ? <div className="success-box" role="status" aria-live="polite">Issuance finalized. {commitmentId ? <Link className="text-link" href={`/commitment/${commitmentId}`}>Open commitment #{commitmentId}</Link> : null} / <Link className="text-link" href="/activity">view transaction</Link>.</div> : null}
-          {submitted && !finalized && !error ? <div className="hint" role="status" aria-live="polite">Transaction submitted; waiting for finalized execution.</div> : null}
-          <button className="primary-button" type="submit" disabled={submitting}>{submitting ? "Waiting for finality…" : "Freeze and issue commitment"}</button>
+          {registrationPending ? <div className="warning-box registration-recovery" role="status" aria-live="polite"><strong>ISSUED / REGISTRATION PENDING</strong><span>Vault issuance #{commitmentId} is finalized and the bond is held. The Registry child has not confirmed yet.</span><span>Original transaction: <Link className="text-link" href="/activity">{submitted ? submitted.slice(0, 10) : "view Activity"}</Link>{recoveryHash ? ` / retry ${recoveryHash.slice(0, 10)}` : ""}</span><button type="button" className="secondary-button" onClick={retryRegistration} disabled={retryingRegistration}>{retryingRegistration ? "Waiting for registration finality…" : "Retry Registry registration"}</button></div> : null}
+          {submitted && finalized ? <div className="success-box" role="status" aria-live="polite">Issuance finalized and registered. {commitmentId ? <Link className="text-link" href={`/commitment/${commitmentId}`}>Open commitment #{commitmentId}</Link> : null} / <Link className="text-link" href="/activity">view transaction</Link>.</div> : null}
+          {submitted && !finalized && !registrationPending && !error ? <div className="hint" role="status" aria-live="polite">Transaction submitted; waiting for finalized execution.</div> : null}
+          <button className="primary-button" type="submit" disabled={submitting || retryingRegistration}>{submitting ? "Waiting for finality…" : "Freeze and issue commitment"}</button>
         </div>
-        <aside className={`vow-specimen${finalized ? " sealed" : ""}`} aria-label="Live vow specimen preview">
+        <aside className={`vow-specimen${finalized ? " sealed" : ""}${registrationPending ? " pending" : ""}`} aria-label="Live vow specimen preview">
           <div className="vow-specimen-header"><div><span className="specimen-code">VOW / {commitmentId || "DRAFT"}</span><h3>Pre-flight record</h3></div><span className="specimen-code">REV. 01</span></div>
-          <div className="specimen-watermark" aria-hidden="true">{finalized ? "SEALED" : "UNSEALED"}</div>
-          <div className="specimen-seal">{finalized ? "SEALED / FINALIZED" : "UNSEALED / DRAFT"}</div>
+          <div className="specimen-watermark" aria-hidden="true">{finalized ? "SEALED" : registrationPending ? "PENDING" : "UNSEALED"}</div>
+          <div className="specimen-seal">{finalized ? "SEALED / FINALIZED" : registrationPending ? "ISSUED / REGISTRATION PENDING" : "UNSEALED / DRAFT"}</div>
           <div className="specimen-meta">
             <div className="summary-line"><span>Clock stops</span><strong>{maturity ? new Date(maturity).toLocaleString() : "—"}</strong></div>
             <div className="summary-line"><span>Last call</span><strong>{deadline ? new Date(deadline).toLocaleString() : "—"}</strong></div>
             <div className="summary-line"><span>Bond</span><strong>{(() => { try { return formatGen(parseGen(bond)); } catch { return "—"; } })()}</strong></div>
             <div className="summary-line"><span>Evidence nodes</span><strong>{anchors.length} / 5</strong></div>
             <div className="summary-line"><span>Remedy</span><strong>{remedy ? `${remedy.slice(0, 6)}…${remedy.slice(-4)}` : "UNSET"}</strong></div>
+            {issuance?.registered === false ? <div className="summary-line"><span>Vault custody</span><strong>HELD / ON RECORD</strong></div> : null}
           </div>
           <p className="specimen-note">No cancellation. No quiet edits. Once signed and finalized, this shape becomes the record.</p>
         </aside>

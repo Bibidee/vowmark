@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { connectWallet, extractExecutionReturn, getWalletState, readRegistry, readVault, waitForFinality, writeVault } from "@/lib/genlayer";
 import { formatGen, parseGen, REVIEW_POLICY } from "@/lib/config";
@@ -12,6 +12,11 @@ const initialAnchor: Anchor = { url: "", sourceKind: "PUBLICATION", purpose: "" 
 
 function unix(value: string) { return BigInt(Math.floor(new Date(value).getTime() / 1000)); }
 function localValue(secondsFromNow: number) { return new Date(Date.now() + secondsFromNow * 1000).toISOString().slice(0, 16); }
+function specimenDate(value: string) {
+  if (!value) return "—";
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? "—" : `${parsed.toISOString().slice(0, 16).replace("T", " ")} UTC`;
+}
 function sameAddress(left: unknown, right: string) { return typeof left === "string" && left.toLowerCase() === right.toLowerCase(); }
 
 async function readIssuanceAfterRegistration(commitmentId: bigint) {
@@ -26,8 +31,8 @@ async function readIssuanceAfterRegistration(commitmentId: bigint) {
 export function IssueForm() {
   const [statement, setStatement] = useState("");
   const [rule, setRule] = useState("");
-  const [maturity, setMaturity] = useState(localValue(7 * 24 * 60 * 60));
-  const [deadline, setDeadline] = useState(localValue(14 * 24 * 60 * 60));
+  const [maturity, setMaturity] = useState("");
+  const [deadline, setDeadline] = useState("");
   const [remedy, setRemedy] = useState("");
   const [bond, setBond] = useState("1");
   const [anchors, setAnchors] = useState<Anchor[]>([initialAnchor]);
@@ -40,6 +45,10 @@ export function IssueForm() {
   const [recoveryHash, setRecoveryHash] = useState("");
   const [issuance, setIssuance] = useState<Record<string, unknown>>();
   const [submitting, setSubmitting] = useState(false);
+  useEffect(() => {
+    setMaturity(localValue(7 * 24 * 60 * 60));
+    setDeadline(localValue(14 * 24 * 60 * 60));
+  }, []);
   const maturitySeconds = useMemo(() => maturity ? unix(maturity) : 0n, [maturity]);
   const deadlineSeconds = useMemo(() => deadline ? unix(deadline) : 0n, [deadline]);
 
@@ -182,8 +191,8 @@ export function IssueForm() {
           <div className="specimen-watermark" aria-hidden="true">{finalized ? "SEALED" : registrationPending ? "PENDING" : "UNSEALED"}</div>
           <div className="specimen-seal">{finalized ? "SEALED / FINALIZED" : registrationPending ? "ISSUED / REGISTRATION PENDING" : "UNSEALED / DRAFT"}</div>
           <div className="specimen-meta">
-            <div className="summary-line"><span>Clock stops</span><strong>{maturity ? new Date(maturity).toLocaleString() : "—"}</strong></div>
-            <div className="summary-line"><span>Last call</span><strong>{deadline ? new Date(deadline).toLocaleString() : "—"}</strong></div>
+            <div className="summary-line"><span>Clock stops</span><strong>{specimenDate(maturity)}</strong></div>
+            <div className="summary-line"><span>Last call</span><strong>{specimenDate(deadline)}</strong></div>
             <div className="summary-line"><span>Bond</span><strong>{(() => { try { return formatGen(parseGen(bond)); } catch { return "—"; } })()}</strong></div>
             <div className="summary-line"><span>Evidence nodes</span><strong>{anchors.length} / 5</strong></div>
             <div className="summary-line"><span>Remedy</span><strong>{remedy ? `${remedy.slice(0, 6)}…${remedy.slice(-4)}` : "UNSET"}</strong></div>

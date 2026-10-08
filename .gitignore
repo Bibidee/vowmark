@@ -9,8 +9,12 @@ coverage/
 __pycache__/
 .pytest_cache/
 .pytest-direct-tmp/
+.pytest-v2-*/
 evidence/live_expired_runner*.log
 *.tsbuildinfo
 .DS_Store
 
 .vercel
+web/test-results/
+web/playwright-report/
+web/AGENTS.md

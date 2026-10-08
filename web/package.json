@@ -8,7 +8,8 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test:board": "tsx lib/board.test.ts",
-    "lint": "eslint app components lib"
+    "lint": "eslint app components lib",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "genlayer-js": "0.9.0",
@@ -18,12 +19,13 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "3.3.1",
+    "@playwright/test": "1.64.0",
     "@types/node": "24.3.0",
     "@types/react": "19.1.10",
     "@types/react-dom": "19.1.7",
     "eslint": "9.34.0",
     "eslint-config-next": "16.4.0",
-    "typescript": "5.9.2",
-    "tsx": "4.23.15"
+    "tsx": "4.23.15",
+    "typescript": "5.9.2"
   }
 }

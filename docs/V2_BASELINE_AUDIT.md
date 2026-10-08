@@ -6,7 +6,7 @@ This audit was performed from the frozen submitted V1 commit before V2 edits.
 - Frozen V1 HEAD: `97b5ca8888eeaca3d2b1deb733c832c8448d4383`
 - V1 application SHA: `8dbb131958d28f87d9f618a9d2bbd09744a6986b`
 - Branch used for V2: `v2-hardening`
-- V1 production: `https://the-vowmark.vercel.app/` (not modified)
+- V1 production: `https://the-vowmark.vercel.app/` (not modified; V2 Preview evidence is recorded separately in [`V2_RELEASE_EVIDENCE.md`](V2_RELEASE_EVIDENCE.md))
 - Studionet chain: `61999`
 - V1 Registry: `0x3Be513bB6CAe652826A6092C0715AF39E7189c71`
 - V1 Vault: `0xf8D89f89aD160546780eD76Cd64C550d91bAf501`

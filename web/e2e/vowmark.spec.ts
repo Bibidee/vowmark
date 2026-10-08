@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { DEFAULT_ACCOUNT, installMockProvider, setMockAccounts } from "./provider";
 
 async function expectNoHorizontalOverflow(page: Page) {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
@@ -59,5 +60,63 @@ test.describe("VOWMARK browser contract", () => {
     await page.goto("/");
     await expect(page.getByRole("link", { name: /make a vow/i })).toBeVisible();
     await expectNoHorizontalOverflow(page);
+  });
+
+  test("wallet signature rejection leaves the issue form recoverable without a hash", async ({ page }) => {
+    await installMockProvider(page, { requestAccountsError: { code: 4001, message: "User rejected the wallet request" } });
+    await page.goto("/issue");
+    await page.getByLabel("The commitment").fill("Publish a dated release record");
+    await page.getByLabel("The test").fill("A public dated record proves the release");
+    await page.getByLabel("If you break it").fill("0x1111111111111111111111111111111111111111");
+    await page.getByLabel("Evidence node // 01").fill("https://example.com/release");
+    await page.getByLabel("What does this source prove?").fill("The dated release record");
+    await page.getByRole("button", { name: /freeze and issue commitment/i }).click();
+    await expect(page.locator(".error-box[role=alert]")).toContainText(/rejected|wallet/i);
+    await expect(page.locator(".success-box")).toHaveCount(0);
+    await expect(page.getByRole("button", { name: /freeze and issue commitment/i })).toBeEnabled();
+  });
+
+  test("wrong network blocks issuance with explicit Studionet guidance", async ({ page }) => {
+    await installMockProvider(page, { accounts: [DEFAULT_ACCOUNT], chainId: "0x1" });
+    await page.goto("/issue");
+    await page.getByLabel("The commitment").fill("Publish a dated release record");
+    await page.getByLabel("The test").fill("A public dated record proves the release");
+    await page.getByLabel("If you break it").fill("0x2222222222222222222222222222222222222222");
+    await page.getByLabel("Evidence node // 01").fill("https://example.com/release");
+    await page.getByLabel("What does this source prove?").fill("The dated release record");
+    await page.getByRole("button", { name: /freeze and issue commitment/i }).click();
+    await expect(page.locator(".error-box[role=alert]")).toContainText(/Studionet before signing/i);
+    await expect(page.getByRole("button", { name: /switch to studionet/i })).toBeVisible();
+  });
+
+  test("network-switch failure never produces optimistic success", async ({ page }) => {
+    await installMockProvider(page, { accounts: [DEFAULT_ACCOUNT], chainId: "0x1", switchError: { code: 4001, message: "Network switch rejected" } });
+    await page.goto("/");
+    await expect(page.getByRole("button", { name: /switch to studionet/i })).toBeVisible();
+    await page.getByRole("button", { name: /switch to studionet/i }).click();
+    await expect(page.getByText("Wallet error")).toHaveAttribute("title", /Network switch rejected/);
+    await expect(page.locator(".success-box")).toHaveCount(0);
+  });
+
+  test("accountsChanged updates the displayed issuer and Forget is app-local", async ({ page }) => {
+    const nextAccount = "0x3333333333333333333333333333333333333333";
+    await installMockProvider(page, { accounts: [DEFAULT_ACCOUNT], chainId: "0xf22f" });
+    await page.goto("/");
+    await expect(page.getByTitle(DEFAULT_ACCOUNT)).toBeVisible();
+    await setMockAccounts(page, [nextAccount]);
+    await expect(page.getByTitle(nextAccount)).toBeVisible();
+    await page.getByRole("button", { name: "Forget" }).click();
+    await expect(page.getByRole("button", { name: "Connect wallet" })).toBeVisible();
+    await expect(page.getByText("VOWMARK-only disconnect")).toHaveCount(0);
+  });
+
+  test("primary issue actions have labels, keyboard focus, and live validation announcements", async ({ page }) => {
+    await page.goto("/issue");
+    await page.getByLabel("The commitment").focus();
+    await expect(page.locator(":focus")).toHaveAttribute("id", "statement");
+    await expect(page.getByLabel("The test")).toBeVisible();
+    await expect(page.getByLabel("Evidence node // 01")).toBeVisible();
+    await page.getByRole("button", { name: /freeze and issue commitment/i }).click();
+    await expect(page.locator("[role=alert][aria-live=assertive]")).toBeVisible();
   });
 });

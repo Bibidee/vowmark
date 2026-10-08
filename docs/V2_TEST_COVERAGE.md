@@ -10,7 +10,9 @@ This matrix distinguishes executed automated checks from browser checks and from
 | Registry simulator | Timing, review lifecycle, wiring, anchor policy, parser, evidence bounds, replay, capacity | 18 passed | AUTOMATED |
 | Full Python surface | `pytest tests -q --basetemp .pytest-v2-final` | 32 passed | AUTOMATED |
 | Contract syntax | `compileall` | PASS | AUTOMATED |
-| Mutation gate | 31 valid mutants, 31 killed, 0 survivors | PASS | AUTOMATED |
+| Mutation gate | 31 valid mutants, 31 killed, 0 survived, 0 invalid, 0 tooling-limited; invalid/tooling-limited are blocking | PASS | AUTOMATED |
+| Mutation harness self-test | all killed → 0; survivor/invalid/tooling-limited → nonzero | 4 passed | AUTOMATED |
+| Release consistency | network, V1 defaults, SHAs, Vercel wording, strict equality, mutation report | PASS | AUTOMATED |
 | Judgment corpus | 24 frozen cases | Not executed; 24 tooling-limited | TOOLING-LIMITED |
 | Web typecheck | `npm run typecheck` | PASS | AUTOMATED |
 | Web lint | `npm run lint` | PASS | AUTOMATED |
@@ -38,7 +40,15 @@ This matrix distinguishes executed automated checks from browser checks and from
 
 ## Browser E2E boundary
 
-The Playwright suite is a browser-level UI check, not a chain or validator proof. It executed 10 tests across desktop Chromium and mobile-sized Chromium. It covers the landing page, navigation, issue-form validation, wallet-absent behavior, commitment trace UI, mobile layout, and horizontal-overflow regression. It deliberately does not claim a wallet signature, live transaction, finalized child message, or real judgment outcome.
+The Playwright suite is a browser-level UI check, not a chain or validator proof.
+
+```text
+DISTINCT E2E SCENARIOS: 19
+PLAYWRIGHT EXECUTIONS: 38
+PROJECTS: desktop Chromium, 390px mobile Chromium, 360px mobile Chromium, tablet Chromium
+```
+
+Distinct scenarios cover the public landing journey, issue validation and wallet boundary, wallet rejection, wrong network, switch failure, account changes, app-local Forget, keyboard/focus/labels/live announcements, canonical commitment fallback, pending hash reload, ACCEPTED provisional state, finalized execution failure, UNDETERMINED, registration pending, successful registration retry/readback, stale local state precedence, and responsive controls. The suite deliberately does not claim a live wallet signature, live transaction, validator finality, or real judgment outcome.
 
 ## Tooling-limited gaps
 

@@ -1,6 +1,6 @@
 # VOWMARK V2 Judgment Calibration Benchmark Results
 
-The benchmark definition was frozen in commit `cefd280` before any result record was written. This document records execution status without inventing validator observations.
+The benchmark definition was frozen in commit `cefd2808340086beb8810f5bff63dd7ad8ee4865` before any result record was written. This document records execution status without inventing validator observations.
 
 ## Execution status
 

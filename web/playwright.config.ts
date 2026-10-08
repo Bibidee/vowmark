@@ -16,7 +16,9 @@ export default defineConfig({
     timeout: 120_000,
   },
   projects: [
-    { name: "chromium", use: { ...devices["Desktop Chrome"] } },
-    { name: "mobile", use: { ...devices["Desktop Chrome"], viewport: { width: 390, height: 844 }, isMobile: true } },
+    { name: "chromium", testMatch: /(?:vowmark|activity)\.spec\.ts$/, use: { ...devices["Desktop Chrome"] } },
+    { name: "mobile", testMatch: /(?:vowmark|activity)\.spec\.ts$/, use: { ...devices["Desktop Chrome"], viewport: { width: 390, height: 844 }, isMobile: true } },
+    { name: "mobile-360", testMatch: /responsive\.spec\.ts$/, use: { ...devices["Desktop Chrome"], viewport: { width: 360, height: 800 }, isMobile: true } },
+    { name: "tablet", testMatch: /responsive\.spec\.ts$/, use: { ...devices["Desktop Chrome"], viewport: { width: 768, height: 1024 }, isMobile: true } },
   ],
 });

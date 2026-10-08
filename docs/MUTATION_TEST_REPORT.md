@@ -1,6 +1,6 @@
 # VOWMARK V2 Mutation Test Report
 
-The executable mutation harness is [`scripts/run_mutation_tests.py`](../scripts/run_mutation_tests.py). It copies one contract source mutation into a workspace scratch directory, compiles the mutated source, runs the relevant behavioral suite with that source path injected, and classifies the result. Compilation failures and harness failures are not counted as killed mutants.
+The executable mutation harness is [`scripts/run_mutation_tests.py`](../scripts/run_mutation_tests.py). It copies one contract source mutation into a workspace scratch directory, compiles the mutated source, runs the relevant behavioral suite with that source path injected, and classifies the result. Compilation failures and harness failures are not counted as killed mutants. The release gate fails on `SURVIVED`, `INVALID`, or `TOOLING-LIMITED`; its decision logic is covered by `tests/test_mutation_harness.py`.
 
 ## Run
 
@@ -20,7 +20,7 @@ INVALID: 0
 TOOLING-LIMITED: 0
 ```
 
-Security-relevant valid survivors: `0`.
+Security-relevant valid survivors: `0`. Invalid and tooling-limited executable mutants: `0` and `0`; both categories are release-blocking if they appear in a future run.
 
 ## Mutant inventory
 

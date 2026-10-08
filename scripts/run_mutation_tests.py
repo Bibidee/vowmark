@@ -108,6 +108,22 @@ def _run_mutant(mutant: Mutant, root: Path, workspace: Path) -> tuple[str, str]:
     return "KILLED", output[-500:]
 
 
+def mutation_gate_failed(counts: dict[str, int]) -> bool:
+    """Return whether the executable mutant inventory is unsafe to release.
+
+    A mutation that cannot be compiled or exercised is not evidence that the
+    invariant still holds.  Keep those outcomes release-blocking alongside a
+    surviving mutant so anchor drift and tooling regressions cannot silently
+    turn the security gate green.
+    """
+
+    return any(counts.get(name, 0) > 0 for name in ("SURVIVED", "INVALID", "TOOLING-LIMITED"))
+
+
+def mutation_gate_exit_code(counts: dict[str, int]) -> int:
+    return 1 if mutation_gate_failed(counts) else 0
+
+
 def main() -> int:
     results: list[tuple[Mutant, str, str]] = []
     with tempfile.TemporaryDirectory(prefix=".vowmark-mutations-", dir=ROOT) as temp_dir:
@@ -132,7 +148,7 @@ def main() -> int:
     print("EQUIVALENT: 0")
     print(f"INVALID: {counts['INVALID']}")
     print(f"TOOLING-LIMITED: {counts['TOOLING-LIMITED']}")
-    return 1 if counts["SURVIVED"] else 0
+    return mutation_gate_exit_code(counts)
 
 
 if __name__ == "__main__":

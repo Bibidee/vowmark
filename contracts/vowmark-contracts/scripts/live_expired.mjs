@@ -5,11 +5,12 @@ import { studionet } from "genlayer-js/chains";
 import { TransactionStatus } from "genlayer-js/types";
 
 const RPC = "https://studio.genlayer.com/api";
-const REGISTRY = process.env.VOWMARK_REGISTRY_ADDRESS || "0xb2Fb628484f7b1C10D35d11A49B660f0aE924F37";
-const VAULT = process.env.VOWMARK_VAULT_ADDRESS || "0x59E28386C2804fbECCeC37D4A093b43f901af15b";
+const REGISTRY = process.env.VOWMARK_REGISTRY_ADDRESS || "0x3Be513bB6CAe652826A6092C0715AF39E7189c71";
+const VAULT = process.env.VOWMARK_VAULT_ADDRESS || "0xf8D89f89aD160546780eD76Cd64C550d91bAf501";
 const rawCommitmentId = process.env.VOWMARK_EXPIRED_COMMITMENT_ID;
 if (!rawCommitmentId) throw new Error("VOWMARK_EXPIRED_COMMITMENT_ID is required");
 const COMMITMENT_ID = BigInt(rawCommitmentId);
+const CREATE_TX = process.env.VOWMARK_EXPIRED_CREATE_TX || null;
 const chain = { ...studionet, rpcUrls: { ...studionet.rpcUrls, default: { http: [RPC] } } };
 
 function plain(value) {
@@ -112,6 +113,7 @@ const evidence = {
   vault: VAULT,
   account: account.address,
   commitmentId: COMMITMENT_ID,
+  createTx: CREATE_TX,
   deployment: { registry: REGISTRY, vault: VAULT, registryConfig, vaultRegistry },
   expireTx,
   reconcileTx,
@@ -119,6 +121,6 @@ const evidence = {
   vaultSettlement: settlement,
   withdrawal: { withdrawalTx, creditBefore, creditAfter },
 };
-const evidencePath = new URL("../../../evidence/live_expired_pinned.json", import.meta.url);
+const evidencePath = new URL(process.env.VOWMARK_EVIDENCE_FILE || "../../../evidence/live_expired_final.json", import.meta.url);
 fs.writeFileSync(evidencePath, json(evidence));
 console.log(json(evidence));

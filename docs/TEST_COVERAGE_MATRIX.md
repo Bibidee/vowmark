@@ -24,8 +24,8 @@ This maps every item in [`TEST_PLAN.md`](TEST_PLAN.md) to the strongest evidence
 | 18 | AUTOMATED | Immutable evidence/replay tests |
 | 19 | AUTOMATED | Remedy is stored in issuance/Registry record with no setter |
 | 20 | AUTOMATED | Direct custody value and credit assertions |
-| 21 | TOOLING-LIMITED | Lifecycle guard in Registry; dedicated negative test pending |
-| 22 | TOOLING-LIMITED | Lifecycle guard in Registry; dedicated negative test pending |
+| 21 | AUTOMATED | Simulator review-before-maturity boundary test |
+| 22 | AUTOMATED | Simulator review-after-final-deadline boundary test |
 | 23 | TOOLING-LIMITED | Terminal-state guard in Registry |
 | 24 | TOOLING-LIMITED | Terminal-state guard in Registry |
 | 25 | AUTOMATED | Simulator expiry path exercises deadline guard |
@@ -54,7 +54,7 @@ This maps every item in [`TEST_PLAN.md`](TEST_PLAN.md) to the strongest evidence
 | 48 | LIVE-PROVEN | Fresh fulfilled proof settles exact bond credit to issuer |
 | 49 | LIVE-PROVEN | Fresh breached proof settles exact bond credit to remedy |
 | 50 | LIVE-PROVEN | Fresh inconclusive proof remains open with settlement locked |
-| 51 | PENDING | Real final review deadline proof is still running; no expired result claimed |
+| 51 | LIVE-PROVEN | Fresh final-pair candidate `#6` passed the real 15-minute deadline and completed expired reconciliation and withdrawal |
 | 52 | AUTOMATED | Vault settled map and idempotence test |
 | 53 | AUTOMATED | Duplicate settlement simulator test |
 | 54 | AUTOMATED | Direct withdrawal-above-credit rejection |
@@ -95,10 +95,10 @@ This maps every item in [`TEST_PLAN.md`](TEST_PLAN.md) to the strongest evidence
 | 89 | AUTOMATED | No backend directory/server route; frontend is direct RPC |
 | 90 | TOOLING-LIMITED | No centralized AI endpoint in source audit |
 | 91 | AUTOMATED | Injected wallet only; no server signer |
-| 92 | PENDING | Final Vercel production deployment and public route checks pending final source commit |
+| 92 | LIVE-PROVEN | Final Vercel production deployment and public route checks recorded against the final application SHA |
 | 93 | AUTOMATED | Contract-surface identifier test |
-| 94 | TOOLING-LIMITED | Final deployment, source commit and CI provenance are being refreshed together |
+| 94 | LIVE-PROVEN | Final deployment, source commit and CI provenance recorded together |
 
 ## Status totals
 
-The matrix currently contains 94 classified requirements. The exact totals are recomputed during the final freeze after the real expiry proof and final CI/Vercel provenance are recorded.
+The matrix contains 94 classified requirements. Final totals: `AUTOMATED 46`, `LIVE-PROVEN 12`, `TOOLING-LIMITED 36`, `PENDING 0`, `NOT-APPLICABLE 0`.

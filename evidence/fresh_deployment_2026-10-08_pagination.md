@@ -1,20 +1,20 @@
 # Fresh Studionet deployment readback — 2026-10-08
 
-This is the canonical deployment artifact for the bounded-review-history release. It supersedes the historical `fresh_deployment_2026-10-08.md` artifact because the Registry source now exposes bounded review pages and the Vault has an explicit direct-EOA withdrawal boundary.
+This is the canonical deployment artifact for the final bounded-review-history and short-timing release. The earlier pagination-only pair is superseded because the Registry timing constants changed and a fresh pair was required.
 
 ## Network and addresses
 
 - Network: GenLayer Studionet, chain `61999`
-- Registry: [`0xb2Fb628484f7b1C10D35d11A49B660f0aE924F37`](https://explorer-studio.genlayer.com/address/0xb2Fb628484f7b1C10D35d11A49B660f0aE924F37)
-- Vault: [`0x59E28386C2804fbECCeC37D4A093b43f901af15b`](https://explorer-studio.genlayer.com/address/0x59E28386C2804fbECCeC37D4A093b43f901af15b)
+- Registry: [`0x3Be513bB6CAe652826A6092C0715AF39E7189c71`](https://explorer-studio.genlayer.com/address/0x3Be513bB6CAe652826A6092C0715AF39E7189c71)
+- Vault: [`0xf8D89f89aD160546780eD76Cd64C550d91bAf501`](https://explorer-studio.genlayer.com/address/0xf8D89f89aD160546780eD76Cd64C550d91bAf501)
 
 ## Finalized deployment transactions
 
-- Registry deployment: [`0x4266951edc54215356e3be610912f96b04f220f4367daa5050d503c54654cd26`](https://explorer-studio.genlayer.com/tx/0x4266951edc54215356e3be610912f96b04f220f4367daa5050d503c54654cd26)
-- Vault deployment: [`0x8fb975a3bcbe90e7df315a724145114c689c1b1225127fcba3bd0a63b2413235`](https://explorer-studio.genlayer.com/tx/0x8fb975a3bcbe90e7df315a724145114c689c1b1225127fcba3bd0a63b2413235)
-- Registry-to-Vault wiring: [`0x246e7ba161c52967b3603e121d0b8ccee6d98c8dd09c575924fcadf464fe2208`](https://explorer-studio.genlayer.com/tx/0x246e7ba161c52967b3603e121d0b8ccee6d98c8dd09c575924fcadf464fe2208)
-- Unauthorized wiring attempt: [`0x390826442998c0015e272142ab203991544590505e088ba6853b216e9ca9a64d`](https://explorer-studio.genlayer.com/tx/0x390826442998c0015e272142ab203991544590505e088ba6853b216e9ca9a64d), finalized execution error with `only the deployer may finish initial wiring` and no state change.
-- Second wiring attempt after immutable setup: [`0x05b15e9b545239e7dd82eb9ab18e9528b095751e6f7809e2f82ba85ab5d221b7`](https://explorer-studio.genlayer.com/tx/0x05b15e9b545239e7dd82eb9ab18e9528b095751e6f7809e2f82ba85ab5d221b7), finalized execution error with `vault wiring is already immutable`.
+- Registry deployment: [`0x9152e1d8560d7b3d0a8959ebf915973f832314bf21cf30397680def8447b1bd1`](https://explorer-studio.genlayer.com/tx/0x9152e1d8560d7b3d0a8959ebf915973f832314bf21cf30397680def8447b1bd1)
+- Vault deployment: [`0x3ed672661391d9fe4beab5577f8d27fc7649c99ff74f9909cd42a5d129420938`](https://explorer-studio.genlayer.com/tx/0x3ed672661391d9fe4beab5577f8d27fc7649c99ff74f9909cd42a5d129420938)
+- Registry-to-Vault wiring: [`0xc05171edd4b81eb60ff6869e2df5f07b8bec3de504d704154caa9b3085a1fc6e`](https://explorer-studio.genlayer.com/tx/0xc05171edd4b81eb60ff6869e2df5f07b8bec3de504d704154caa9b3085a1fc6e)
+- Unauthorized wiring attempt: [`0x19f2a8303e4b7e5ca29a493bb421ba35380f68d078c71e6ac137a2b8652f68f9`](https://explorer-studio.genlayer.com/tx/0x19f2a8303e4b7e5ca29a493bb421ba35380f68d078c71e6ac137a2b8652f68f9), finalized execution error with `only the deployer may finish initial wiring` and no state change.
+- Second wiring attempt after immutable setup: [`0xb9440b627037f456d914a72a71174204aaefc3c8c292491773296e7bad389f10`](https://explorer-studio.genlayer.com/tx/0xb9440b627037f456d914a72a71174204aaefc3c8c292491773296e7bad389f10), finalized execution error with `vault wiring is already immutable`.
 
 Successful deployment and wiring transactions were checked as finalized with successful leader execution and consensus. The negative transactions were checked as finalized execution errors and did not alter canonical wiring.
 
@@ -27,10 +27,10 @@ Successful deployment and wiring transactions were checked as finalized with suc
 ```text
 chain_id: 61999
 network: GenLayer Studionet
-vault_address: 0x59e28386c2804fbeccec37d4a093b43f901af15b
-min_review_window: 7200
+vault_address: 0xf8d89f89ad160546780ed76cd64c550d91baf501
+min_review_window: 900
 max_review_window: 7776000
-retry_cooldown: 3600
+retry_cooldown: 300
 review_epoch_seconds: 3600
 max_review_attempts_per_epoch: 32
 max_review_page: 25
@@ -38,7 +38,7 @@ review_attempts_are_not_lifetime_capped: true
 review_cooldown_scope: per_reviewer
 ```
 
-`Vault.get_registry()` returned `0xb2fb628484f7b1c10d35d11a49b660f0ae924f37`.
+`Vault.get_registry()` returned `0x3be513bb6cae652826a6092c0715af39e7189c71`.
 
 `Vault.get_withdrawal_policy()` returned the supported boundary: `supported_caller=direct EOA`, `requires_sender_equals_origin=true`, `delivery=external finalized transfer`, `debit_order=before transfer`.
 

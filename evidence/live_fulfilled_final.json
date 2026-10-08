@@ -1,15 +1,16 @@
 {
-  "generatedAt": "2026-10-07T22:32:08.979Z",
+  "generatedAt": "2026-10-08T11:30:26.508Z",
   "network": "GenLayer Studionet",
   "chainId": 61999,
-  "registry": "0x76DE9332010D5F03660Fa2216cb5cc76585dFFE8",
-  "vault": "0x536B5E36d52aC1EFA72d00fFa63B932EfBf42841",
+  "accountName": "thermo-sponsor",
+  "registry": "0x3Be513bB6CAe652826A6092C0715AF39E7189c71",
+  "vault": "0xf8D89f89aD160546780eD76Cd64C550d91bAf501",
   "account": "0x794678AD7e8B6c87dAb33303a3A512c821e6De9A",
   "bond": "100000000000000",
   "deployment": {
-    "registryTx": "0x67519eb9233c69b533b8cdfd66e61d7007429731b0faae05cedfd737d4bde536",
-    "vaultTx": "0xbf94fb658101a257ce8cee2f855e15100044436200492acb5f1b872d789be15b",
-    "wiringTx": "0xe9c028be839b887bdf36e4572599d2cf98fd8b030fb2f45f79cd4795abbd819d"
+    "registryTx": "0x9152e1d8560d7b3d0a8959ebf915973f832314bf21cf30397680def8447b1bd1",
+    "vaultTx": "0x3ed672661391d9fe4beab5577f8d27fc7649c99ff74f9909cd42a5d129420938",
+    "wiringTx": "0xc05171edd4b81eb60ff6869e2df5f07b8bec3de504d704154caa9b3085a1fc6e"
   },
   "results": [
     {
@@ -23,50 +24,53 @@
         "purpose": "versioned publication timestamp"
       },
       "commitmentId": "0",
-      "maturity": "1791412174",
-      "deadline": "1791419374",
-      "createTx": "0x69da54699dae047485ed907312eabf85e4ee8beae2bd451f715f55fa9574bbad",
-      "reviewTx": "0x29dd02d53c6cab9d816d6f6bb4f0576ed52912548e4b3c76957b576d0ebf2c0e",
-      "reconcileTx": "0x7b7a49e3944211f6a3a375241528c118c73d9059b973351fd82a81cde1fa7605",
-      "commitment": {
-        "attempt_count": "1",
-        "bond": "100000000000000",
-        "commitment_id": "0",
-        "created_at": "1791411876",
-        "final_review_deadline": "1791419374",
-        "issuer": "0x794678ad7e8b6c87dab33303a3a512c821e6de9a",
-        "last_attempt_at": "1791412177",
-        "last_settlement_at": "1791412177",
-        "latest_snapshot_digest": "6554b61c2b6b19ea714c908e2e73c6cfe9b65613b182bbedfd64a14c98762e52",
-        "latest_source_set_digest": "e4da3a0b9490a0b492691810f981c14bb55a90b8d58800527882de11009a2a76",
-        "latest_verdict": "FULFILLED",
-        "maturity_at": "1791412174",
-        "outcome": "FULFILLED",
-        "remedy": "0xf883bce8fcb120f714b147446342d7e4545bc988",
-        "resolved_at": "1791412177",
-        "settlement_attempts": "1",
-        "settlement_recipient": "0x794678ad7e8b6c87dab33303a3a512c821e6de9a",
-        "settlement_state": "CREDIT_CONFIRMED",
-        "statement": "The versioned VOWMARK public proof fixture was published before maturity.",
-        "verification_rule": "FULFILLED means the frozen versioned publication contains the exact fulfillment_time marker 2026-10-07T18:48:00Z, which is earlier than the recorded maturity timestamp."
-      },
+      "maturity": "1791458895",
+      "deadline": "1791460695",
+      "createTx": "0xaf1e83b497a5b8fa9948695ab564aec18ee8dd0179988e20b5a7b19e4b97c952",
+      "reviewTx": "0xa8d69825b070739c78e51809091787fdafad19f3ca25fffc0afab12986294bdb",
+      "reconcileTx": "0x66c7830113f9154a5f7d9048fed61f4b82328897efea5d4e8bf8f7f598af5175",
+      "reviewCount": 1,
       "reviews": [
         {
-          "attempt_id": "0",
-          "requested_at": "1791412177",
+          "attempt_id": 0,
+          "requested_at": 1791458898,
           "requested_by": "0x794678ad7e8b6c87dab33303a3a512c821e6de9a",
           "snapshot_digest": "6554b61c2b6b19ea714c908e2e73c6cfe9b65613b182bbedfd64a14c98762e52",
           "source_set_digest": "e4da3a0b9490a0b492691810f981c14bb55a90b8d58800527882de11009a2a76",
           "verdict": "FULFILLED"
         }
       ],
-      "issuance": {
-        "bond": "100000000000000",
-        "commitment_id": "0",
-        "created_at": "1791411876",
-        "final_review_deadline": "1791419374",
+      "commitment": {
+        "attempt_count": 1,
+        "bond": 100000000000000,
+        "commitment_id": 0,
+        "created_at": 1791458806,
+        "final_review_deadline": 1791460695,
         "issuer": "0x794678ad7e8b6c87dab33303a3a512c821e6de9a",
-        "maturity_at": "1791412174",
+        "last_attempt_at": 1791458898,
+        "last_settlement_at": 1791458898,
+        "latest_snapshot_digest": "6554b61c2b6b19ea714c908e2e73c6cfe9b65613b182bbedfd64a14c98762e52",
+        "latest_source_set_digest": "e4da3a0b9490a0b492691810f981c14bb55a90b8d58800527882de11009a2a76",
+        "latest_verdict": "FULFILLED",
+        "maturity_at": 1791458895,
+        "outcome": "FULFILLED",
+        "remedy": "0xf883bce8fcb120f714b147446342d7e4545bc988",
+        "resolved_at": 1791458898,
+        "review_epoch": 497627,
+        "review_epoch_attempts": 1,
+        "settlement_attempts": 1,
+        "settlement_recipient": "0x794678ad7e8b6c87dab33303a3a512c821e6de9a",
+        "settlement_state": "CREDIT_CONFIRMED",
+        "statement": "The versioned VOWMARK public proof fixture was published before maturity.",
+        "verification_rule": "FULFILLED means the frozen versioned publication contains the exact fulfillment_time marker 2026-10-07T18:48:00Z, which is earlier than the recorded maturity timestamp."
+      },
+      "issuance": {
+        "bond": 100000000000000,
+        "commitment_id": 0,
+        "created_at": 1791458806,
+        "final_review_deadline": 1791460695,
+        "issuer": "0x794678ad7e8b6c87dab33303a3a512c821e6de9a",
+        "maturity_at": 1791458895,
         "registered": true,
         "remedy": "0xf883bce8fcb120f714b147446342d7e4545bc988",
         "settlement_recipient": "0x0000000000000000000000000000000000000000",
@@ -75,7 +79,7 @@
         "verification_rule": "FULFILLED means the frozen versioned publication contains the exact fulfillment_time marker 2026-10-07T18:48:00Z, which is earlier than the recorded maturity timestamp."
       },
       "vaultSettlement": {
-        "amount": "100000000000000",
+        "amount": 100000000000000,
         "recipient": "0x794678ad7e8b6c87dab33303a3a512c821e6de9a",
         "settled": true,
         "state": "CREDIT_CONFIRMED"
@@ -83,8 +87,8 @@
     }
   ],
   "withdrawal": {
-    "withdrawalTx": "0x1c5eb3c86fda144801990ab55aa4d21f0464468fe5e4aae570a2b9d8258864da",
-    "creditBefore": "100000000000000",
-    "creditAfter": "0"
+    "withdrawalTx": "0x9205d8f7d0e073df3d66c4df48c146aa9c1ce14ce20975d6aa29898c0679b20c",
+    "creditBefore": 100000000000000,
+    "creditAfter": 0
   }
 }

@@ -5,8 +5,8 @@ import { studionet } from "genlayer-js/chains";
 import { TransactionStatus } from "genlayer-js/types";
 
 const RPC = "https://studio.genlayer.com/api";
-const REGISTRY = process.env.VOWMARK_REGISTRY_ADDRESS || "0xb2Fb628484f7b1C10D35d11A49B660f0aE924F37";
-const VAULT = process.env.VOWMARK_VAULT_ADDRESS || "0x59E28386C2804fbECCeC37D4A093b43f901af15b";
+const REGISTRY = process.env.VOWMARK_REGISTRY_ADDRESS || "0x3Be513bB6CAe652826A6092C0715AF39E7189c71";
+const VAULT = process.env.VOWMARK_VAULT_ADDRESS || "0xf8D89f89aD160546780eD76Cd64C550d91bAf501";
 const REMEDY = process.env.VOWMARK_REMEDY_ADDRESS || "0xf883bce8fcb120f714b147446342d7e4545bc988";
 const BOND = 100000000000000n;
 const chain = { ...studionet, rpcUrls: { ...studionet.rpcUrls, default: { http: [RPC] } } };

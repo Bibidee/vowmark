@@ -18,7 +18,7 @@ A release is not submission-ready unless all are true:
 - [x] inconclusive recovery state and breached lifecycle completed live against the fresh canonical deployment
 - [x] withdrawal verified live against the fresh canonical deployment
 - [x] withdrawal caller boundary is explicit: direct EOA only; debit-before-send is tested
-- [ ] expired unresolved lifecycle completed live after the enforced deadline (pending the real deadline; no result is claimed early)
+- [x] expired unresolved lifecycle completed live after the enforced deadline with candidate `#6` (real 15-minute deadline; no clock manipulation)
 - [x] issuer history and recent board reads come from chain indexes
 - [x] no fake demo state in production
 - [x] production dependency audit reports zero findings; development-only lint-chain findings are documented in `docs/DEPENDENCY_AUDIT.md`

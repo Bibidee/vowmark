@@ -18,7 +18,7 @@
 }
 
 * { box-sizing: border-box; }
-html { background: var(--black); scroll-behavior: smooth; }
+html { overflow-x: hidden; background: var(--black); scroll-behavior: smooth; }
 body {
   min-width: 320px;
   margin: 0;
@@ -249,7 +249,7 @@ select { appearance: none; background-image: linear-gradient(45deg, transparent 
 .loading { padding: 60px 0; color: var(--cyan); font: 11px var(--mono); letter-spacing: .12em; text-transform: uppercase; }.loading::before { margin-right: 10px; color: var(--lime); content: "[ / ]"; }
 
 @media (max-width: 980px) {
-  .site-header { grid-template-columns: 1fr auto; }.protocol-rail { display: none; }.nav-links { position: static; grid-column: 1 / -1; grid-row: 2; overflow-x: auto; padding-top: 0; }
+  .site-header { grid-template-columns: minmax(0, 1fr) auto; }.protocol-rail { display: none; }.nav-links { position: static; grid-column: 1 / -1; grid-row: 2; min-width: 0; max-width: 100%; overflow-x: auto; padding-top: 0; }
   .hero, .form-layout, .record-grid { grid-template-columns: 1fr; }.hero { min-height: 0; }.hero-aside { max-width: 650px; }.protocol-strip { display: none; }.summary-box, .action-box { position: static; }.form-layout > div:first-child::before { left: -15px; }.record-header-aside { text-align: left; }.board-section, .board-section:nth-child(n) { grid-column: span 12; }
 }
 @media (max-width: 680px) {

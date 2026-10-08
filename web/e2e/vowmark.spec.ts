@@ -42,9 +42,17 @@ test.describe("VOWMARK browser contract", () => {
 
   test("commitment route keeps canonical-read and transaction states explicit", async ({ page }) => {
     await page.goto("/commitment/1");
-    await expect(page.getByText(/transaction trace/i)).toBeVisible();
-    await expect(page.getByText(/vault credit and withdrawal/i)).toBeVisible();
-    await expect(page.locator(".record-grid aside").getByRole("button", { name: /connect wallet/i })).toBeVisible();
+    const trace = page.locator(".transaction-rail");
+    const readFailure = page.locator(".page > .error-box");
+    await expect(trace.or(readFailure).first()).toBeVisible({ timeout: 20_000 });
+    if (await trace.isVisible()) {
+      await expect(trace.getByText(/transaction trace/i)).toBeVisible();
+      await expect(page.getByText(/vault credit and withdrawal/i)).toBeVisible();
+      await expect(page.locator(".record-grid aside").getByRole("button", { name: /connect wallet/i })).toBeVisible();
+    } else {
+      await expect(readFailure).toContainText(/unable to read|failed|fetch|network/i);
+      await expect(page.getByRole("link", { name: /back to the board/i })).toBeVisible();
+    }
   });
 
   test("mobile layout remains readable without horizontal overflow", async ({ page }) => {

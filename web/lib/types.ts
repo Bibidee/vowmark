@@ -104,10 +104,10 @@ export function normalizeAnchor(value: unknown): EvidenceAnchor {
   const item = value as Record<string, unknown>;
   return {
     index: asBigInt(item.index),
-    url: String(item.url),
-    normalized_url: String(item.normalized_url),
-    source_kind: item.source_kind as SourceKind,
-    purpose: String(item.purpose),
+    url: String(item.url || ""),
+    normalized_url: String(item.normalized_url || item.url || ""),
+    source_kind: String(item.source_kind || "PUBLICATION") as SourceKind,
+    purpose: String(item.purpose || "Frozen evidence anchor"),
   };
 }
 

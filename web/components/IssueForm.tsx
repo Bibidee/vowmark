@@ -10,7 +10,10 @@ import { asBigInt, type SourceKind } from "@/lib/types";
 type Anchor = { url: string; sourceKind: SourceKind; purpose: string };
 const initialAnchor: Anchor = { url: "", sourceKind: "PUBLICATION", purpose: "" };
 
-function unix(value: string) { return BigInt(Math.floor(new Date(value).getTime() / 1000)); }
+function unix(value: string) {
+  const milliseconds = new Date(value).getTime();
+  return Number.isFinite(milliseconds) ? BigInt(Math.floor(milliseconds / 1000)) : 0n;
+}
 function localValue(secondsFromNow: number) { return new Date(Date.now() + secondsFromNow * 1000).toISOString().slice(0, 16); }
 function specimenDate(value: string) {
   if (!value) return "—";

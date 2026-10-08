@@ -14,7 +14,7 @@ This is the release matrix for the current Registry/Vault pair. Earlier deployme
 - Immutable-wiring negative test: [`0xb9440b627037f456d914a72a71174204aaefc3c8c292491773296e7bad389f10`](https://explorer-studio.genlayer.com/tx/0xb9440b627037f456d914a72a71174204aaefc3c8c292491773296e7bad389f10)
 - Wiring readiness: internal `vault_ready=true` is set by the successful wiring tx and corroborated by fresh finalized registration; no public getter exists.
 - Configuration readback: [`fresh_deployment_2026-10-08_pagination.md`](fresh_deployment_2026-10-08_pagination.md)
-- Production frontend: final URL and Vercel deployment provenance are recorded with the final source/CI release below.
+- Production frontend: [`the-vowmark.vercel.app`](https://the-vowmark.vercel.app/) points to Vercel deployment [`dpl_E7BqsrfqrsiPEEwEGnGS2iqQBXsd`](https://vercel.com/bibidees-projects/vowmark/E7BqsrfqrsiPEEwEGnGS2iqQBXsd), `READY`/`production`, built from application SHA `8dbb131958d28f87d9f618a9d2bbd09744a6986b`.
 
 ## Live proof matrix
 
@@ -35,12 +35,17 @@ Earlier lifecycle and withdrawal artifacts were produced against superseded addr
 
 ## Verification status
 
-- Contract surface tests: `5 passed`
+- Contract surface tests: `20 passed`
 - Direct Mode custody tests: `4 passed` locally with `.venv-direct`; Linux CI remains authoritative
 - Simulator-backed Registry behavior tests: `11 passed`
 - Frontend typecheck, lint, board invariant test, and production build: passed
-- CI, source commit and Vercel production deployment: recorded in the final release provenance after the deadline proof and final push.
+- Final CI: [`37777191132`](https://github.com/Bibidee/vowmark/actions/runs/37777191132), all four jobs green for application SHA `8dbb131958d28f87d9f618a9d2bbd09744a6986b`
+- Production routes `/`, `/issue`, `/activity`, `/commitment/0`, and `/issuer/0x794678AD7e8B6c87dAb33303a3A512c821e6De9A`: HTTP `200`
 
 ## Expiry
 
 `EXPIRED_UNRESOLVED` is proven live on the final pair after the real 15-minute deadline, with finalized settlement, issuer credit and direct-EOA withdrawal readback.
+
+## Release provenance
+
+`8dbb131958d28f87d9f618a9d2bbd09744a6986b` → [CI run 37777191132](https://github.com/Bibidee/vowmark/actions/runs/37777191132) → [Vercel deployment dpl_E7BqsrfqrsiPEEwEGnGS2iqQBXsd](https://vercel.com/bibidees-projects/vowmark/E7BqsrfqrsiPEEwEGnGS2iqQBXsd) → final Registry → final Vault. The requested alias [`the-vowmark.vercel.app`](https://the-vowmark.vercel.app/) resolves to that deployment.

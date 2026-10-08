@@ -98,6 +98,7 @@ VOWMARK V1 is deployed on GenLayer Studionet 61999. The canonical frontend deplo
 - Registry deployment: [`0x9152e1d8560d7b3d0a8959ebf915973f832314bf21cf30397680def8447b1bd1`](https://explorer-studio.genlayer.com/tx/0x9152e1d8560d7b3d0a8959ebf915973f832314bf21cf30397680def8447b1bd1)
 - Vault deployment: [`0x3ed672661391d9fe4beab5577f8d27fc7649c99ff74f9909cd42a5d129420938`](https://explorer-studio.genlayer.com/tx/0x3ed672661391d9fe4beab5577f8d27fc7649c99ff74f9909cd42a5d129420938)
 - Finalized wiring: [`0xc05171edd4b81eb60ff6869e2df5f07b8bec3de504d704154caa9b3085a1fc6e`](https://explorer-studio.genlayer.com/tx/0xc05171edd4b81eb60ff6869e2df5f07b8bec3de504d704154caa9b3085a1fc6e)
+- Production frontend: [`the-vowmark.vercel.app`](https://the-vowmark.vercel.app/) — Vercel deployment `dpl_E7BqsrfqrsiPEEwEGnGS2iqQBXsd`, built from application SHA `8dbb131958d28f87d9f618a9d2bbd09744a6986b`
 - Explorer: <https://explorer-studio.genlayer.com>
 
 The deployment and configuration readback are recorded in [`evidence/fresh_deployment_2026-10-08_pagination.md`](evidence/fresh_deployment_2026-10-08_pagination.md). Final lifecycle evidence is stored under `evidence/live_*_final.json`; artifacts for the superseded contract pair are historical only.

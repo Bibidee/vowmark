@@ -10,8 +10,8 @@ VOWMARK V1 is deployed on GenLayer Studionet 61999. The final frontend URL and s
 - Vault deployment: [`0x3ed672661391d9fe4beab5577f8d27fc7649c99ff74f9909cd42a5d129420938`](https://explorer-studio.genlayer.com/tx/0x3ed672661391d9fe4beab5577f8d27fc7649c99ff74f9909cd42a5d129420938)
 - Wiring: [`0xc05171edd4b81eb60ff6869e2df5f07b8bec3de504d704154caa9b3085a1fc6e`](https://explorer-studio.genlayer.com/tx/0xc05171edd4b81eb60ff6869e2df5f07b8bec3de504d704154caa9b3085a1fc6e)
 - Configuration readback: [`fresh_deployment_2026-10-08_pagination.md`](evidence/fresh_deployment_2026-10-08_pagination.md)
-- Frontend: final deployment URL and immutable deployment ID recorded after the final source commit is pushed.
-- Application source: final release commit recorded after the expiry evidence is completed.
+- Frontend: [`the-vowmark.vercel.app`](https://the-vowmark.vercel.app/) points to Vercel deployment [`dpl_E7BqsrfqrsiPEEwEGnGS2iqQBXsd`](https://vercel.com/bibidees-projects/vowmark/E7BqsrfqrsiPEEwEGnGS2iqQBXsd), state `READY`, target `production`.
+- Application source: [`8dbb131958d28f87d9f618a9d2bbd09744a6986b`](https://github.com/Bibidee/vowmark/commit/8dbb131958d28f87d9f618a9d2bbd09744a6986b); the manual Vercel deployment was created from this checked-out SHA.
 
 ## Release state
 
@@ -29,12 +29,12 @@ VOWMARK V1 is deployed on GenLayer Studionet 61999. The final frontend URL and s
 
 ## Verification
 
-- Contract surface tests: `5 passed`
+- Contract surface tests: `20 passed`
 - Direct Mode custody tests: `4 passed`
-- Simulator-backed Registry behavior tests: `7 passed`
-- Frontend typecheck, lint, and production build: passed
-- Final CI and production deployment: recorded after the final source commit is pushed.
-- Production route checks: recorded against the final deployment.
+- Simulator-backed Registry behavior tests: `11 passed`
+- Frontend typecheck, lint, board invariant test, and production build: passed
+- Final CI: [`37777191132`](https://github.com/Bibidee/vowmark/actions/runs/37777191132), all four jobs green for the application SHA.
+- Production route checks: `/`, `/issue`, `/activity`, `/commitment/0`, and `/issuer/0x794678AD7e8B6c87dAb33303a3A512c821e6De9A` all returned HTTP `200` through the final alias.
 
 ## Honest limitation
 

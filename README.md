@@ -86,6 +86,11 @@ VOWMARK V1 is deployed on GenLayer Studionet 61999 and the production frontend i
 - Registry: `0x76DE9332010D5F03660Fa2216cb5cc76585dFFE8`
 - Vault: `0x536B5E36d52aC1EFA72d00fFa63B932EfBf42841`
 - Finalized wiring: `0xe9c028be839b887bdf36e4572599d2cf98fd8b030fb2f45f79cd4795abbd819d`
+- Verified application commit: `f79a61097d35af4ac534f20081f913e26c45e3df`
+- Production deployment: `dpl_FS37jgW9J6d5p3LxhWT7pDo1zq7H`
+- Final CI: [run 37736857905](https://github.com/Bibidee/vowmark/actions/runs/37736857905)
 - Explorer: <https://explorer-studio.genlayer.com>
 
 The complete deployment, configuration readback, lifecycle proof matrix and withdrawal proof are recorded in [`HANDOFF_STATUS.md`](HANDOFF_STATUS.md) and [`evidence/FINAL_PROOF_MATRIX.md`](evidence/FINAL_PROOF_MATRIX.md).
+
+The frontend records issuance hashes immediately, distinguishes provisional from finalized execution, reconciles Vault issuance and Registry registration separately, and provides issuer-only registration retry from `/issue` and `/activity` when the finalized child message is delayed.

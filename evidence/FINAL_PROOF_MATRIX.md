@@ -11,7 +11,8 @@ This is the canonical evidence set for the final Studionet deployment. Earlier d
 - Vault deployment: [`0xbf94fb658101a257ce8cee2f855e15100044436200492acb5f1b872d789be15b`](https://explorer-studio.genlayer.com/tx/0xbf94fb658101a257ce8cee2f855e15100044436200492acb5f1b872d789be15b)
 - Wiring: [`0xe9c028be839b887bdf36e4572599d2cf98fd8b030fb2f45f79cd4795abbd819d`](https://explorer-studio.genlayer.com/tx/0xe9c028be839b887bdf36e4572599d2cf98fd8b030fb2f45f79cd4795abbd819d)
 - Production frontend: [the-vowmark.vercel.app](https://the-vowmark.vercel.app)
-- Production deployment: [`dpl_6kcbvCcgvFoabB6CKUdYpWXRL71V`](https://vercel.com/bibidees-projects/vowmark/6kcbvCcgvFoabB6CKUdYpWXRL71V), READY
+- Verified application commit: `f79a61097d35af4ac534f20081f913e26c45e3df`
+- Production deployment: [`dpl_FS37jgW9J6d5p3LxhWT7pDo1zq7H`](https://vercel.com/bibidees-projects/vowmark/FS37jgW9J6d5p3LxhWT7pDo1zq7H), READY
 
 The finalized configuration readback is: minimum review window `7200` seconds, maximum review window `7776000` seconds, retry cooldown `3600` seconds, bounded attempts `2161`, and cooldown scope `per_reviewer`.
 
@@ -44,11 +45,13 @@ Commitment `#5` used two unlocked accounts: reviewer A `0x7eB2a4B4e913Df62eAe807
 
 - Contract surface tests: `5 passed`
 - Direct Mode tests: `4 passed`
-- Simulator-backed Registry behavior tests: `4 passed`
+- Simulator-backed Registry behavior tests: `5 passed`
 - Frontend typecheck, lint, and production build: passed
-- Final CI: [GitHub Actions run 37700665753](https://github.com/Bibidee/vowmark/actions/runs/37700665753), all four jobs passed
+- Final CI: [GitHub Actions run 37736857905](https://github.com/Bibidee/vowmark/actions/runs/37736857905), all four jobs passed
+- Production route checks: `/`, `/issue`, `/activity`, `/commitment/0`, `/commitment/1`, `/commitment/5`, and `/issuer/0x794678ad7e8b6c87dab33303a3a512c821e6de9a`
+- Registration recovery: local simulator proves retry idempotence and immutable replay after automatic child delivery; missing-initial-child injection remains unsupported by the simulator harness.
 - App logo: retained in the application; no logo removal was made
 
 ## Current limitation
 
-The expired proof is intentionally not claimed until commitment `#3` passes its actual configured deadline. The expiry runner is active and will write the artifact only after the finalized expiry, settlement reconciliation, and withdrawal are observed.
+The expired proof is intentionally not claimed until commitment `#3` passes its actual configured deadline. The corrected expiry runner now requires an explicit `VOWMARK_EXPIRED_COMMITMENT_ID`, verifies Registry/Vault wiring, accepts only `OPEN` or `EXPIRED_UNRESOLVED`, waits for the real deadline, and uses the issuance bond readback. It will write the artifact only after finalized expiry, settlement reconciliation, and withdrawal are observed.

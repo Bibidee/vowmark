@@ -1,15 +1,16 @@
 import fs from "node:fs";
 import keytar from "keytar";
 import { createAccount, createClient } from "genlayer-js";
+import { studionet } from "genlayer-js/chains";
 import { TransactionStatus } from "genlayer-js/types";
 
 const RPC = "https://studio.genlayer.com/api";
-const REGISTRY = process.env.VOWMARK_REGISTRY_ADDRESS || "0x76DE9332010D5F03660Fa2216cb5cc76585dFFE8";
-const VAULT = process.env.VOWMARK_VAULT_ADDRESS || "0x536B5E36d52aC1EFA72d00fFa63B932EfBf42841";
+const REGISTRY = process.env.VOWMARK_REGISTRY_ADDRESS || "0xd1F0B0Ac5E148e6b16e6684dcb01C3a68B842f2d";
+const VAULT = process.env.VOWMARK_VAULT_ADDRESS || "0x925Dd2d3fd74b4C8d5205FEA48131d5fEF3e83ff";
 const REMEDY = process.env.VOWMARK_REMEDY_ADDRESS || "0xf883bce8fcb120f714b147446342d7e4545bc988";
 const ANTI_GRIEF_URL = process.env.VOWMARK_ANTIGRIEF_URL || "https://raw.githubusercontent.com/Bibidee/vowmark/main/evidence/anti-grief-live.txt";
 const BOND = 100000000000000n;
-const chain = { id: 61999, name: "GenLayer Studionet", rpcUrls: { default: { http: [RPC] } }, nativeCurrency: { name: "GEN", symbol: "GEN", decimals: 18 }, consensusMainContract: null, defaultNumberOfInitialValidators: 5, defaultConsensusMaxRotations: 3 };
+const chain = { ...studionet, rpcUrls: { ...studionet.rpcUrls, default: { http: [RPC] } } };
 
 function json(value) { return JSON.stringify(value, (_, item) => typeof item === "bigint" ? item.toString() : item, 2); }
 function plain(value) {
@@ -23,7 +24,8 @@ function leader(receipt) {
 }
 function isSuccessfulFinalizedReceipt(receipt, currentLeader) {
   const decodedStatus = currentLeader?.result && typeof currentLeader.result === "object" ? currentLeader.result.status : undefined;
-  return receipt.status === TransactionStatus.FINALIZED && currentLeader && currentLeader.error == null && currentLeader.execution_result === "SUCCESS" && (decodedStatus === undefined || decodedStatus === "return");
+  const status = String(receipt.status_name ?? receipt.status).toUpperCase();
+  return (status === TransactionStatus.FINALIZED || status === "7") && currentLeader && currentLeader.error == null && currentLeader.execution_result === "SUCCESS" && (decodedStatus === undefined || decodedStatus === "return");
 }
 function decodeInteger(bytes) {
   let value = 0n;

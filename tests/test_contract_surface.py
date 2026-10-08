@@ -31,9 +31,11 @@ def test_registry_uses_vault_first_no_value_settlement_and_immutable_terms():
     assert "duplicate normalized evidence URL" in REGISTRY
     assert "identical evidence snapshot was already reviewed" in REGISTRY
     assert "RETRY_COOLDOWN" in REGISTRY
-    assert "MAX_REVIEW_ATTEMPTS" in REGISTRY
+    assert "MAX_REVIEW_ATTEMPTS_PER_EPOCH" in REGISTRY
+    assert "review_epoch_attempts" in REGISTRY
     assert "reviewer_last_attempt_at" in REGISTRY
     assert '"review_cooldown_scope": "per_reviewer"' in REGISTRY
+    assert '"review_attempts_are_not_lifetime_capped": True' in REGISTRY
 
 
 def test_validator_is_bounded_and_prompt_injection_resistant():
@@ -76,7 +78,7 @@ def test_frontend_reads_are_explicitly_finalized_and_next_is_not_static_exported
     assert "readIssuanceAfterRegistration" in issue_form
     assert 'state: "REGISTRATION_PENDING"' in issue_form
     assert "retry_registration" in issue_form
-    assert 'type TransactionStage = "IDLE" | "SUBMITTED" | "ACCEPTED" | "FINALIZED" | "ERROR"' in (ROOT / "web/lib/types.ts").read_text(encoding="utf-8")
+    assert 'type TransactionStage = "IDLE" | "SUBMITTED" | "ACCEPTED" | "FINALIZED" | "FAILED" | "UNDETERMINED"' in (ROOT / "web/lib/types.ts").read_text(encoding="utf-8")
     assert "stageRank" in transaction_rail
     assert "registration === \"REGISTRATION_PENDING\"" in activity_view
     assert "output: \"export\"" not in next_config

@@ -23,33 +23,17 @@ Static hosting is allowed. Browser local storage is allowed only for non-authori
 
 Start from the minimum sensible architecture.
 
-### Preferred V1
+### Final V1 architecture
 
-One `VowmarkRegistry` Intelligent Contract owns:
+VOWMARK uses exactly two contracts because GenLayer's internal value-message semantics do not provide a safe automatic return if a child fails. Separating custody from validator judgment makes the economic boundary explicit:
 
-- commitment creation;
-- locked bond accounting;
-- immutable terms and evidence anchors;
-- review attempts;
-- validator judgment;
-- outcome state;
-- credits;
-- withdrawals;
-- issuer/global indexes.
+- `VowmarkRegistry` freezes terms/evidence, performs validator review, owns outcome history and issuer indexes, and emits only a no-value finalized settlement instruction.
+- `VowmarkVault` receives and holds the bond at issuance, verifies the immutable Registry sender, credits the stored bond exactly once, and exposes finalized-credit withdrawals.
+- `VowmarkVault` has no model calls or semantic judgment.
+- The Registry's one-time `set_vault_address` wiring is deployer-only and becomes immutable once set or once commitments exist.
+- Settlement amount and recipient are derived from immutable issuance terms and the conclusive outcome; no model or caller chooses either value.
 
-### Finality exception
-
-Before freezing one-contract custody, verify on the real pinned Studionet toolchain that an economically material credit/withdrawal cannot be exploited from merely `ACCEPTED` but not-finalized review state.
-
-If current GenLayer semantics do **not** provide a defensible one-contract finality boundary, introduce exactly one minimal deterministic `VowmarkVault` whose only purpose is custody/credits/withdrawals. In that architecture:
-
-- `VowmarkRegistry` performs judgment and owns commitment history.
-- a conclusive registry result emits the settlement instruction only on the finalized boundary supported by the pinned GenLayer runtime;
-- `VowmarkVault` accepts settlement messages only from the immutable registry address;
-- the vault has no model calls and no semantic judgment;
-- the registry cannot arbitrarily rewrite a settlement recipient or amount after issuance.
-
-Do **not** add a second contract merely to look sophisticated. Document the final architecture and the real reason for it.
+The fresh canonical deployment and finalized wiring readback are in [`evidence/fresh_deployment_2026-10-08.md`](evidence/fresh_deployment_2026-10-08.md). The withdrawal path is documented as an EOA wallet flow; a reverting contract recipient is outside the supported path and is not claimed to have automatic recovery.
 
 ## Deterministic responsibilities
 

@@ -58,7 +58,7 @@
 
 **Risk:** a review transaction is `ACCEPTED` but not final, yet a later action withdraws the corresponding bond.
 
-**Mitigation:** this is a release blocker. Prove the one-contract design is safe on the real Studionet lifecycle or introduce the minimal finalized-only vault boundary described in `ARCHITECTURE.md`.
+**Mitigation:** VOWMARK uses the finalized-only Vault boundary. Registry settlement messages carry no native value, and the Vault's idempotent credit is the only economic state transition. The frontend reads finalized state and refuses to call a withdrawal above finalized credit.
 
 ## Threat: frontend becomes source of truth
 
@@ -70,7 +70,7 @@
 
 **Risk:** locked + credited amounts exceed actual contract/vault balance or one commitment leaks into another.
 
-**Mitigation:** explicit accounting invariants, debit-before-send withdrawal, double-withdrawal tests, multiple-commitment isolation tests and live readback.
+**Mitigation:** explicit accounting invariants, debit-before-send withdrawal, double-withdrawal tests, multiple-commitment isolation tests and live readback. GenLayer documents that an internal value transfer is deducted immediately and is not automatically returned if its child fails, so VOWMARK avoids internal value messages for settlement. Withdrawals use a finalized external EOA transfer; a reverting contract recipient is outside the supported wallet path and is not claimed to have an automatic recovery callback.
 
 ## Threat: administrator override
 

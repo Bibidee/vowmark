@@ -22,7 +22,8 @@ async function waitFinal(client: GenLayerClient<any>, hash: TransactionHash) {
     : rawLeaderReceipt as { execution_result?: string; error?: string | null } | undefined;
   const executionResult = leaderReceipt?.execution_result;
   const decodedStatus = leaderReceipt && typeof (leaderReceipt as { result?: unknown }).result === "object" ? ((leaderReceipt as { result?: { status?: unknown } }).result?.status) : undefined;
-  if (receipt.status !== TransactionStatus.FINALIZED || !leaderReceipt || leaderReceipt.error != null || executionResult !== "SUCCESS" || (decodedStatus !== undefined && decodedStatus !== "return")) {
+  const status = String((receipt as { status_name?: unknown }).status_name ?? receipt.status).toUpperCase();
+  if (!((status === TransactionStatus.FINALIZED || status === "7") && leaderReceipt && leaderReceipt.error == null && executionResult === "SUCCESS" && (decodedStatus === undefined || decodedStatus === "return"))) {
     throw new Error(`Finalized transaction did not execute successfully: ${JSON.stringify(receipt)}`);
   }
   return receipt;

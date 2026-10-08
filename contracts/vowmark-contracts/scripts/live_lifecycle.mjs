@@ -1,24 +1,15 @@
 import fs from "node:fs";
 import keytar from "keytar";
 import { createAccount, createClient } from "genlayer-js";
+import { studionet } from "genlayer-js/chains";
 import { TransactionStatus } from "genlayer-js/types";
 
 const RPC = "https://studio.genlayer.com/api";
-const REGISTRY = process.env.VOWMARK_REGISTRY_ADDRESS || "0x76DE9332010D5F03660Fa2216cb5cc76585dFFE8";
-const VAULT = process.env.VOWMARK_VAULT_ADDRESS || "0x536B5E36d52aC1EFA72d00fFa63B932EfBf42841";
+const REGISTRY = process.env.VOWMARK_REGISTRY_ADDRESS || "0xd1F0B0Ac5E148e6b16e6684dcb01C3a68B842f2d";
+const VAULT = process.env.VOWMARK_VAULT_ADDRESS || "0x925Dd2d3fd74b4C8d5205FEA48131d5fEF3e83ff";
 const REMEDY = process.env.VOWMARK_REMEDY_ADDRESS || "0xf883bce8fcb120f714b147446342d7e4545bc988";
 const BOND = 100000000000000n;
-const chain = {
-  id: 61999,
-  name: "GenLayer Studionet",
-  rpcUrls: { default: { http: [RPC] } },
-  nativeCurrency: { name: "GEN Token", symbol: "GEN", decimals: 18 },
-  blockExplorers: { default: { name: "GenLayer Explorer", url: "https://explorer-studio.genlayer.com" } },
-  testnet: true,
-  consensusMainContract: null,
-  defaultNumberOfInitialValidators: 5,
-  defaultConsensusMaxRotations: 3,
-};
+const chain = { ...studionet, rpcUrls: { ...studionet.rpcUrls, default: { http: [RPC] } } };
 
 function json(value) { return JSON.stringify(value, (_, item) => typeof item === "bigint" ? item.toString() : item, 2); }
 function plain(value) {
@@ -34,7 +25,8 @@ function successfulLeader(receipt) {
 }
 function isSuccessfulFinalizedReceipt(receipt, leader) {
   const decodedStatus = leader?.result && typeof leader.result === "object" ? leader.result.status : undefined;
-  return receipt.status === TransactionStatus.FINALIZED && leader && leader.error == null && leader.execution_result === "SUCCESS" && (decodedStatus === undefined || decodedStatus === "return");
+  const status = String(receipt.status_name ?? receipt.status ?? "").toUpperCase();
+  return (status === TransactionStatus.FINALIZED || status === "7") && leader && leader.error == null && leader.execution_result === "SUCCESS" && (decodedStatus === undefined || decodedStatus === "return");
 }
 function decodeReturn(receipt) {
   const result = successfulLeader(receipt)?.result;
@@ -89,8 +81,9 @@ async function waitFor(client, label, fn, attempts = 120) {
   throw new Error(`${label} was not observed after ${attempts} polls: ${lastError}`);
 }
 
-const privateKey = await keytar.getPassword("genlayer-cli", "account:thermo-sponsor");
-if (!privateKey) throw new Error("thermo-sponsor is not unlocked in the CLI keychain");
+const accountName = process.env.VOWMARK_ACCOUNT_NAME || "thermo-sponsor";
+const privateKey = await keytar.getPassword("genlayer-cli", `account:${accountName}`);
+if (!privateKey) throw new Error(`${accountName} is not unlocked in the CLI keychain`);
 const account = createAccount(privateKey);
 const client = createClient({ chain, endpoint: RPC, account });
 await client.initializeConsensusSmartContract();
@@ -187,7 +180,7 @@ if (fulfilled?.commitment?.outcome === "FULFILLED") {
   withdrawal = { withdrawalTx: withdrawalTx.hash, creditBefore, creditAfter };
 }
 
-const evidence = { generatedAt: new Date().toISOString(), network: "GenLayer Studionet", chainId: 61999, registry: REGISTRY, vault: VAULT, account: account.address, bond: BOND, deployment: { registryTx: process.env.VOWMARK_REGISTRY_DEPLOYMENT_TX || null, vaultTx: process.env.VOWMARK_VAULT_DEPLOYMENT_TX || null, wiringTx: process.env.VOWMARK_WIRING_TX || null }, results, withdrawal };
+const evidence = { generatedAt: new Date().toISOString(), network: "GenLayer Studionet", chainId: 61999, accountName, registry: REGISTRY, vault: VAULT, account: account.address, bond: BOND, deployment: { registryTx: process.env.VOWMARK_REGISTRY_DEPLOYMENT_TX || null, vaultTx: process.env.VOWMARK_VAULT_DEPLOYMENT_TX || null, wiringTx: process.env.VOWMARK_WIRING_TX || null }, results, withdrawal };
 fs.mkdirSync(new URL("../../../evidence", import.meta.url), { recursive: true });
 fs.writeFileSync(new URL(process.env.VOWMARK_EVIDENCE_FILE || "../../../evidence/live_lifecycle_latest.json", import.meta.url), json(evidence));
 console.log(json(evidence));

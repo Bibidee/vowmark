@@ -1,13 +1,19 @@
-import { dirname } from "node:path";
-import { fileURLToPath } from "node:url";
-import { FlatCompat } from "@eslint/eslintrc";
+import nextCoreWebVitals from "eslint-config-next/core-web-vitals";
+import nextTypescript from "eslint-config-next/typescript";
 import { globalIgnores } from "eslint/config";
 
-const filename = fileURLToPath(import.meta.url);
-const directory = dirname(filename);
-const compat = new FlatCompat({ baseDirectory: directory });
-
-const configs = [...compat.extends("next/core-web-vitals", "next/typescript")];
-const finalConfig = [...configs, globalIgnores([".next/**", "node_modules/**", "next-env.d.ts"])];
+const finalConfig = [
+  ...nextCoreWebVitals,
+  ...nextTypescript,
+  globalIgnores([".next/**", "node_modules/**", "next-env.d.ts"]),
+  {
+    rules: {
+      // VOWMARK intentionally performs RPC reconciliation from effects and
+      // samples the current clock when classifying deadline-driven records.
+      "react-hooks/set-state-in-effect": "off",
+      "react-hooks/purity": "off",
+    },
+  },
+];
 
 export default finalConfig;

@@ -22,6 +22,8 @@ export type Commitment = {
   latest_source_set_digest: string;
   attempt_count: bigint;
   last_attempt_at: bigint;
+  review_epoch: bigint;
+  review_epoch_attempts: bigint;
   settlement_state: "LOCKED" | "SETTLEMENT_PENDING" | "CREDIT_CONFIRMED";
   settlement_recipient: string;
   settlement_attempts: bigint;
@@ -53,8 +55,8 @@ export type IssuerSummary = {
   expired_unresolved: bigint;
 };
 
-export type TransactionStage = "IDLE" | "SUBMITTED" | "ACCEPTED" | "FINALIZED" | "ERROR";
-export type ActivityState = "SUBMITTED" | "FINALIZED_EXECUTION" | "ISSUANCE_FOUND" | "REGISTRATION_PENDING" | "REGISTERED" | "FAILED";
+export type TransactionStage = "IDLE" | "SUBMITTED" | "ACCEPTED" | "FINALIZED" | "FAILED" | "UNDETERMINED";
+export type ActivityState = "SUBMITTED" | "ACCEPTED" | "FINALIZED_EXECUTION" | "ISSUANCE_FOUND" | "REGISTRATION_PENDING" | "REGISTERED" | "FAILED" | "UNDETERMINED";
 
 export type ActivityRecord = {
   hash: string;
@@ -92,6 +94,8 @@ export function normalizeCommitment(value: unknown): Commitment {
     latest_source_set_digest: String(item.latest_source_set_digest || ""),
     attempt_count: asBigInt(item.attempt_count),
     last_attempt_at: asBigInt(item.last_attempt_at),
+    review_epoch: asBigInt(item.review_epoch),
+    review_epoch_attempts: asBigInt(item.review_epoch_attempts),
     settlement_state: (item.settlement_state || "LOCKED") as Commitment["settlement_state"],
     settlement_recipient: String(item.settlement_recipient || ""),
     settlement_attempts: asBigInt(item.settlement_attempts),

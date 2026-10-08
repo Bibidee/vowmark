@@ -2,6 +2,7 @@ import { createClient } from "genlayer-js";
 import type { Address, CalldataEncodable, GenLayerTransaction, TransactionHash } from "genlayer-js/types";
 import { TransactionStatus } from "genlayer-js/types";
 import { NETWORK, REGISTRY_ADDRESS, VAULT_ADDRESS } from "@/lib/config";
+import { isWalletForgotten, rememberWallet } from "@/lib/wallet";
 
 type RequestArguments = { method: string; params?: unknown[] };
 export type InjectedProvider = {
@@ -21,6 +22,8 @@ const chain = {
   name: NETWORK.name,
   nativeCurrency: NETWORK.nativeCurrency,
   rpcUrls: { default: { http: [NETWORK.rpcUrl] } },
+  defaultNumberOfInitialValidators: 5,
+  defaultConsensusMaxRotations: 3,
 } as never;
 type GLClient = ReturnType<typeof createClient>;
 type LeaderReceipt = { error?: unknown; execution_result?: unknown; result?: unknown };
@@ -43,9 +46,10 @@ function plain(value: unknown): unknown {
  * SDK has decoded the result, rollback/error statuses are rejected as well.
  */
 export function isSuccessfulFinalizedExecution(receipt: unknown): boolean {
-  const transaction = receipt as { status?: unknown } | undefined;
+  const transaction = receipt as { status?: unknown; status_name?: unknown } | undefined;
   const leader = leaderReceipt(receipt);
-  if (String(transaction?.status || "") !== TransactionStatus.FINALIZED || !leader) return false;
+  const status = String(transaction?.status_name || transaction?.status || "").toUpperCase();
+  if (!(status === TransactionStatus.FINALIZED || status === "7") || !leader) return false;
   if (leader.error !== undefined && leader.error !== null && leader.error !== "") return false;
   if (leader.execution_result !== "SUCCESS") return false;
   const decodedStatus = leader.result && typeof leader.result === "object" ? (leader.result as { status?: unknown }).status : undefined;
@@ -83,14 +87,17 @@ export async function getWalletState() {
   const provider = getProvider();
   const accounts = (await provider.request({ method: "eth_accounts" })) as string[];
   const chainId = String(await provider.request({ method: "eth_chainId" }));
-  return { address: accounts[0] || "", chainId, isCorrectNetwork: chainId.toLowerCase() === NETWORK.hexId };
+  const address = accounts[0] || "";
+  return { address: address && !isWalletForgotten(address) ? address : "", chainId, isCorrectNetwork: chainId.toLowerCase() === NETWORK.hexId };
 }
 
 export async function connectWallet() {
   const provider = getProvider();
   const accounts = (await provider.request({ method: "eth_requestAccounts" })) as string[];
   const chainId = String(await provider.request({ method: "eth_chainId" }));
-  return { address: accounts[0] || "", chainId, isCorrectNetwork: chainId.toLowerCase() === NETWORK.hexId };
+  const address = accounts[0] || "";
+  rememberWallet(address);
+  return { address, chainId, isCorrectNetwork: chainId.toLowerCase() === NETWORK.hexId };
 }
 
 export async function addOrSwitchStudionet() {
@@ -120,8 +127,10 @@ export function readClient() {
   return createClient({ chain, endpoint: NETWORK.rpcUrl, account: READ_ONLY_ACCOUNT }) as GLClient;
 }
 
-export function writeClient(address: string) {
-  return createClient({ chain, account: address as `0x${string}` }) as GLClient;
+export async function writeClient(address: string) {
+  const client = createClient({ chain, account: address as `0x${string}` }) as GLClient;
+  await client.initializeConsensusSmartContract();
+  return client;
 }
 
 export async function readRegistry(functionName: string, args: unknown[] = []) {
@@ -133,12 +142,12 @@ export async function readVault(functionName: string, args: unknown[] = []) {
 }
 
 export async function writeRegistry(address: string, functionName: string, args: unknown[], value?: bigint) {
-  const client = writeClient(address);
+  const client = await writeClient(address);
   return client.writeContract({ address: requireRegistry() as Address, functionName, args: args as CalldataEncodable[], value: value ?? 0n });
 }
 
 export async function writeVault(address: string, functionName: string, args: unknown[], value?: bigint) {
-  const client = writeClient(address);
+  const client = await writeClient(address);
   return client.writeContract({ address: requireVault() as Address, functionName, args: args as CalldataEncodable[], value: value ?? 0n });
 }
 

@@ -1,21 +1,12 @@
 import fs from "node:fs";
 import keytar from "keytar";
 import { createAccount, createClient } from "genlayer-js";
+import { studionet } from "genlayer-js/chains";
 import { TransactionStatus } from "genlayer-js/types";
 
 const RPC = "https://studio.genlayer.com/api";
 const ZERO = "0x0000000000000000000000000000000000000000";
-const chain = {
-  id: 61999,
-  name: "GenLayer Studionet",
-  rpcUrls: { default: { http: [RPC] } },
-  nativeCurrency: { name: "GEN Token", symbol: "GEN", decimals: 18 },
-  blockExplorers: { default: { name: "GenLayer Explorer", url: "https://explorer-studio.genlayer.com" } },
-  testnet: true,
-  consensusMainContract: null,
-  defaultNumberOfInitialValidators: 5,
-  defaultConsensusMaxRotations: 3,
-};
+const chain = { ...studionet, rpcUrls: { ...studionet.rpcUrls, default: { http: [RPC] } } };
 
 function json(value) { return JSON.stringify(value, (_, item) => typeof item === "bigint" ? item.toString() : item, 2); }
 function plain(value) {
@@ -29,7 +20,8 @@ async function waitFinal(client, hash) {
   const rawLeader = receipt.consensus_data?.leader_receipt;
   const leader = Array.isArray(rawLeader) ? rawLeader[0] : rawLeader;
   const decodedStatus = leader?.result && typeof leader.result === "object" ? leader.result.status : undefined;
-  if (receipt.status !== TransactionStatus.FINALIZED || !leader || leader.error != null || leader.execution_result !== "SUCCESS" || (decodedStatus !== undefined && decodedStatus !== "return")) {
+  const status = String(receipt.status_name ?? receipt.status).toUpperCase();
+  if (!((status === TransactionStatus.FINALIZED || status === "7") && leader && leader.error == null && leader.execution_result === "SUCCESS" && (decodedStatus === undefined || decodedStatus === "return"))) {
     throw new Error(`Finalized transaction did not execute successfully: ${json(receipt)}`);
   }
   return receipt;

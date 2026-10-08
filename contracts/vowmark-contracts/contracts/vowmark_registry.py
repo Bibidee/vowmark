@@ -17,9 +17,11 @@ MAX_EVIDENCE_TEXT = 12_000
 MIN_REVIEW_WINDOW = 2 * 3_600
 MAX_REVIEW_WINDOW = 90 * 24 * 60 * 60
 RETRY_COOLDOWN = 3_600
-# The cooldown and maximum review window bound history without a griefable
-# lifetime attempt counter.
-MAX_REVIEW_ATTEMPTS = MAX_REVIEW_WINDOW // RETRY_COOLDOWN + 1
+# A reviewer can retry once per cooldown window. A bounded per-window budget
+# prevents a Sybil set from consuming all storage or review capacity while the
+# commitment remains open, but it never creates a permanent lifetime cap.
+REVIEW_EPOCH_SECONDS = RETRY_COOLDOWN
+MAX_REVIEW_ATTEMPTS_PER_EPOCH = 32
 
 OUTCOME_OPEN = "OPEN"
 OUTCOME_FULFILLED = "FULFILLED"
@@ -60,6 +62,8 @@ class Commitment:
     latest_source_set_digest: str
     attempt_count: u256
     last_attempt_at: u256
+    review_epoch: u256
+    review_epoch_attempts: u256
     settlement_state: str
     settlement_recipient: Address
     settlement_attempts: u256
@@ -113,9 +117,9 @@ class VowmarkRegistry(gl.Contract):
     evidence: TreeMap[u256, TreeMap[u256, EvidenceAnchor]]
     reviews: TreeMap[u256, TreeMap[u256, ReviewAttempt]]
     seen_snapshots: TreeMap[u256, TreeMap[str, bool]]
-    # Per-commitment, per-reviewer cooldowns prevent one wallet from
-    # freezing every other reviewer while keeping reviewer history bounded
-    # by MAX_REVIEW_ATTEMPTS.
+    # Per-commitment, per-reviewer cooldowns prevent one wallet from freezing
+    # every other reviewer. The epoch budget below bounds review throughput
+    # without permanently exhausting the commitment's future liveness.
     reviewer_last_attempt_at: TreeMap[u256, TreeMap[Address, u256]]
     # issuer -> local index -> global commitment id
     issuer_ids: TreeMap[Address, TreeMap[u256, u256]]
@@ -411,6 +415,8 @@ Frozen evidence snapshot:
             latest_source_set_digest="",
             attempt_count=u256(0),
             last_attempt_at=u256(0),
+            review_epoch=u256(0),
+            review_epoch_attempts=u256(0),
             settlement_state=SETTLEMENT_LOCKED,
             settlement_recipient=Address("0x" + ("0" * 40)),
             settlement_attempts=u256(0),
@@ -453,8 +459,12 @@ Frozen evidence snapshot:
             raise gl.vm.UserError("review window has closed")
         if commitment.outcome != OUTCOME_OPEN:
             raise gl.vm.UserError("commitment already has a terminal outcome")
-        if commitment.attempt_count >= u256(MAX_REVIEW_ATTEMPTS):
-            raise gl.vm.UserError("maximum review attempts reached")
+        current_epoch = u256(int(now) // REVIEW_EPOCH_SECONDS)
+        if commitment.review_epoch != current_epoch:
+            commitment.review_epoch = current_epoch
+            commitment.review_epoch_attempts = u256(0)
+        if commitment.review_epoch_attempts >= u256(MAX_REVIEW_ATTEMPTS_PER_EPOCH):
+            raise gl.vm.UserError("review epoch capacity reached; try the next review window")
 
         reviewer = self._address_arg(gl.message.sender_address)
         reviewer_attempts = self.reviewer_last_attempt_at.get_or_insert_default(commitment_id)
@@ -479,6 +489,7 @@ Frozen evidence snapshot:
         self.seen_snapshots[commitment_id][snapshot_digest] = True
         commitment.attempt_count += u256(1)
         commitment.last_attempt_at = now
+        commitment.review_epoch_attempts += u256(1)
         commitment.latest_verdict = result["verdict"]
         commitment.latest_snapshot_digest = snapshot_digest
         commitment.latest_source_set_digest = result["source_set_digest"]
@@ -544,6 +555,8 @@ Frozen evidence snapshot:
             "latest_source_set_digest": commitment.latest_source_set_digest,
             "attempt_count": commitment.attempt_count,
             "last_attempt_at": commitment.last_attempt_at,
+            "review_epoch": commitment.review_epoch,
+            "review_epoch_attempts": commitment.review_epoch_attempts,
             "settlement_state": commitment.settlement_state,
             "settlement_recipient": self._address_text(commitment.settlement_recipient),
             "settlement_attempts": commitment.settlement_attempts,
@@ -561,7 +574,9 @@ Frozen evidence snapshot:
             "max_review_window": u256(MAX_REVIEW_WINDOW),
             "retry_cooldown": u256(RETRY_COOLDOWN),
             "review_cooldown_scope": "per_reviewer",
-            "bounded_review_attempts": u256(MAX_REVIEW_ATTEMPTS),
+            "review_epoch_seconds": u256(REVIEW_EPOCH_SECONDS),
+            "max_review_attempts_per_epoch": u256(MAX_REVIEW_ATTEMPTS_PER_EPOCH),
+            "review_attempts_are_not_lifetime_capped": True,
         }
 
     @gl.public.view
@@ -613,7 +628,7 @@ Frozen evidence snapshot:
         if commitment_id not in self.reviews:
             return result
         attempt_map = self.reviews[commitment_id]
-        count = min(int(self.commitments[commitment_id].attempt_count), MAX_REVIEW_ATTEMPTS)
+        count = int(self.commitments[commitment_id].attempt_count)
         for index in range(count):
             key = u256(index)
             if key in attempt_map:

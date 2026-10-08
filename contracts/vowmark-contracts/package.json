@@ -1,7 +1,13 @@
 {
-  "name": "genlayer-project",
+  "name": "vowmark-contracts",
+  "private": true,
   "type": "module",
+  "scripts": {
+    "cli:version": "npx --no-install genlayer --version",
+    "schema:check": "genlayer schema --help",
+    "deploy:registry": "npx --no-install genlayer deploy --contract contracts/vowmark_registry.py --args addr#0000000000000000000000000000000000000000"
+  },
   "devDependencies": {
-    "genlayer-js": "0.9.0"
+    "genlayer": "0.39.2"
   }
 }

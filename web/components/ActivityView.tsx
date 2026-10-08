@@ -13,6 +13,7 @@ type Reconciled = ActivityRecord & { status: string; execution: string; canonica
 function reconcile(transaction: Awaited<ReturnType<typeof getTransaction>>) {
   if (!transaction) return { status: "NOT FOUND", execution: "No transaction returned by RPC" };
   const status = String(transaction.status || "UNKNOWN").toUpperCase();
+  if (status === "UNDETERMINED") return { status, execution: "Consensus did not produce a final product result" };
   if (status !== "FINALIZED") return { status, execution: "Provisional transaction state; finalized execution not observed" };
   if (!isSuccessfulFinalizedExecution(transaction)) return { status: "FAILED", execution: executionFailureDescription(transaction) };
   return { status: "FINALIZED", execution: "FINALIZED EXECUTION OK" };
@@ -24,13 +25,13 @@ async function readRegistrationState(item: ActivityRecord, transactionState: str
   if (!issuance) return { canonical: "Vault issuance readback unavailable" };
   const issuer = typeof issuance.issuer === "string" ? issuance.issuer : item.issuer;
   const registry = await readRegistry("get_commitment", [BigInt(item.commitmentId)]).catch(() => undefined);
-  if (registry) {
+  if (registry && issuance.registered === true) {
     updateActivity(item.hash, { state: "REGISTERED", issuer });
     return { canonical: "CANONICAL REGISTERED", registration: "REGISTERED" as const, issuer };
   }
   if (issuance.registered === false) {
     updateActivity(item.hash, { state: "REGISTRATION_PENDING", issuer });
-    return { canonical: "REGISTRATION PENDING / VAULT ISSUANCE FOUND", registration: "REGISTRATION_PENDING" as const, issuer };
+    return { canonical: registry ? "REGISTRY FOUND / VAULT CONFIRMATION PENDING" : "REGISTRATION PENDING / VAULT ISSUANCE FOUND", registration: "REGISTRATION_PENDING" as const, issuer };
   }
   updateActivity(item.hash, { state: "ISSUANCE_FOUND", issuer });
   return { canonical: "VAULT ISSUANCE FOUND / REGISTRY READBACK PENDING", registration: "VAULT_ISSUANCE_FOUND" as const, issuer };
@@ -91,6 +92,9 @@ export function ActivityView() {
       const next = await Promise.all(records.map(async (item) => {
         const transaction = await getTransaction(item.hash).catch(() => null);
         const state = reconcile(transaction);
+        if (state.status === "FINALIZED") updateActivity(item.hash, { state: state.execution === "FINALIZED EXECUTION OK" ? "FINALIZED_EXECUTION" : "FAILED" });
+        else if (state.status === "UNDETERMINED") updateActivity(item.hash, { state: "UNDETERMINED" });
+        else if (state.status === "ACCEPTED") updateActivity(item.hash, { state: "ACCEPTED" });
         const registration = await readRegistrationState(item, state.status).catch(() => ({}));
         return { ...item, ...state, ...registration };
       }));

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { addOrSwitchStudionet, connectWallet, getProvider, getWalletState } from "@/lib/genlayer";
 import { NETWORK, shortAddress } from "@/lib/config";
+import { forgetWallet, isWalletForgotten } from "@/lib/wallet";
 
 export function WalletBar() {
   const [address, setAddress] = useState("");
@@ -19,7 +20,10 @@ export function WalletBar() {
   useEffect(() => {
     refresh();
     let provider: ReturnType<typeof getProvider> | undefined;
-    const onAccounts = (accounts: unknown) => setAddress(String((accounts as string[])[0] || ""));
+    const onAccounts = (accounts: unknown) => {
+      const next = String((accounts as string[])[0] || "");
+      setAddress(next && !isWalletForgotten(next) ? next : "");
+    };
     const onChain = (next: unknown) => setChainId(String(next));
     try {
       provider = getProvider();
@@ -41,12 +45,20 @@ export function WalletBar() {
     catch (cause) { setError(cause instanceof Error ? cause.message : "Network switch failed"); }
   }
 
+  function forget() {
+    if (!address) return;
+    forgetWallet(address);
+    setAddress("");
+    setChainId("");
+    setError("");
+  }
+
   const wrongNetwork = Boolean(address) && chainId.toLowerCase() !== NETWORK.hexId;
   return (
     <div className="wallet-wrap">
       {wrongNetwork ? <button className="wallet-button secondary" onClick={switchNetwork}>Switch to Studionet</button> : null}
       {error ? <span className="network-warning" title={error}>Wallet error</span> : null}
-      {!address ? <button className="wallet-button" onClick={connect}>Connect wallet</button> : <span title={address}>{shortAddress(address)}</span>}
+      {!address ? <button className="wallet-button" onClick={connect}>Connect wallet</button> : <><span title={address}>{shortAddress(address)}</span><button className="wallet-button secondary forget-wallet" onClick={forget} title="Forget this wallet in VOWMARK">Forget</button><span className="wallet-note">VOWMARK-only disconnect</span></>}
     </div>
   );
 }

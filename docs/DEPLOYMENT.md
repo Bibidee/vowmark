@@ -7,6 +7,7 @@
 - RPC `https://studio.genlayer.com/api`
 - Explorer `https://explorer-studio.genlayer.com`
 - deployment CLI `0.39.2`; the contract package schema is checked before deployment
+- contract package runtime pin: `genlayer@0.39.2`; frontend SDK pin: `genlayer-js@0.9.0`
 
 Do not silently switch networks to make deployment easier.
 
@@ -37,12 +38,12 @@ The final implementation may refine names, but keep one obvious network configur
 NEXT_PUBLIC_GENLAYER_CHAIN_ID=61999
 NEXT_PUBLIC_GENLAYER_RPC_URL=https://studio.genlayer.com/api
 NEXT_PUBLIC_GENLAYER_EXPLORER=https://explorer-studio.genlayer.com
-NEXT_PUBLIC_VOWMARK_REGISTRY_ADDRESS=<real address>
-NEXT_PUBLIC_VOWMARK_VAULT_ADDRESS=<only if final architecture needs it>
+NEXT_PUBLIC_VOWMARK_REGISTRY_ADDRESS=0xd1F0B0Ac5E148e6b16e6684dcb01C3a68B842f2d
+NEXT_PUBLIC_VOWMARK_VAULT_ADDRESS=0x925Dd2d3fd74b4C8d5205FEA48131d5fEF3e83ff
 ```
 
 Do not leave stale addresses or alternate networks in production environment configuration.
 
 ## Submission rule
 
-`ACCEPTED` is not enough. Deployment/configuration/lifecycle transactions recorded as canonical evidence must be verified to the final state required by the current GenLayer runtime. Reread contract configuration after deployment. The current canonical addresses and evidence are in [`../HANDOFF_STATUS.md`](../HANDOFF_STATUS.md).
+`ACCEPTED` is not enough. Deployment/configuration/lifecycle transactions recorded as canonical evidence must be verified to the final state required by the current GenLayer runtime. Reread contract configuration after deployment. The current canonical addresses and evidence are in [`../HANDOFF_STATUS.md`](../HANDOFF_STATUS.md) and [`../evidence/fresh_deployment_2026-10-08.md`](../evidence/fresh_deployment_2026-10-08.md).

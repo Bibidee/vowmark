@@ -122,6 +122,34 @@ def test_unrelated_reviewer_is_not_blocked_by_another_reviewer(deployed):
         engine.call_method(registry_address, "review_commitment", [commitment_id], sender=REVIEWER_A)
 
 
+def test_sybil_reviewers_cannot_exhaust_future_review_capacity(deployed):
+    engine, registry_address, vault_address = deployed
+    commitment_id = _issue(engine, vault_address, statement="An epoch liveness commitment")
+    _warp(engine, "2030-01-02T01:00:00Z")
+
+    # The epoch budget is deliberately finite, but it resets on the next
+    # cooldown window. A collection of fresh wallets can fill one window but
+    # cannot permanently consume the commitment's future review capacity.
+    for index in range(32):
+        reviewer = "0x" + f"{100 + index:040x}"
+        engine.vm.clear_mocks()
+        _mock_review_evidence(engine, f"unique snapshot {index}")
+        engine.call_method(registry_address, "review_commitment", [commitment_id], sender=reviewer)
+
+    engine.vm.clear_mocks()
+    _mock_review_evidence(engine, "unique snapshot 32")
+    with pytest.raises(Exception, match="review epoch capacity reached"):
+        engine.call_method(registry_address, "review_commitment", [commitment_id], sender=REVIEWER_C)
+
+    _warp(engine, "2030-01-02T02:00:00Z")
+    engine.vm.clear_mocks()
+    _mock_review_evidence(engine, "unique snapshot next epoch")
+    engine.call_method(registry_address, "review_commitment", [commitment_id], sender=REVIEWER_C)
+    record = engine.call_method(registry_address, "get_commitment", [commitment_id], sender=REVIEWER_C)
+    assert int(record["attempt_count"]) == 33
+    assert int(record["review_epoch_attempts"]) == 1
+
+
 def test_identical_snapshot_is_rejected_even_for_a_new_reviewer(deployed):
     engine, registry_address, vault_address = deployed
     commitment_id = _issue(engine, vault_address, statement="A second commitment with frozen evidence")

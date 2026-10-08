@@ -80,4 +80,6 @@ def test_vault_rejects_withdrawal_above_credit_and_debits_before_send(direct_vm,
         with direct_vm.expect_revert("withdrawal exceeds available credit"):
             vault.withdraw(101)
         vault.withdraw(60)
+        with direct_vm.expect_revert("withdrawal exceeds available credit"):
+            vault.withdraw(60)
     assert vault.get_credit(REMEDY) == 40

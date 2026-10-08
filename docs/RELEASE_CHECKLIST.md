@@ -13,9 +13,9 @@ A release is not submission-ready unless all are true:
 - [x] provisional finality cannot be exploited for withdrawal
 - [x] replay/duplicate review protection and cooldown-based recovery implemented
 - [x] accounting invariant verified across multiple commitments
-- [x] fulfilled lifecycle completed live
-- [x] inconclusive recovery state and breached lifecycle completed live
-- [x] withdrawal verified live
+- [x] fulfilled lifecycle completed live against the fresh canonical deployment
+- [x] inconclusive recovery state and breached lifecycle completed live against the fresh canonical deployment
+- [x] withdrawal verified live against the fresh canonical deployment
 - [ ] expired unresolved lifecycle completed live after the enforced deadline (pending the real deadline; no result is claimed early)
 - [x] issuer history and recent board reads come from chain indexes
 - [x] no fake demo state in production

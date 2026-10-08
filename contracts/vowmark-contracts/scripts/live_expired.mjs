@@ -1,25 +1,16 @@
 import fs from "node:fs";
 import keytar from "keytar";
 import { createAccount, createClient } from "genlayer-js";
+import { studionet } from "genlayer-js/chains";
 import { TransactionStatus } from "genlayer-js/types";
 
 const RPC = "https://studio.genlayer.com/api";
-const REGISTRY = process.env.VOWMARK_REGISTRY_ADDRESS || "0x76DE9332010D5F03660Fa2216cb5cc76585dFFE8";
-const VAULT = process.env.VOWMARK_VAULT_ADDRESS || "0x536B5E36d52aC1EFA72d00fFa63B932EfBf42841";
+const REGISTRY = process.env.VOWMARK_REGISTRY_ADDRESS || "0xd1F0B0Ac5E148e6b16e6684dcb01C3a68B842f2d";
+const VAULT = process.env.VOWMARK_VAULT_ADDRESS || "0x925Dd2d3fd74b4C8d5205FEA48131d5fEF3e83ff";
 const rawCommitmentId = process.env.VOWMARK_EXPIRED_COMMITMENT_ID;
 if (!rawCommitmentId) throw new Error("VOWMARK_EXPIRED_COMMITMENT_ID is required");
 const COMMITMENT_ID = BigInt(rawCommitmentId);
-const chain = {
-  id: 61999,
-  name: "GenLayer Studionet",
-  rpcUrls: { default: { http: [RPC] } },
-  nativeCurrency: { name: "GEN Token", symbol: "GEN", decimals: 18 },
-  blockExplorers: { default: { name: "GenLayer Explorer", url: "https://explorer-studio.genlayer.com" } },
-  testnet: true,
-  consensusMainContract: null,
-  defaultNumberOfInitialValidators: 5,
-  defaultConsensusMaxRotations: 3,
-};
+const chain = { ...studionet, rpcUrls: { ...studionet.rpcUrls, default: { http: [RPC] } } };
 
 function plain(value) {
   if (value instanceof Map) return Object.fromEntries(Array.from(value.entries(), ([key, item]) => [key, plain(item)]));
@@ -37,7 +28,8 @@ function leaderReceipt(receipt) {
 }
 function isSuccessfulFinalizedReceipt(receipt, leader) {
   const decodedStatus = leader?.result && typeof leader.result === "object" ? leader.result.status : undefined;
-  return receipt.status === TransactionStatus.FINALIZED && leader && leader.error == null && leader.execution_result === "SUCCESS" && (decodedStatus === undefined || decodedStatus === "return");
+  const status = String(receipt.status_name ?? receipt.status).toUpperCase();
+  return (status === TransactionStatus.FINALIZED || status === "7") && leader && leader.error == null && leader.execution_result === "SUCCESS" && (decodedStatus === undefined || decodedStatus === "return");
 }
 
 async function finalized(client, hash) {

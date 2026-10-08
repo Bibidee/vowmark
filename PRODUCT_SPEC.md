@@ -128,7 +128,7 @@ The available admissible evidence is insufficient for a reliable `FULFILLED` or 
 - Inconclusive attempts are append-only.
 - Retry must obey a nonzero cooldown.
 - The exact same evidence snapshot must not create unbounded duplicate history.
-- A bounded maximum attempt count is allowed and recommended if needed for storage/liveness.
+- Review capacity is bounded per cooldown epoch to limit Sybil throughput without imposing a permanent lifetime attempt cap on an open commitment.
 - A new attempt is meaningful only if time or source content may have changed.
 
 ## Expiry

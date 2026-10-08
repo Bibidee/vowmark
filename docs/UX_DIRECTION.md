@@ -92,20 +92,12 @@ Do not use color alone for meaning.
 
 ## Visual direction
 
-- off-white / paper-like base;
-- deep graphite text;
-- ultramarine primary accent;
-- amber for provisional/review states;
-- restrained green/red only for conclusive fulfilled/breached states;
-- editorial typography for promise text;
-- highly legible sans-serif for controls and data;
-- generous whitespace;
-- thin rules, ledger rows and evidence receipts;
-- no glassmorphism;
-- no neon;
-- no blueprint grid;
-- no protocol-terminal aesthetic;
-- no copied reference cards/layouts.
+- near-black graphite base with bone text and high-contrast cyan, lime, violet and coral state accents;
+- angular panels, clipped corners, protocol rails and evidence-cartridge treatments;
+- editorial typography for the promise text and a compact monospace layer for hashes, rails and evidence metadata;
+- dense but legible public-record composition: board groups, canonical record panels and visible settlement rails;
+- no glassmorphism, fake metrics, fake activity or decorative dashboard noise;
+- no copied reference cards/layouts; the Neon Oath Machine language is specific to VOWMARK.
 
 ## Mobile
 

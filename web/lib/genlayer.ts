@@ -31,6 +31,12 @@ function leaderReceipt(receipt: unknown): LeaderReceipt | undefined {
   return Array.isArray(raw) ? raw[0] as LeaderReceipt | undefined : raw as LeaderReceipt | undefined;
 }
 
+function plain(value: unknown): unknown {
+  if (value instanceof Map) return Object.fromEntries(Array.from(value.entries(), ([key, item]) => [key, plain(item)]));
+  if (Array.isArray(value)) return value.map(plain);
+  return value;
+}
+
 /**
  * genlayer-js@0.9.0 has no success helper. The installed receipt contract is
  * FINALIZED + leader execution_result SUCCESS, with no leader error. When the
@@ -119,11 +125,11 @@ export function writeClient(address: string) {
 }
 
 export async function readRegistry(functionName: string, args: unknown[] = []) {
-  return readClient().readContract({ address: requireRegistry() as Address, functionName, args: args as CalldataEncodable[], stateStatus: TransactionStatus.FINALIZED });
+  return plain(await readClient().readContract({ address: requireRegistry() as Address, functionName, args: args as CalldataEncodable[], stateStatus: TransactionStatus.FINALIZED }));
 }
 
 export async function readVault(functionName: string, args: unknown[] = []) {
-  return readClient().readContract({ address: requireVault() as Address, functionName, args: args as CalldataEncodable[], stateStatus: TransactionStatus.FINALIZED });
+  return plain(await readClient().readContract({ address: requireVault() as Address, functionName, args: args as CalldataEncodable[], stateStatus: TransactionStatus.FINALIZED }));
 }
 
 export async function writeRegistry(address: string, functionName: string, args: unknown[], value?: bigint) {

@@ -24,6 +24,7 @@ const chain = {
 } as never;
 type GLClient = ReturnType<typeof createClient>;
 type LeaderReceipt = { error?: unknown; execution_result?: unknown; result?: unknown };
+const READ_ONLY_ACCOUNT = { address: "0x0000000000000000000000000000000000000000" } as never;
 
 function leaderReceipt(receipt: unknown): LeaderReceipt | undefined {
   const raw = (receipt as { consensus_data?: { leader_receipt?: unknown } })?.consensus_data?.leader_receipt;
@@ -107,7 +108,10 @@ export async function addOrSwitchStudionet() {
 }
 
 export function readClient() {
-  return createClient({ chain, endpoint: NETWORK.rpcUrl }) as GLClient;
+  // genlayer-js@0.9.0 routes eth_* calls through window.ethereum whenever
+  // account is an address or omitted. An account-shaped read-only sentinel
+  // keeps public reads on the configured RPC without enabling writes.
+  return createClient({ chain, endpoint: NETWORK.rpcUrl, account: READ_ONLY_ACCOUNT }) as GLClient;
 }
 
 export function writeClient(address: string) {

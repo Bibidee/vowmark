@@ -107,7 +107,7 @@ export async function addOrSwitchStudionet() {
 }
 
 export function readClient() {
-  return createClient({ chain }) as GLClient;
+  return createClient({ chain, endpoint: NETWORK.rpcUrl }) as GLClient;
 }
 
 export function writeClient(address: string) {

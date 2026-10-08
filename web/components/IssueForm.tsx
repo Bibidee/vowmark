@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { connectWallet, extractExecutionReturn, getWalletState, readRegistry, readVault, waitForFinality, writeVault } from "@/lib/genlayer";
 import { formatGen, parseGen, REVIEW_POLICY } from "@/lib/config";
@@ -36,6 +36,8 @@ export function IssueForm() {
   const [rule, setRule] = useState("");
   const [maturity, setMaturity] = useState("");
   const [deadline, setDeadline] = useState("");
+  const maturityInputRef = useRef<HTMLInputElement>(null);
+  const deadlineInputRef = useRef<HTMLInputElement>(null);
   const [remedy, setRemedy] = useState("");
   const [bond, setBond] = useState("1");
   const [anchors, setAnchors] = useState<Anchor[]>([initialAnchor]);
@@ -49,8 +51,12 @@ export function IssueForm() {
   const [issuance, setIssuance] = useState<Record<string, unknown>>();
   const [submitting, setSubmitting] = useState(false);
   useEffect(() => {
-    setMaturity(localValue(7 * 24 * 60 * 60));
-    setDeadline(localValue(14 * 24 * 60 * 60));
+    const initialMaturity = localValue(7 * 24 * 60 * 60);
+    const initialDeadline = localValue(14 * 24 * 60 * 60);
+    setMaturity(initialMaturity);
+    setDeadline(initialDeadline);
+    if (maturityInputRef.current) maturityInputRef.current.value = initialMaturity;
+    if (deadlineInputRef.current) deadlineInputRef.current.value = initialDeadline;
   }, []);
   const maturitySeconds = useMemo(() => maturity ? unix(maturity) : 0n, [maturity]);
   const deadlineSeconds = useMemo(() => deadline ? unix(deadline) : 0n, [deadline]);
@@ -173,7 +179,7 @@ export function IssueForm() {
           </section>
           <section className="form-section">
             <h2>02 / The clock &amp; remedy</h2>
-            <div className="field-row"><div className="field"><label htmlFor="maturity">When the clock stops</label><input id="maturity" type="datetime-local" value={maturity} onChange={(event) => setMaturity(event.target.value)} required /></div><div className="field"><label htmlFor="deadline">Last call for judgment</label><input id="deadline" type="datetime-local" value={deadline} onChange={(event) => setDeadline(event.target.value)} required /></div></div><p className="hint">The final review deadline must be at least 15 minutes after maturity. Review retries use a 5-minute per-reviewer cooldown, with 32 attempts per 1-hour epoch.</p>
+            <div className="field-row"><div className="field"><label htmlFor="maturity">When the clock stops</label><input ref={maturityInputRef} id="maturity" type="datetime-local" defaultValue="" onChange={(event) => setMaturity(event.target.value)} required /></div><div className="field"><label htmlFor="deadline">Last call for judgment</label><input ref={deadlineInputRef} id="deadline" type="datetime-local" defaultValue="" onChange={(event) => setDeadline(event.target.value)} required /></div></div><p className="hint">The final review deadline must be at least 15 minutes after maturity. Review retries use a 5-minute per-reviewer cooldown, with 32 attempts per 1-hour epoch.</p>
             <div className="field"><label htmlFor="remedy">If you break it</label><input id="remedy" value={remedy} onChange={(event) => setRemedy(event.target.value)} placeholder="0x... where the bond goes if BREACHED" spellCheck={false} required /><span className="hint">A nonzero address different from yours. This is immutable and receives the bond only if validators conclude BREACHED.</span></div>
             <div className="field"><label htmlFor="bond">Skin in the game / GEN</label><input id="bond" inputMode="decimal" value={bond} onChange={(event) => setBond(event.target.value)} placeholder="How much GEN backs your word?" required /><span className="hint">The bond is held by the Vault from issuance and can only leave through an evidenced terminal outcome or withdrawal.</span></div>
           </section>

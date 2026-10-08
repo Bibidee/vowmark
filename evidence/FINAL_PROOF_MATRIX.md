@@ -12,7 +12,7 @@ This is the release matrix for the fresh Registry/Vault pair. Earlier deployment
 - Finalized wiring: [`0x3001c417be1cb12530fa1fe1163d10e8cd899f1341f41a97494fe867de76c5ee`](https://explorer-studio.genlayer.com/tx/0x3001c417be1cb12530fa1fe1163d10e8cd899f1341f41a97494fe867de76c5ee)
 - Unauthorized wiring rollback: [`0xadce639ca8a9b05cf6f485ad3ad6f2256a5c5391a100c0925b46c4abd5055af5`](https://explorer-studio.genlayer.com/tx/0xadce639ca8a9b05cf6f485ad3ad6f2256a5c5391a100c0925b46c4abd5055af5)
 - Configuration readback: [`fresh_deployment_2026-10-08.md`](fresh_deployment_2026-10-08.md)
-- Production frontend: [the-vowmark.vercel.app](https://the-vowmark.vercel.app), fresh deployment pending
+- Production frontend: [the-vowmark.vercel.app](https://the-vowmark.vercel.app), fresh Vercel deployment [`dpl_2NpFUVUW4rg1MVyHuKhQUf67Sr5k`](https://vercel.com/bibidees-projects/vowmark/2NpFUVUW4rg1MVyHuKhQUf67Sr5k)
 
 ## Live proof matrix
 
@@ -34,8 +34,8 @@ Earlier `live_fulfilled_final.json`, `live_breached_final.json`, `live_inconclus
 - Direct Mode custody tests: `4 passed` locally with `.venv-direct`; Linux CI remains authoritative
 - Simulator-backed Registry behavior tests: `6 passed`
 - Frontend typecheck, lint, board invariant test, and production build: passed
-- CI: rerun required after final edits
-- Production: fresh frontend deployment required after commit
+- CI: [passed](https://github.com/Bibidee/vowmark/actions/runs/37745086746) for commit [`d4c4f87`](https://github.com/Bibidee/vowmark/commit/d4c4f87e67ff04c138fb87d2dc06c9c9deeb29b3)
+- Production: ready; `/`, `/issue`, `/activity`, and `/commitment/6` returned HTTP 200
 
 ## Expiry
 

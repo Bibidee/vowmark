@@ -88,7 +88,7 @@ VOWMARK V1 is deployed on GenLayer Studionet 61999 and the production frontend i
 - Registry deployment: [`0xee41807eaf5c63dd7d0eede4e0bfc4573b0daaa7b235b7fd84e7eec95febc8ea`](https://explorer-studio.genlayer.com/tx/0xee41807eaf5c63dd7d0eede4e0bfc4573b0daaa7b235b7fd84e7eec95febc8ea)
 - Vault deployment: [`0x109d8012bfaab6561e112492e7808eb72f1bd0b7b1ef23095fde8adb7220d36c`](https://explorer-studio.genlayer.com/tx/0x109d8012bfaab6561e112492e7808eb72f1bd0b7b1ef23095fde8adb7220d36c)
 - Finalized wiring: [`0x3001c417be1cb12530fa1fe1163d10e8cd899f1341f41a97494fe867de76c5ee`](https://explorer-studio.genlayer.com/tx/0x3001c417be1cb12530fa1fe1163d10e8cd899f1341f41a97494fe867de76c5ee)
-- Production frontend: [the-vowmark.vercel.app](https://the-vowmark.vercel.app) (fresh frontend deployment pending)
+- Production frontend: [the-vowmark.vercel.app](https://the-vowmark.vercel.app), aliased to Vercel deployment [`dpl_2NpFUVUW4rg1MVyHuKhQUf67Sr5k`](https://vercel.com/bibidees-projects/vowmark/2NpFUVUW4rg1MVyHuKhQUf67Sr5k)
 - Explorer: <https://explorer-studio.genlayer.com>
 
 The deployment and configuration readback are recorded in [`evidence/fresh_deployment_2026-10-08.md`](evidence/fresh_deployment_2026-10-08.md). Fresh lifecycle evidence is intentionally separate because the Registry source changed and all earlier proof artifacts are superseded.

@@ -9,8 +9,8 @@ VOWMARK V1 is deployed on GenLayer Studionet 61999 and published at [the-vowmark
 - Registry deployment: [`0xee41807eaf5c63dd7d0eede4e0bfc4573b0daaa7b235b7fd84e7eec95febc8ea`](https://explorer-studio.genlayer.com/tx/0xee41807eaf5c63dd7d0eede4e0bfc4573b0daaa7b235b7fd84e7eec95febc8ea)
 - Vault deployment: [`0x109d8012bfaab6561e112492e7808eb72f1bd0b7b1ef23095fde8adb7220d36c`](https://explorer-studio.genlayer.com/tx/0x109d8012bfaab6561e112492e7808eb72f1bd0b7b1ef23095fde8adb7220d36c)
 - Wiring: [`0x3001c417be1cb12530fa1fe1163d10e8cd899f1341f41a97494fe867de76c5ee`](https://explorer-studio.genlayer.com/tx/0x3001c417be1cb12530fa1fe1163d10e8cd899f1341f41a97494fe867de76c5ee)
-- Frontend: [the-vowmark.vercel.app](https://the-vowmark.vercel.app) (fresh deployment pending)
-- Application source: this remediation branch (fresh frontend deployment pending)
+- Frontend: [the-vowmark.vercel.app](https://the-vowmark.vercel.app), aliased to the fresh Vercel production deployment [`dpl_2NpFUVUW4rg1MVyHuKhQUf67Sr5k`](https://vercel.com/bibidees-projects/vowmark/2NpFUVUW4rg1MVyHuKhQUf67Sr5k)
+- Application source: [`d4c4f87`](https://github.com/Bibidee/vowmark/commit/d4c4f87e67ff04c138fb87d2dc06c9c9deeb29b3) on `main`
 
 ## Release state
 
@@ -28,9 +28,9 @@ VOWMARK V1 is deployed on GenLayer Studionet 61999 and published at [the-vowmark
 - Direct Mode custody tests: `4 passed`
 - Simulator-backed Registry behavior tests: `6 passed`
 - Frontend typecheck, lint, and production build: passed
-- Final CI: pending after the current source and dependency changes
-- Production deployment: pending after the current source and contract-address changes
-- Production route checks: `/`, `/issue`, `/activity`, `/commitment/0`, `/commitment/1`, `/commitment/5`, and `/issuer/0x794678ad7e8b6c87dab33303a3a512c821e6de9a`
+- Final CI: [passed](https://github.com/Bibidee/vowmark/actions/runs/37745086746) for `d4c4f87`
+- Production deployment: ready at [the-vowmark.vercel.app](https://the-vowmark.vercel.app)
+- Production route checks: `/`, `/issue`, `/activity`, and `/commitment/6` returned HTTP 200
 
 ## Honest limitation
 

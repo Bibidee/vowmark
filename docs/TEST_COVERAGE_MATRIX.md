@@ -95,6 +95,6 @@ This maps every item in [`TEST_PLAN.md`](TEST_PLAN.md) to the strongest evidence
 | 89 | AUTOMATED | No backend directory/server route; frontend is direct RPC |
 | 90 | REVIEWED | No centralized AI endpoint in source audit |
 | 91 | AUTOMATED | Injected wallet only; no server signer |
-| 92 | PENDING | Fresh production deployment audit after commit |
+| 92 | LIVE FRESH | Fresh Vercel production deployment and four public route checks returned HTTP 200 |
 | 93 | AUTOMATED | Contract-surface identifier test |
-| 94 | PENDING | Fresh deployment/production evidence must be committed after CI and Vercel redeploy |
+| 94 | VERIFIED | Fresh deployment, final commit, and passing CI are linked in the release proof matrix |

@@ -2,6 +2,7 @@ import { defineConfig, devices } from "@playwright/test";
 import { E2E_REGISTRY, E2E_VAULT } from "./e2e/config";
 
 export default defineConfig({
+  workers: 1,
   testDir: "./e2e",
   timeout: 30_000,
   fullyParallel: true,

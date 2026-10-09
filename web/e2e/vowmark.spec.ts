@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { DEFAULT_ACCOUNT, installMockProvider, setMockAccounts } from "./provider";
+import { mockTimedCommitmentRpc } from "./rpc";
 
 async function expectNoHorizontalOverflow(page: Page) {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
@@ -66,6 +67,24 @@ test.describe("VOWMARK browser contract", () => {
       await expect(readFailure).toContainText(/unable to read|failed|fetch|network/i);
       await expect(page.getByRole("link", { name: /back to the board/i })).toBeVisible();
     }
+  });
+
+  test("maturity and expiry actions update without a page reload", async ({ page }) => {
+    const start = new Date("2030-01-01T00:00:00.000Z");
+    const startSeconds = BigInt(Math.floor(start.getTime() / 1000));
+    await page.clock.install({ time: start });
+    await mockTimedCommitmentRpc(page, startSeconds + 2n, startSeconds + 5n);
+    await page.goto("/commitment/9");
+    await expect(page.getByText(/not currently reviewable/i)).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole("button", { name: /request review/i })).toHaveCount(0);
+
+    await page.clock.runFor(3_000);
+    await expect(page.getByRole("button", { name: /request review/i })).toBeVisible();
+
+    await page.clock.runFor(3_000);
+    await expect(page.getByText(/ready to expire/i)).toBeVisible();
+    await expect(page.getByRole("button", { name: /record expired unresolved/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: /request review/i })).toHaveCount(0);
   });
 
   test("mobile layout remains readable without horizontal overflow", async ({ page }) => {

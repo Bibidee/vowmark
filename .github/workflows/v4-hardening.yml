@@ -1,15 +1,26 @@
-name: VOWMARK V2 Hardening
+name: VOWMARK V4 Hardening
 
 on:
   push:
-    branches: [v2-hardening]
+    branches: [v4-security-remediation, v4-final-certification]
   pull_request:
-    branches: [v2-hardening]
+    branches: [v3-evidence-hardening]
 
 permissions:
   contents: read
 
 jobs:
+  release-consistency:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python scripts/check_v4_release_consistency.py
+
   python-surface:
     runs-on: ubuntu-latest
     steps:
@@ -62,18 +73,6 @@ jobs:
             "https://github.com/genlayerlabs/genvm/releases/download/v0.2.16/genvm-universal.tar.xz" \
             --output "$HOME/.cache/gltest-direct/genvm-universal-v0.2.16.tar.xz"
       - run: python scripts/run_mutation_tests.py
-
-  release-consistency:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - name: Check V2 release consistency
-        run: python scripts/check_release_consistency.py
 
   web-and-browser:
     runs-on: ubuntu-latest

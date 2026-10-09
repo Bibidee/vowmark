@@ -69,4 +69,18 @@ test.describe("VOWMARK transaction recovery", () => {
     await expect(page.locator(".status-chip")).toHaveText("UNDETERMINED");
     await expect(page.locator(".activity-row")).not.toContainText("REGISTERED");
   });
+
+  test("legacy activity does not query the current deployment or link to a mismatched canonical record", async ({ page }) => {
+    await mockActivityRpc(page, "REGISTRATION_PENDING");
+    await page.addInitScript(() => {
+      const record = JSON.parse(window.localStorage.getItem("vowmark.activity.v1") || "[]");
+      delete record[0].registryAddress;
+      delete record[0].vaultAddress;
+      window.localStorage.setItem("vowmark.activity.v1", JSON.stringify(record));
+    });
+    await page.goto("/activity");
+    await expect(page.getByText(/HISTORICAL DEPLOYMENT/i)).toBeVisible();
+    await expect(page.getByRole("link", { name: /open canonical record/i })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: /retry registry registration/i })).toHaveCount(0);
+  });
 });

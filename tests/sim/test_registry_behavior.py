@@ -826,6 +826,56 @@ def test_duplicate_registration_requires_identical_anchors(deployed):
         engine.call_method(registry_address, "register_commitment", conflicting, sender=vault_address)
 
 
+def test_out_of_order_registration_remains_publicly_visible_and_idempotent(deployed):
+    engine, isolated_registry, vault_address = deployed
+
+    def registration_args(commitment_id: int, issuer: str, label: str):
+        return [
+            commitment_id,
+            issuer,
+            f"Out-of-order commitment {label}",
+            "Fulfilled means the frozen evidence contains the required record.",
+            _timestamp("2030-01-01T00:00:00Z"),
+            _timestamp("2030-01-02T00:00:00Z"),
+            _timestamp("2030-01-03T00:00:00Z"),
+            REMEDY,
+            100,
+            [f"https://example.com/out-of-order-{label}"],
+            ["PUBLICATION"],
+            [f"immutable test evidence {label}"],
+        ]
+
+    second = registration_args(1, ISSUER, "second")
+    first = registration_args(0, REVIEWER_A, "first")
+    _warp(engine, "2030-01-01T00:00:00Z")
+
+    # Simulate finalized child-message delivery in reverse order. The newer
+    # record must be visible even while the older registration is absent.
+    engine.call_method(isolated_registry, "register_commitment", second, sender=vault_address)
+    assert int(engine.call_method(isolated_registry, "get_commitment", [1], sender=ISSUER)["commitment_id"]) == 1
+    assert [int(item["commitment_id"]) for item in engine.call_method(isolated_registry, "list_recent_commitments", [25], sender=ISSUER)] == [1]
+    assert [int(item["commitment_id"]) for item in engine.call_method(isolated_registry, "list_commitments", [0, 25], sender=ISSUER)] == [1]
+    assert int(engine.call_method(isolated_registry, "get_total_commitments", [], sender=ISSUER)) == 1
+    assert int(engine.call_method(isolated_registry, "get_registration_scan_upper_bound", [], sender=ISSUER)) == 2
+    assert [int(item["commitment_id"]) for item in engine.call_method(isolated_registry, "get_issuer_commitments", [ISSUER, 0, 25], sender=ISSUER)] == [1]
+
+    # Duplicate retries acknowledge the existing record without changing any
+    # index or count and cannot duplicate custody in the Vault.
+    credit_before = engine.call_method(vault_address, "get_credit", [ISSUER], sender=ISSUER)
+    engine.call_method(isolated_registry, "register_commitment", second, sender=vault_address)
+    assert int(engine.call_method(isolated_registry, "get_total_commitments", [], sender=ISSUER)) == 1
+    assert engine.call_method(vault_address, "get_credit", [ISSUER], sender=ISSUER) == credit_before
+
+    # Delivering the missing older registration makes both records visible;
+    # the high-water scan and actual count converge without rewriting either.
+    engine.call_method(isolated_registry, "register_commitment", first, sender=vault_address)
+    assert [int(item["commitment_id"]) for item in engine.call_method(isolated_registry, "list_recent_commitments", [25], sender=ISSUER)] == [1, 0]
+    assert [int(item["commitment_id"]) for item in engine.call_method(isolated_registry, "list_commitments", [0, 25], sender=ISSUER)] == [0, 1]
+    assert int(engine.call_method(isolated_registry, "get_total_commitments", [], sender=ISSUER)) == 2
+    assert int(engine.call_method(isolated_registry, "get_registration_scan_upper_bound", [], sender=ISSUER)) == 2
+    assert [int(item["commitment_id"]) for item in engine.call_method(isolated_registry, "get_issuer_commitments", [REVIEWER_A, 0, 25], sender=ISSUER)] == [0]
+
+
 def test_terminal_settlement_and_reconciliation_are_idempotent(deployed):
     engine, registry_address, vault_address = deployed
     commitment_id = _issue(engine, vault_address, statement="A terminal settlement check")

@@ -6,6 +6,7 @@ import { readRegistry } from "@/lib/genlayer";
 import { normalizeCommitment, type Commitment } from "@/lib/types";
 import { CommitmentCard } from "@/components/CommitmentCard";
 import { groupCommitments } from "@/lib/board";
+import { useNowSeconds } from "@/lib/useNowSeconds";
 
 function readableBoardError(cause: unknown) {
   const message = cause instanceof Error ? cause.message : "";
@@ -15,12 +16,13 @@ function readableBoardError(cause: unknown) {
 }
 
 export function HomeBoard() {
+  const now = useNowSeconds();
   const [commitments, setCommitments] = useState<Commitment[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
   useEffect(() => { setLoading(true); readRegistry("list_recent_commitments", [25n]).then((value) => setCommitments((value as unknown[]).map(normalizeCommitment))).catch((cause) => setError(readableBoardError(cause))).finally(() => setLoading(false)); }, [refreshKey]);
-  const sections = groupCommitments(commitments, BigInt(Math.floor(Date.now() / 1000)));
+  const sections = groupCommitments(commitments, BigInt(now));
   return (
     <div className="page">
       <section className="hero"><div><p className="eyebrow">01 / A public accountability register</p><h1>Make a promise that can outlive your certainty.</h1><p className="lede">VOWMARK lets an issuer lock GEN behind one externally verifiable commitment. The terms and evidence policy freeze first. After maturity, GenLayer validators review only those public anchors.</p><div className="inline-actions" style={{ marginTop: 28 }}><Link className="primary-button" href="/issue">Make a commitment</Link><Link className="secondary-button" href="/activity">Recover activity</Link></div></div><aside className="hero-aside"><p>THE MATURITY BOARD // LIVE REGISTER</p><strong>Promises in public, with a memory.</strong><p>There is no reputation score here. Only the record: what was promised, when the evidence became reviewable, and what the canonical outcome says.</p></aside><div className="protocol-strip" aria-hidden="true"><b>ISSUE</b> / <b>FREEZE</b> / <b>MATURE</b> / <b>REVIEW</b> / <b>SETTLE</b></div></section>

@@ -46,6 +46,9 @@ def test_registry_uses_vault_first_no_value_settlement_and_immutable_terms():
     assert '"review_cooldown_scope": "per_reviewer"' in REGISTRY
     assert '"review_attempts_are_not_lifetime_capped": True' in REGISTRY
     assert '"authority_status"' in REGISTRY
+    assert "registered_commitment_count" in REGISTRY
+    assert "registration_scan_upper_bound" in REGISTRY
+    assert "def get_registration_scan_upper_bound(" in REGISTRY
 
 
 def test_validator_is_bounded_and_prompt_injection_resistant():
@@ -99,3 +102,14 @@ def test_frontend_reads_are_explicitly_finalized_and_next_is_not_static_exported
     assert "stageRank" in transaction_rail
     assert "registration === \"REGISTRATION_PENDING\"" in activity_view
     assert "output: \"export\"" not in next_config
+
+
+def test_frontend_time_dependent_actions_use_a_live_clock():
+    clock = (ROOT / "web/lib/useNowSeconds.ts").read_text(encoding="utf-8")
+    board = (ROOT / "web/components/HomeBoard.tsx").read_text(encoding="utf-8")
+    commitment = (ROOT / "web/components/CommitmentView.tsx").read_text(encoding="utf-8")
+    assert "setInterval" in clock
+    assert 'addEventListener("focus"' in clock
+    assert 'addEventListener("visibilitychange"' in clock
+    assert "useNowSeconds()" in board
+    assert "useNowSeconds()" in commitment

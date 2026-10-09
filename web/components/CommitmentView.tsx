@@ -8,6 +8,7 @@ import { rememberActivity, updateActivity } from "@/lib/activity";
 import { asBigInt, normalizeAnchor, normalizeCommitment, normalizeReview, type Commitment, type EvidenceAnchor, type ReviewAttempt, type TransactionStage } from "@/lib/types";
 import { StatusBadge } from "@/components/StatusBadge";
 import { TransactionRail } from "@/components/TransactionRail";
+import { useNowSeconds } from "@/lib/useNowSeconds";
 
 function date(value: bigint) { return new Date(Number(value) * 1000).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" }); }
 
@@ -66,6 +67,7 @@ function CreditPanel({ refreshKey }: { refreshKey: number }) {
 }
 
 export function CommitmentView({ id }: { id: string }) {
+  const now = useNowSeconds();
   const [commitment, setCommitment] = useState<Commitment>();
   const [anchors, setAnchors] = useState<EvidenceAnchor[]>([]);
   const [reviews, setReviews] = useState<ReviewAttempt[]>([]);
@@ -128,7 +130,6 @@ export function CommitmentView({ id }: { id: string }) {
     }
   }
 
-  const now = Math.floor(Date.now() / 1000);
   const canReview = useMemo(() => Boolean(commitment && commitment.outcome === "OPEN" && Number(commitment.maturity_at) <= now && Number(commitment.final_review_deadline) > now), [commitment, now]);
   const reviewerCooldownUntil = reviewerLastAttemptAt && reviewerLastAttemptAt > 0n ? reviewerLastAttemptAt + BigInt(REVIEW_POLICY.retryCooldownSeconds) : undefined;
   const reviewerCooldownActive = Boolean(reviewerCooldownUntil && reviewerCooldownUntil > BigInt(now));

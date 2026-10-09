@@ -1,23 +1,20 @@
 # VOWMARK V4 security remediation
 
-Status: final numeric-host remediation implemented on `v4-security-remediation`;
-the earlier Studionet canary predates this correction; **not promoted**.
+Status: the corrected V4 pair was deployed, accepted, and promoted to
+production on 2026-10-09. A later sparse-registration ordering fix now changes
+Registry source and therefore requires a fresh pair and fresh authorization.
 
 ## Final verdict
 
-**READY FOR FINAL DEPLOYMENT AUTHORIZATION**, subject to exact-head CI.
-**Not ready for production promotion.**
+**PRODUCTION V4 IS LIVE. CURRENT SOURCE CHANGES ARE NOT YET DEPLOYED.**
 
-This verdict separates corrected source from historical canary evidence. The
-original V4 Preview is wired to the pre-fix pair; its lifecycle receipts do
-not prove changed bytecode. No new deployment or production promotion has
-been authorized. Issuer withdrawal parents and external-message emission are
-verified; external delivery is not independently verified.
-
-The V1 production release remains the submitted Studionet release. Its
-Registry, Vault, frontend alias and historical evidence were not changed by
-this branch. V4 introduces a new commitment field and new evidence metadata,
-so it uses the fresh Registry/Vault pair and a separate Preview configuration.
+The production alias and final V4 pair were authorized separately and have
+live lifecycle evidence. The current branch additionally repairs out-of-order
+asynchronous registration visibility. Because that repair changes Registry
+bytecode, it cannot be represented by the existing production addresses. A
+fresh deployment, Preview acceptance, and promotion require fresh
+authorization. Issuer withdrawal parents and external-message emission are
+verified; external delivery remains independently unverified.
 
 ## Scope and disposition
 
@@ -35,13 +32,13 @@ so it uses the fresh Registry/Vault pair and a separate Preview configuration.
 
 | Track | Status | Timing policy | Addresses |
 | --- | --- | --- | --- |
-| Production V1 | Authorized and unchanged | 15-minute minimum review window | The Registry/Vault in [`HANDOFF_STATUS.md`](../HANDOFF_STATUS.md) |
+| Historical V1 | Superseded; frozen evidence retained | 15-minute minimum review window | The Registry/Vault in [`HANDOFF_STATUS.md`](../HANDOFF_STATUS.md) |
 | Historical V4 canary | Studionet deployed and Preview-wired; predates final fix | 20-minute minimum review window plus bounded final-window reserve | [`0xE425f8c6…4Be26`](https://explorer-studio.genlayer.com/address/0xE425f8c6E0780059b80cF34CB5e4A53e85a4Be26) / [`0x36D41a7B…462C`](https://explorer-studio.genlayer.com/address/0x36D41a7BBf88b89A166AE71Dd8D045d3734a462C) |
-| Corrected V4 source | Not deployed; awaits explicit authorization | Same 20-minute policy | New addresses required |
+| Production V4 | Authorized, deployed, lifecycle-tested, and promoted | 20-minute policy plus bounded final-window reserve | [`0x3cA983F7…e4eF7`](https://explorer-studio.genlayer.com/address/0x3cA983F7CC78d10d3970a6Da719b12e17E4e4eF7) / [`0xE9e153dc…ED4Ce`](https://explorer-studio.genlayer.com/address/0xE9e153dc4E33762B2bA468EaC74bEABfe9cED4Ce) |
+| Current sparse-registration source | Local candidate; fresh authorization required | Same 20-minute policy | New addresses required |
 
-The V4 frontend configuration uses Preview-only environment values for the
-fresh pair. Production V1 remains isolated and continues to use its historical
-configuration.
+The production frontend is configured with the Production V4 pair. Historical
+V1 and canary addresses remain isolated in frozen evidence only.
 
 The V4 branch Preview alias is
 [`vowmark-git-v4-security-remediation-bibidees-projects.vercel.app`](https://vowmark-git-v4-security-remediation-bibidees-projects.vercel.app/).
@@ -92,14 +89,14 @@ Executed from the managed Windows workspace with the repository’s `.venv-direc
 | Gate | Result |
 | --- | --- |
 | Full Python suite (`tests`) | **107 passed** on corrected local source |
-| Simulator suite | **89 passed** on corrected local source; earlier exact-head Linux `5e6a917` had **69 passed**; still earlier local report had **68 passed** |
+| Simulator suite | **90 passed** on corrected local source; earlier exact-head Linux `5e6a917` had **69 passed**; still earlier local report had **68 passed** |
 | Direct Mode suite | **9 passed** |
 | Mutation inventory | **49 generated / 49 valid / 49 killed / 0 survived / 0 invalid / 0 tooling-limited** |
 | Frontend typecheck | **PASS** |
 | Frontend lint | **PASS** |
 | Frontend board invariant test | **PASS** |
 | Frontend timezone test | **PASS** (UTC and UTC+1) |
-| Frontend Playwright browser suite | **38 passed** |
+| Frontend Playwright browser suite | **44 passed** |
 | Frontend production build | **PASS** |
 | Frozen V2 repository release guard | **NOT APPLICABLE on V4**; it correctly rejects changed runtime paths relative to V2's frozen SHA |
 | V4 release-consistency guard | **PASS** |
@@ -133,12 +130,11 @@ paths; external delivery was not independently verified. The transaction matrix 
 the receipt-level validator/model audit is in
 [`../evidence/live_v4_validator_model_2026-10-09.md`](../evidence/live_v4_validator_model_2026-10-09.md).
 
-## Deliberately unexecuted actions
+## Deliberately unexecuted actions in this certification branch
 
-- No production frontend alias was changed or promoted to V4.
-- No existing V1 deployment address or production evidence was rewritten.
-- No new corrected V4 deployment, remedy-wallet signature or withdrawal was
-  performed; the historical V4 canary is not a substitute.
+- No replacement Registry/Vault was deployed for the sparse-registration fix.
+- No production environment or alias was changed after that source edit.
+- No historical V1 or V4 evidence was rewritten.
 
 The V4 deployment and live canary are recorded in
 [`../evidence/live_v4_smoke_2026-10-09.md`](../evidence/live_v4_smoke_2026-10-09.md).
@@ -149,6 +145,6 @@ The V4 deployment and live canary are recorded in
 2. Finalize and read back the new pair, wire a separate Preview, and run a new
    live acceptance including changed URL rejection and economic lifecycle.
 3. Review that new evidence and authorize production promotion separately.
-4. Keep `https://the-vowmark.vercel.app/` on authorized V1 until then.
+4. Keep `https://the-vowmark.vercel.app/` on the authorized Production V4 pair until then.
 
 Rollback is operationally simple before promotion: leave V1 contracts and frontend untouched. After a V4 promotion, rollback means restoring the previously authorized frontend configuration; V4 contract state is append-only and is not erased or silently substituted.

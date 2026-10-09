@@ -5,10 +5,18 @@ import Link from "next/link";
 import { connectWallet, executionFailureDescription, getTransaction, getWalletState, isSuccessfulFinalizedExecution, readRegistry, readVault, waitForFinality, writeVault } from "@/lib/genlayer";
 import { loadActivity, rememberActivity, updateActivity } from "@/lib/activity";
 import type { ActivityRecord } from "@/lib/types";
-import { explorerTx, shortHash } from "@/lib/config";
+import { explorerTx, shortHash, REGISTRY_ADDRESS, VAULT_ADDRESS } from "@/lib/config";
 
 type RegistrationState = "REGISTERED" | "REGISTRATION_PENDING" | "VAULT_ISSUANCE_FOUND";
-type Reconciled = ActivityRecord & { status: string; execution: string; canonical?: string; registration?: RegistrationState; issuer?: string };
+type Reconciled = ActivityRecord & { status: string; execution: string; canonical?: string; registration?: RegistrationState; issuer?: string; canonicalAvailable?: boolean };
+
+function matchesCurrentDeployment(item: ActivityRecord) {
+  return Boolean(
+    item.registryAddress && item.vaultAddress &&
+    item.registryAddress.toLowerCase() === REGISTRY_ADDRESS.toLowerCase() &&
+    item.vaultAddress.toLowerCase() === VAULT_ADDRESS.toLowerCase(),
+  );
+}
 
 function reconcile(transaction: Awaited<ReturnType<typeof getTransaction>>) {
   if (!transaction) return { status: "NOT FOUND", execution: "No transaction returned by RPC" };
@@ -21,20 +29,23 @@ function reconcile(transaction: Awaited<ReturnType<typeof getTransaction>>) {
 
 async function readRegistrationState(item: ActivityRecord, transactionState: string) {
   if (!item.commitmentId || item.kind !== "issue" || transactionState !== "FINALIZED") return {};
+  if (!matchesCurrentDeployment(item)) {
+    return { canonical: "HISTORICAL DEPLOYMENT / finalized hash retained; canonical readback skipped", canonicalAvailable: false };
+  }
   const issuance = await readVault("get_issuance", [BigInt(item.commitmentId)]).catch(() => undefined) as Record<string, unknown> | undefined;
   if (!issuance) return { canonical: "Vault issuance readback unavailable" };
   const issuer = typeof issuance.issuer === "string" ? issuance.issuer : item.issuer;
   const registry = await readRegistry("get_commitment", [BigInt(item.commitmentId)]).catch(() => undefined);
   if (registry && issuance.registered === true) {
     updateActivity(item.hash, { state: "REGISTERED", issuer });
-    return { canonical: "CANONICAL REGISTERED", registration: "REGISTERED" as const, issuer };
+    return { canonical: "CANONICAL REGISTERED", registration: "REGISTERED" as const, issuer, canonicalAvailable: true };
   }
   if (issuance.registered === false) {
     updateActivity(item.hash, { state: "REGISTRATION_PENDING", issuer });
-    return { canonical: registry ? "REGISTRY FOUND / VAULT CONFIRMATION PENDING" : "REGISTRATION PENDING / VAULT ISSUANCE FOUND", registration: "REGISTRATION_PENDING" as const, issuer };
+    return { canonical: registry ? "REGISTRY FOUND / VAULT CONFIRMATION PENDING" : "REGISTRATION PENDING / VAULT ISSUANCE FOUND", registration: "REGISTRATION_PENDING" as const, issuer, canonicalAvailable: true };
   }
   updateActivity(item.hash, { state: "ISSUANCE_FOUND", issuer });
-  return { canonical: "VAULT ISSUANCE FOUND / REGISTRY READBACK PENDING", registration: "VAULT_ISSUANCE_FOUND" as const, issuer };
+  return { canonical: "VAULT ISSUANCE FOUND / REGISTRY READBACK PENDING", registration: "VAULT_ISSUANCE_FOUND" as const, issuer, canonicalAvailable: true };
 }
 
 async function readUntilRegistered(commitmentId: bigint) {
@@ -96,12 +107,12 @@ export function ActivityView() {
         else if (state.status === "UNDETERMINED") updateActivity(item.hash, { state: "UNDETERMINED" });
         else if (state.status === "ACCEPTED") updateActivity(item.hash, { state: "ACCEPTED" });
         const registration = await readRegistrationState(item, state.status).catch(() => ({}));
-        return { ...item, ...state, ...registration };
+        return { ...item, canonicalAvailable: matchesCurrentDeployment(item), ...state, ...registration };
       }));
       if (active) { setItems(next); setLoading(false); }
     }
     refresh();
     return () => { active = false; };
   }, [refreshKey]);
-  return <div className="page"><section className="form-intro"><p className="eyebrow">Activity / recovery</p><h1>Keep the hash. Read the chain.</h1><p className="lede">Browser storage remembers hashes only. This page reconciles each transaction with finalized RPC state, then reads Vault issuance and Registry state separately before calling an issue canonical.</p></section><section style={{ paddingTop: 42 }}><div className="inline-actions" style={{ justifyContent: "space-between" }}><h2 style={{ marginBottom: 0 }}>Transaction trace</h2><Link className="secondary-button" href="/">Open the public board</Link></div><div className="activity-list" style={{ marginTop: 24 }}>{loading ? <p className="loading">Reconciling transaction state…</p> : items.length ? items.map((item) => <div className="activity-row" key={item.hash}><div><strong>{item.label}</strong><small>{new Date(item.createdAt).toLocaleString()} {item.commitmentId ? ` / commitment #${item.commitmentId}` : ""}</small><small><span className={`status-chip status-${item.registration === "REGISTRATION_PENDING" ? "pending" : item.status.toLowerCase()}`}>{item.registration === "REGISTRATION_PENDING" ? "REGISTRATION PENDING" : item.registration === "REGISTERED" ? "REGISTERED" : item.status.replaceAll("_", " ")}</span> / {item.execution}</small>{item.canonical ? <small>{item.canonical}</small> : null}{item.commitmentId ? <Link className="text-link" href={`/commitment/${item.commitmentId}`}>Open canonical record</Link> : null}{item.registration === "REGISTRATION_PENDING" && item.commitmentId && item.kind === "issue" ? <RegistrationRetry sourceHash={item.hash} commitmentId={item.commitmentId} issuer={item.issuer} onComplete={() => setRefreshKey((value) => value + 1)} /> : null}</div><a href={explorerTx(item.hash)} target="_blank" rel="noreferrer">{shortHash(item.hash)}</a></div>) : <p className="empty-state">No locally remembered submissions. You can still open any canonical commitment directly.</p>}</div></section></div>;
+  return <div className="page"><section className="form-intro"><p className="eyebrow">Activity / recovery</p><h1>Keep the hash. Read the chain.</h1><p className="lede">Browser storage remembers hashes only. This page reconciles each transaction with finalized RPC state. Records saved by the current deployment also receive Vault and Registry canonical readback.</p></section><section style={{ paddingTop: 42 }}><div className="inline-actions" style={{ justifyContent: "space-between" }}><h2 style={{ marginBottom: 0 }}>Transaction trace</h2><Link className="secondary-button" href="/">Open the public board</Link></div><div className="activity-list" style={{ marginTop: 24 }}>{loading ? <p className="loading">Reconciling transaction state…</p> : items.length ? items.map((item) => <div className="activity-row" key={item.hash}><div><strong>{item.label}</strong><small>{new Date(item.createdAt).toLocaleString()} {item.commitmentId ? ` / commitment #${item.commitmentId}` : ""}</small><small><span className={`status-chip status-${item.registration === "REGISTRATION_PENDING" ? "pending" : item.status.toLowerCase()}`}>{item.registration === "REGISTRATION_PENDING" ? "REGISTRATION PENDING" : item.registration === "REGISTERED" ? "REGISTERED" : item.status.replaceAll("_", " ")}</span> / {item.execution}</small>{item.canonical ? <small>{item.canonical}</small> : null}{item.commitmentId && item.canonicalAvailable ? <Link className="text-link" href={`/commitment/${item.commitmentId}`}>Open canonical record</Link> : null}{item.registration === "REGISTRATION_PENDING" && item.commitmentId && item.kind === "issue" && item.canonicalAvailable ? <RegistrationRetry sourceHash={item.hash} commitmentId={item.commitmentId} issuer={item.issuer} onComplete={() => setRefreshKey((value) => value + 1)} /> : null}</div><a href={explorerTx(item.hash)} target="_blank" rel="noreferrer">{shortHash(item.hash)}</a></div>) : <p className="empty-state">No locally remembered submissions. You can still open any canonical commitment directly.</p>}</div></section></div>;
 }

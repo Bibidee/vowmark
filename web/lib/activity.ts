@@ -1,4 +1,5 @@
 import type { ActivityRecord } from "@/lib/types";
+import { REGISTRY_ADDRESS, VAULT_ADDRESS } from "@/lib/config";
 
 const KEY = "vowmark.activity.v1";
 
@@ -14,7 +15,12 @@ export function loadActivity(): ActivityRecord[] {
 
 export function rememberActivity(record: ActivityRecord) {
   if (typeof window === "undefined") return;
-  const next = [record, ...loadActivity().filter((item) => item.hash !== record.hash)].slice(0, 30);
+  const stamped = {
+    registryAddress: REGISTRY_ADDRESS,
+    vaultAddress: VAULT_ADDRESS,
+    ...record,
+  };
+  const next = [stamped, ...loadActivity().filter((item) => item.hash !== record.hash)].slice(0, 30);
   window.localStorage.setItem(KEY, JSON.stringify(next));
 }
 

@@ -2,21 +2,22 @@
 
 ## Release separation
 
-This runbook contains two deliberately separate tracks:
+This runbook contains three deliberately separate tracks:
 
-- **Production V1:** already deployed and authorized at the addresses in
-  [`../HANDOFF_STATUS.md`](../HANDOFF_STATUS.md). Its minimum review window
-  is **15 minutes**. Those contracts and the production alias must remain
-  unchanged.
-- **Candidate V4:** this branch's separately deployed Studionet canary. Its
-  minimum review window is **20 minutes**, its capacity policy includes the
-  repaired bounded final-window reserve, and its Preview frontend is separate
-  from the V1 production alias. It is not promoted to production.
+- **Historical V1:** the 15-minute deployment recorded in
+  [`../HANDOFF_STATUS.md`](../HANDOFF_STATUS.md). Its frozen evidence remains
+  historical and must not be presented as V4 evidence.
+- **Production V4:** the authorized Studionet release at
+  [`https://the-vowmark.vercel.app/`](https://the-vowmark.vercel.app/). It uses
+  the 20-minute policy, Registry `0x3cA983F7CC78d10d3970a6Da719b12e17E4e4eF7`,
+  and Vault `0xE9e153dc4E33762B2bA468EaC74bEABfe9cED4Ce`.
+- **V4 Preview:** any later contract-source change must use a fresh pair and a
+  separate Preview until exact-head tests, live acceptance, and production
+  promotion receive fresh authorization.
 
-The original V4 canary was built before the shortened numeric-IP fix. Its
-Registry/Vault addresses are historical evidence, not the corrected release.
-The corrected V4 pair was freshly deployed on 2026-10-09; it remains a
-Preview-only candidate, not production.
+The original V4 canary built before the shortened numeric-IP fix is historical
+evidence only. The corrected pair above was deployed, lifecycle-tested, and
+subsequently promoted to production on 2026-10-09.
 
 Never use V1 addresses as evidence that V4 has been deployed, and never read
 the V4 20-minute policy back from the V1 contracts.
@@ -51,7 +52,7 @@ Record only values observed from the final build:
 - CI run link;
 - known limitation(s).
 
-## Production V1 environment variables
+## Historical V1 environment variables
 
 The final implementation may refine names, but keep one obvious network configuration source. Suggested:
 
@@ -66,10 +67,10 @@ NEXT_PUBLIC_VOWMARK_VAULT_ADDRESS=0xf8D89f89aD160546780eD76Cd64C550d91bAf501
 These values describe only the authorized V1 frontend. Do not copy them into
 a V4 preview or use them as V4 deployment evidence.
 
-## Candidate V4 environment variables
+## Production V4 environment variables
 
-These values are configured for the corrected V4 Preview branch after fresh,
-finalized deployment and configuration readback:
+These values are configured for Production V4 after finalized deployment,
+configuration readback, live acceptance, and promotion:
 
 ```text
 NEXT_PUBLIC_GENLAYER_CHAIN_ID=61999
@@ -104,8 +105,8 @@ addresses and is not release evidence for the newly deployed pair.
 5. Set Preview-only Vercel environment variables to the new pair, deploy a
    separate Preview, verify bundled addresses/routes and run an essential
    new live economic canary including changed URL rejection.
-6. Keep V1 production and its alias untouched until a separate promotion
-   authorization after live acceptance.
+6. Promote only after separate authorization following live acceptance; until
+   then keep the existing Production V4 alias and addresses untouched.
 
 The final Registry deployment was finalized in
 [`0x88e4fce…b431e`](https://explorer-studio.genlayer.com/tx/0x88e4fce1aff18f5b1cd93d36111e8968bff7562ebbbc15cc7dba6236b0cb431e),

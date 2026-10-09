@@ -1,6 +1,6 @@
-// This checkout is the undeployed V4 candidate. Production V1 keeps its
-// separately authorized frontend build and its historical addresses.
-export const RELEASE_TRACK = "V4_CANDIDATE" as const;
+// V4 is live in production. Contract-source changes must use a fresh pair and
+// stay on a preview until their own deployment and promotion are authorized.
+export const RELEASE_TRACK = "V4_PRODUCTION" as const;
 
 export const NETWORK = {
   id: 61999,

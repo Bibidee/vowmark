@@ -68,6 +68,8 @@ export type ActivityRecord = {
   kind?: "issue" | "registration" | "review" | "expire" | "settlement" | "withdraw";
   commitmentId?: string;
   issuer?: string;
+  registryAddress?: string;
+  vaultAddress?: string;
   state?: ActivityState;
   error?: string;
   createdAt: string;

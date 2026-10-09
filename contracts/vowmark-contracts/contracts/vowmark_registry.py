@@ -123,7 +123,8 @@ class VowmarkRegistry(gl.Contract):
     vault_address: Address
     deployer: Address
     vault_ready: bool
-    next_commitment_id: u256
+    registered_commitment_count: u256
+    registration_scan_upper_bound: u256
     commitments: TreeMap[u256, Commitment]
     evidence: TreeMap[u256, TreeMap[u256, EvidenceAnchor]]
     reviews: TreeMap[u256, TreeMap[u256, ReviewAttempt]]
@@ -142,7 +143,8 @@ class VowmarkRegistry(gl.Contract):
         self.vault_address = vault
         self.deployer = self._address_arg(gl.message.sender_address)
         self.vault_ready = self._address_text(vault) != "0x" + ("0" * 40)
-        self.next_commitment_id = u256(0)
+        self.registered_commitment_count = u256(0)
+        self.registration_scan_upper_bound = u256(0)
 
     def _address_arg(self, value):
         if isinstance(value, Address):
@@ -525,8 +527,9 @@ END_UNTRUSTED_EVIDENCE_JSON
             resolved_at=u256(0),
         )
         self.commitments[commitment_id] = commitment
-        while self.next_commitment_id in self.commitments:
-            self.next_commitment_id += u256(1)
+        self.registered_commitment_count += u256(1)
+        if commitment_id >= self.registration_scan_upper_bound:
+            self.registration_scan_upper_bound = commitment_id + u256(1)
         anchor_map = self.evidence.get_or_insert_default(commitment_id)
         for index in range(len(anchors)):
             anchor_map[u256(index)] = anchors[index]
@@ -541,7 +544,7 @@ END_UNTRUSTED_EVIDENCE_JSON
     def set_vault_address(self, vault_address: str) -> None:
         if self._address_text(self._address_arg(gl.message.sender_address)) != self._address_text(self.deployer):
             raise gl.vm.UserError("only the deployer may finish initial wiring")
-        if self.vault_ready or self.next_commitment_id != u256(0):
+        if self.vault_ready or self.registered_commitment_count != u256(0):
             raise gl.vm.UserError("vault wiring is already immutable")
         vault = self._address_arg(vault_address)
         self._require_nonzero_address(vault, "vault address")
@@ -713,11 +716,12 @@ END_UNTRUSTED_EVIDENCE_JSON
     @gl.public.view
     def list_recent_commitments(self, limit: u256) -> list[dict]:
         safe_limit = min(int(limit), 25)
-        total = int(self.next_commitment_id)
-        start = max(total - safe_limit, 0)
         result = []
-        for offset in range(total - start):
-            commitment_id = u256(total - 1 - offset)
+        upper_bound = int(self.registration_scan_upper_bound)
+        for raw_id in range(upper_bound - 1, -1, -1):
+            if len(result) >= safe_limit:
+                break
+            commitment_id = u256(raw_id)
             if commitment_id in self.commitments:
                 result.append(self._commitment_view(self.commitments[commitment_id]))
         return result
@@ -810,4 +814,9 @@ END_UNTRUSTED_EVIDENCE_JSON
 
     @gl.public.view
     def get_total_commitments(self) -> u256:
-        return self.next_commitment_id
+        return self.registered_commitment_count
+
+    @gl.public.view
+    def get_registration_scan_upper_bound(self) -> u256:
+        """Return the exclusive upper ID bound used by sparse public listings."""
+        return self.registration_scan_upper_bound

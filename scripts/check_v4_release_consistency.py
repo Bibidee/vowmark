@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check that the V4 remediation branch is self-consistent and not promoted."""
+"""Check that the current V4 release line is internally self-consistent."""
 
 from __future__ import annotations
 
@@ -48,14 +48,14 @@ def count(report: str, label: str) -> int:
 def main() -> int:
     try:
         branch = os.environ.get("GITHUB_HEAD_REF") or os.environ.get("GITHUB_REF_NAME") or git_output("branch", "--show-current")
-        if branch != "v4-security-remediation":
-            fail(f"expected v4-security-remediation branch, found {branch or 'detached HEAD'}")
+        if branch not in {"v4-security-remediation", "v4-final-certification"}:
+            fail(f"expected a V4 release branch, found {branch or 'detached HEAD'}")
 
         config = read("web/lib/config.ts")
         if "id: 61999" not in config or 'hexId: "0xf22f"' not in config:
             fail("frontend config drifted from Studionet 61999")
-        if 'RELEASE_TRACK = "V4_CANDIDATE"' not in config:
-            fail("frontend config is not explicitly marked as the V4 candidate")
+        if 'RELEASE_TRACK = "V4_PRODUCTION"' not in config:
+            fail("frontend config is not explicitly marked as V4 production")
         if 'process.env.NEXT_PUBLIC_VOWMARK_REGISTRY_ADDRESS ||\n  ""' not in config or 'process.env.NEXT_PUBLIC_VOWMARK_VAULT_ADDRESS ||\n  ""' not in config:
             fail("V4 frontend config must leave contract addresses unassigned until deployment")
         if "0x3Be513bB6CAe652826A6092C0715AF39E7189c71" in config or "0xf8D89f89aD160546780eD76Cd64C550d91bAf501" in config:
@@ -90,12 +90,12 @@ def main() -> int:
             fail("shortened numeric-IP hosts are not protected by the URL policy")
 
         release = read("docs/V4_SECURITY_REMEDIATION.md")
-        if "not promoted" not in release.lower() or "live canary" not in release.lower():
-            fail("V4 report does not preserve the deployed-canary/not-promoted status")
+        if "production" not in release.lower() or "fresh authorization" not in release.lower():
+            fail("V4 report does not record production status and the fresh-authorization boundary")
         if "15-minute" not in release or "20-minute" not in release:
             fail("V4 report does not distinguish V1 and V4 timing policies")
         deployment = read("docs/DEPLOYMENT.md")
-        for marker in ("Production V1", "Candidate V4", "900", "1200", "V4 Preview"):
+        for marker in ("Historical V1", "Production V4", "900", "1200", "V4 Preview"):
             if marker not in deployment:
                 fail(f"deployment runbook is missing V1/V4 separation marker: {marker}")
         smoke = read("evidence/live_v4_smoke_2026-10-09.md")
@@ -103,7 +103,7 @@ def main() -> int:
             if marker not in smoke:
                 fail(f"live V4 evidence is missing deployment/lifecycle marker: {marker}")
         readme = read("README.md")
-        for marker in ("Release tracks", "Production V1", "Candidate V4", "V1 contracts do not enforce V4"):
+        for marker in ("Release tracks", "Historical V1", "Production V4", "V1 contracts do not enforce V4"):
             if marker not in readme:
                 fail(f"README is missing V1/V4 separation marker: {marker}")
         evidence_matrix = read("evidence/FINAL_PROOF_MATRIX.md")

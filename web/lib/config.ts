@@ -16,7 +16,7 @@ export const VAULT_ADDRESS =
   "0xf8D89f89aD160546780eD76Cd64C550d91bAf501";
 
 export const REVIEW_POLICY = {
-  minimumWindowSeconds: 15 * 60,
+  minimumWindowSeconds: 20 * 60,
   retryCooldownSeconds: 5 * 60,
   epochSeconds: 60 * 60,
   maxAttemptsPerEpoch: 32,

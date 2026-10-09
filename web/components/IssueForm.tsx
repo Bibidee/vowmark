@@ -6,19 +6,14 @@ import { connectWallet, extractExecutionReturn, getWalletState, readRegistry, re
 import { formatGen, parseGen, REVIEW_POLICY } from "@/lib/config";
 import { rememberActivity, updateActivity } from "@/lib/activity";
 import { asBigInt, type SourceKind } from "@/lib/types";
+import { localDateTimeFromNow, localUnixSeconds, parseLocalDateTime } from "@/lib/localDateTime";
 
 type Anchor = { url: string; sourceKind: SourceKind; purpose: string };
 const initialAnchor: Anchor = { url: "", sourceKind: "PUBLICATION", purpose: "" };
 
-function unix(value: string) {
-  const milliseconds = new Date(value).getTime();
-  return Number.isFinite(milliseconds) ? BigInt(Math.floor(milliseconds / 1000)) : 0n;
-}
-function localValue(secondsFromNow: number) { return new Date(Date.now() + secondsFromNow * 1000).toISOString().slice(0, 16); }
 function specimenDate(value: string) {
   if (!value) return "—";
-  const parsed = new Date(value);
-  return Number.isNaN(parsed.getTime()) ? "—" : `${parsed.toISOString().slice(0, 16).replace("T", " ")} UTC`;
+  return parseLocalDateTime(value) ? `${value.replace("T", " ")} local` : "—";
 }
 function sameAddress(left: unknown, right: string) { return typeof left === "string" && left.toLowerCase() === right.toLowerCase(); }
 
@@ -49,13 +44,13 @@ export function IssueForm() {
   const [issuance, setIssuance] = useState<Record<string, unknown>>();
   const [submitting, setSubmitting] = useState(false);
   useEffect(() => {
-    const initialMaturity = localValue(7 * 24 * 60 * 60);
-    const initialDeadline = localValue(14 * 24 * 60 * 60);
+    const initialMaturity = localDateTimeFromNow(7 * 24 * 60 * 60);
+    const initialDeadline = localDateTimeFromNow(14 * 24 * 60 * 60);
     setMaturity(initialMaturity);
     setDeadline(initialDeadline);
   }, []);
-  const maturitySeconds = useMemo(() => maturity ? unix(maturity) : 0n, [maturity]);
-  const deadlineSeconds = useMemo(() => deadline ? unix(deadline) : 0n, [deadline]);
+  const maturitySeconds = useMemo(() => maturity ? localUnixSeconds(maturity) : 0n, [maturity]);
+  const deadlineSeconds = useMemo(() => deadline ? localUnixSeconds(deadline) : 0n, [deadline]);
 
   function updateAnchor(index: number, patch: Partial<Anchor>) {
     setAnchors((items) => items.map((item, current) => current === index ? { ...item, ...patch } : item));
@@ -66,7 +61,7 @@ export function IssueForm() {
     if (rule.trim().length < 10) throw new Error("Describe how validators can decide the promise.");
     if (maturitySeconds <= BigInt(Math.floor(Date.now() / 1000))) throw new Error("Maturity must be in the future.");
     if (deadlineSeconds <= maturitySeconds) throw new Error("The final review deadline must be after maturity.");
-    if (deadlineSeconds - maturitySeconds < BigInt(REVIEW_POLICY.minimumWindowSeconds)) throw new Error("The review window must be at least 15 minutes.");
+    if (deadlineSeconds - maturitySeconds < BigInt(REVIEW_POLICY.minimumWindowSeconds)) throw new Error("The review window must be at least 20 minutes.");
     if (!/^0x[0-9a-fA-F]{40}$/.test(remedy) || /^0x0{40}$/i.test(remedy)) throw new Error("Enter a valid nonzero remedy address.");
     if (anchors.some((item) => !item.url.startsWith("https://") || !item.purpose.trim())) throw new Error("Every evidence anchor needs an HTTPS URL and purpose.");
   }
@@ -175,7 +170,7 @@ export function IssueForm() {
           </section>
           <section className="form-section">
             <h2>02 / The clock &amp; remedy</h2>
-            <div className="field-row"><div className="field"><label htmlFor="maturity">When the clock stops</label><input id="maturity" type="text" inputMode="numeric" placeholder="YYYY-MM-DDTHH:MM" value={maturity} onChange={(event) => setMaturity(event.target.value)} required /></div><div className="field"><label htmlFor="deadline">Last call for judgment</label><input id="deadline" type="text" inputMode="numeric" placeholder="YYYY-MM-DDTHH:MM" value={deadline} onChange={(event) => setDeadline(event.target.value)} required /></div></div><p className="hint">Use local time as YYYY-MM-DDTHH:MM. The final review deadline must be at least 15 minutes after maturity. Review retries use a 5-minute per-reviewer cooldown, with 32 attempts per 1-hour epoch plus 4 reserved attempts in the final 5 minutes.</p>
+            <div className="field-row"><div className="field"><label htmlFor="maturity">When the clock stops</label><input id="maturity" type="text" inputMode="numeric" placeholder="YYYY-MM-DDTHH:MM" value={maturity} onChange={(event) => setMaturity(event.target.value)} required /></div><div className="field"><label htmlFor="deadline">Last call for judgment</label><input id="deadline" type="text" inputMode="numeric" placeholder="YYYY-MM-DDTHH:MM" value={deadline} onChange={(event) => setDeadline(event.target.value)} required /></div></div><p className="hint">Use local time as YYYY-MM-DDTHH:MM. The final review deadline must be at least 20 minutes after maturity. Review retries use a 5-minute per-reviewer cooldown, with 32 normal attempts per 1-hour epoch; up to 4 reserve attempts are available in the final 5 minutes only after normal capacity is exhausted.</p>
             <div className="field"><label htmlFor="remedy">If you break it</label><input id="remedy" value={remedy} onChange={(event) => setRemedy(event.target.value)} placeholder="0x... where the bond goes if BREACHED" spellCheck={false} required /><span className="hint">A nonzero address different from yours. This is immutable and receives the bond only if validators conclude BREACHED.</span></div>
             <div className="field"><label htmlFor="bond">Skin in the game / GEN</label><input id="bond" inputMode="decimal" value={bond} onChange={(event) => setBond(event.target.value)} placeholder="How much GEN backs your word?" required /><span className="hint">The bond is held by the Vault from issuance and can only leave through an evidenced terminal outcome or withdrawal.</span></div>
           </section>

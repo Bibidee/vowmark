@@ -16,7 +16,7 @@ MAX_ANCHORS = 5
 MAX_URL = 500
 MAX_LABEL = 180
 MAX_EVIDENCE_TEXT = 12_000
-MIN_REVIEW_WINDOW = 15 * 60
+MIN_REVIEW_WINDOW = 20 * 60
 MAX_REVIEW_WINDOW = 90 * 24 * 60 * 60
 RETRY_COOLDOWN = 5 * 60
 # A reviewer can retry once per cooldown window. A bounded per-window budget
@@ -26,7 +26,8 @@ REVIEW_EPOCH_SECONDS = 60 * 60
 MAX_REVIEW_ATTEMPTS_PER_EPOCH = 32
 # A separately bounded reserve protects the final five minutes from an
 # absolute epoch being exhausted early. Permissionless Sybil resistance is
-# not promised; the reserve is only a bounded late-window opportunity.
+# not promised; the reserve is only a bounded late-window opportunity after
+# normal capacity is exhausted.
 LATE_REVIEW_RESERVE_SECONDS = 5 * 60
 MAX_LATE_REVIEW_ATTEMPTS = 4
 MAX_REVIEW_PAGE = 25
@@ -555,11 +556,14 @@ END_UNTRUSTED_EVIDENCE_JSON
             commitment.review_epoch = current_epoch
             commitment.review_epoch_attempts = u256(0)
         in_late_reserve = now + u256(LATE_REVIEW_RESERVE_SECONDS) >= commitment.final_review_deadline
-        if in_late_reserve:
+        normal_capacity_available = commitment.review_epoch_attempts < u256(MAX_REVIEW_ATTEMPTS_PER_EPOCH)
+        use_late_reserve = False
+        if not normal_capacity_available:
+            if not in_late_reserve:
+                raise gl.vm.UserError("review epoch capacity reached; try the next review window")
             if commitment.late_review_attempts >= u256(MAX_LATE_REVIEW_ATTEMPTS):
                 raise gl.vm.UserError("late review reserve capacity reached")
-        elif commitment.review_epoch_attempts >= u256(MAX_REVIEW_ATTEMPTS_PER_EPOCH):
-            raise gl.vm.UserError("review epoch capacity reached; try the next review window")
+            use_late_reserve = True
 
         reviewer = self._address_arg(gl.message.sender_address)
         reviewer_attempts = self.reviewer_last_attempt_at.get_or_insert_default(commitment_id)
@@ -584,7 +588,7 @@ END_UNTRUSTED_EVIDENCE_JSON
         self.seen_snapshots[commitment_id][snapshot_digest] = True
         commitment.attempt_count += u256(1)
         commitment.last_attempt_at = now
-        if in_late_reserve:
+        if use_late_reserve:
             commitment.late_review_attempts += u256(1)
         else:
             commitment.review_epoch_attempts += u256(1)

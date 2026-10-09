@@ -27,7 +27,7 @@ test.describe("VOWMARK browser contract", () => {
     await page.getByLabel("What does this source prove?").fill("The dated release record");
     await expect(page.locator("#deadline")).toHaveValue("2099-01-02T00:01");
     await page.getByRole("button", { name: /freeze and issue commitment/i }).click();
-    await expect(page.locator(".error-box")).toContainText("at least 15 minutes");
+    await expect(page.locator(".error-box")).toContainText("at least 20 minutes");
   });
 
   test("valid issue intent reaches the explicit wallet boundary", async ({ page }) => {

@@ -44,9 +44,9 @@ The final implementation may refine these names, but must preserve the distincti
 - After a conclusive result: no more review.
 - After final review deadline with no conclusive result: anyone may expire as `EXPIRED_UNRESOLVED`.
 
-The final review deadline must satisfy `final_review_deadline - maturity_at >= 900` seconds (15 minutes). The same reviewer has a 300-second (5-minute) cooldown, the capacity epoch is 3,600 seconds (1 hour), and each epoch accepts at most 32 attempts. The maximum review window is 90 days.
+The final review deadline must satisfy `final_review_deadline - maturity_at >= 1200` seconds (20 minutes). The same reviewer has a 300-second (5-minute) cooldown, the capacity epoch is 3,600 seconds (1 hour), and each epoch accepts at most 32 normal attempts. During the final five minutes, up to 4 additional reserve attempts are available only after normal capacity is exhausted. If the final five minutes cross an epoch boundary, the normal counter resets for the new epoch while the commitment-scoped reserve counter remains bounded across the final window. The maximum review window is 90 days.
 
-Review liveness is permissioned, not guaranteed convergence: while a commitment is `OPEN` and inside the review window, a reviewer may submit only after that reviewer's 5-minute cooldown, with a changed snapshot, and while the current 1-hour epoch has capacity. The configured capacity is 32 attempts per epoch and attempts are not lifetime-capped. Validator availability, consensus, and a conclusive verdict are not promised; if no conclusive result is finalized by the deadline, expiry remains the terminal path.
+Review liveness is permissioned, not guaranteed convergence: while a commitment is `OPEN` and inside the review window, a reviewer may submit only after that reviewer's 5-minute cooldown, with a changed snapshot, and while either normal capacity exists in the current 1-hour epoch or the final-five-minute reserve is available after normal capacity is exhausted. The configured normal capacity is 32 attempts per epoch and the late reserve is capped at 4 attempts across the final window; attempts are not lifetime-capped. Validator availability, consensus, and a conclusive verdict are not promised; if no conclusive result is finalized by the deadline, expiry remains the terminal path.
 
 ## Product outcome branches
 

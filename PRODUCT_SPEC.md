@@ -126,10 +126,11 @@ The available admissible evidence is insufficient for a reliable `FULFILLED` or 
 - No review after a conclusive terminal verdict.
 - Reviews must stop after the final review deadline.
 - Inconclusive attempts are append-only.
-- The final review deadline must be at least 15 minutes after maturity.
+- The final review deadline must be at least 20 minutes after maturity.
 - The same reviewer may retry after 5 minutes only when the evidence snapshot changes.
 - The exact same evidence snapshot must not create unbounded duplicate history.
 - Review capacity is bounded at 32 accepted attempts per 1-hour epoch to limit Sybil throughput without imposing a permanent lifetime attempt cap on an open commitment.
+- The final five minutes keep using normal epoch capacity while it remains available; after normal capacity is exhausted, up to 4 reserve attempts are available until the deadline. If the final five minutes cross an epoch boundary, normal capacity resets for the new epoch while the reserve remains bounded across the final window.
 - A new attempt is meaningful only if time or source content may have changed.
 
 The maximum review window is 90 days. A coordinated Sybil set may still temporarily consume one hourly epoch; the contract does not claim Sybil griefing is impossible.

@@ -60,6 +60,10 @@ def main() -> int:
 
         registry = read("contracts/vowmark-contracts/contracts/vowmark_registry.py")
         vault = read("contracts/vowmark-contracts/contracts/vowmark_vault.py")
+        if "MIN_REVIEW_WINDOW = 20 * 60" not in registry or "MIN_REVIEW_WINDOW = 20 * 60" not in vault:
+            fail("V4 contract pair is not aligned to the 20-minute minimum review window")
+        if "minimumWindowSeconds: 20 * 60" not in config:
+            fail("V4 frontend policy is not aligned to the 20-minute minimum review window")
         required_source_markers = (
             "LATE_REVIEW_RESERVE_SECONDS",
             "MAX_LATE_REVIEW_ATTEMPTS",

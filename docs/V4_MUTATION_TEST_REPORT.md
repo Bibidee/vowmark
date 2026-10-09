@@ -9,14 +9,23 @@ The V4 mutation harness is [`scripts/run_mutation_tests.py`](../scripts/run_muta
 - Command: `.venv-direct/Scripts/python.exe -u scripts/run_mutation_tests.py`
 
 ```text
-TOTAL GENERATED: 36
-VALID: 36
-KILLED: 36
+TOTAL GENERATED: 39
+VALID: 39
+KILLED: 39
 SURVIVED: 0
 EQUIVALENT: 0
 INVALID: 0
 TOOLING-LIMITED: 0
 ```
+
+## Adversarial simulator scenarios
+
+- **A — late normal capacity:** four late reviews and a fifth eligible review consume normal capacity while the reserve remains unused.
+- **B — exhausted normal quota:** 32 normal reviews unlock exactly four late reserve attempts; the fifth reserve attempt is rejected.
+- **C — partial normal quota:** 30 earlier reviews plus two late normal reviews fill the normal quota before the reserve begins.
+- **D — epoch crossing:** the final five-minute window crosses an epoch boundary; normal capacity resets once, while the commitment-scoped reserve does not reset or double-allocate.
+- **E — economic safety:** capacity rejection, duplicate snapshots, reviewer cooldown, inconclusive no-funds behavior, early expiry rejection, and terminal/settlement immutability are checked together.
+- **F — timestamp boundaries:** exact 20-minute creation, exact maturity review, one-second-before-deadline review, exact-deadline review rejection, and exact-deadline expiry.
 
 ## Inventory
 
@@ -35,6 +44,9 @@ TOOLING-LIMITED: 0
 | R-11 | unavailable evidence cannot become fulfillment | simulator | KILLED |
 | R-12 | initial wiring is deployer-only | simulator | KILLED |
 | R-13 | late reserve capacity is bounded | simulator | KILLED |
+| R-17 | normal capacity remains usable during the final five minutes | simulator | KILLED |
+| R-18 | late reserve is charged only after normal capacity is exhausted | simulator | KILLED |
+| R-19 | an epoch reset does not reset the commitment-scoped late reserve | simulator | KILLED |
 | R-14 | duplicate JSON keys cannot select a verdict | simulator | KILLED |
 | R-15 | versioned sources require immutable revisions | simulator | KILLED |
 | R-16 | fenced JSON is normalized before strict parsing | simulator | KILLED |

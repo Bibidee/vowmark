@@ -46,7 +46,7 @@ Do not leave stale addresses or alternate networks in production environment con
 
 The deployed Registry must read back this timing policy from `get_config()`:
 
-- `min_review_window`: `900` seconds;
+- `min_review_window`: `1200` seconds;
 - `retry_cooldown`: `300` seconds, scoped per reviewer;
 - `review_epoch_seconds`: `3600` seconds;
 - `max_review_attempts_per_epoch`: `32`;

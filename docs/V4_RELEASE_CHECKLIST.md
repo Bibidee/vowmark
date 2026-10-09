@@ -11,12 +11,13 @@ This checklist is for the `v4-security-remediation` branch. It does not authoriz
 - [x] Unverified source classes are labeled explicitly and are not treated as authenticated authority.
 - [x] Validator prompt separates immutable protocol instructions from hostile evidence/commitment records.
 - [x] Validator output is bounded and parsed as one exact closed-schema JSON object with duplicate-key rejection.
-- [x] Review capacity has a separately bounded four-attempt reserve in the final five minutes.
+- [x] Normal review capacity remains available during the final five minutes; the four-attempt reserve is used only after the normal 32-attempt epoch quota is exhausted.
+- [x] Final-five-minute epoch crossing resets only normal capacity and does not reset the commitment-scoped reserve.
 - [x] Withdrawal requires sender/origin equality and debits credit before external finalized transfer.
 - [x] Frontend types, policy copy, evidence metadata, and board fixtures match the V4 schema.
-- [x] Full Python suite: 63 passed.
-- [x] Mutation gate: 36/36 valid mutants killed.
-- [x] Frontend typecheck, lint, board test, and production build passed.
+- [x] Full Python suite: 67 passed.
+- [x] Mutation gate: 39/39 valid mutants killed.
+- [x] Frontend typecheck, lint, board test, timezone test, and production build passed.
 - [x] Release guard passed.
 - [x] V4 release-consistency guard passed.
 

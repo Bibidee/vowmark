@@ -71,13 +71,14 @@ Do not confuse these with GenLayer transaction/consensus statuses such as `ACCEP
 
 ## Review timing policy
 
-- Minimum review window: **15 minutes** after maturity (`900` seconds).
+- Minimum review window: **20 minutes** after maturity (`1200` seconds).
 - Same-reviewer retry cooldown: **5 minutes** (`300` seconds), and the evidence snapshot must change.
 - Review capacity epoch: **1 hour** (`3600` seconds).
 - Maximum accepted attempts per epoch: **32**.
+- Final-five-minute reserve: **up to 4 additional attempts after normal capacity is exhausted**; if the final five minutes cross an epoch boundary, normal capacity resets but the reserve remains bounded across the final window.
 - Maximum review window: **90 days**.
 
-The cooldown is per reviewer; the hourly capacity is per commitment. A coordinated Sybil set may still temporarily consume an epoch's capacity, but there is no permanent lifetime attempt cap.
+The cooldown is per reviewer; the hourly capacity is per commitment. A coordinated Sybil set may still temporarily consume an epoch's capacity; V4 does not claim complete Sybil resistance.
 
 ## Core frontend routes
 

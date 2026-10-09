@@ -8,6 +8,7 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test:board": "tsx lib/board.test.ts",
+    "test:timezone": "tsx lib/localDateTime.test.ts",
     "lint": "eslint app components lib",
     "test:e2e": "playwright test"
   },

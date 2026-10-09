@@ -9,9 +9,9 @@ The V4 mutation harness is [`scripts/run_mutation_tests.py`](../scripts/run_muta
 - Command: `.venv-direct/Scripts/python.exe -u scripts/run_mutation_tests.py`
 
 ```text
-TOTAL GENERATED: 39
-VALID: 39
-KILLED: 39
+TOTAL GENERATED: 45
+VALID: 45
+KILLED: 45
 SURVIVED: 0
 EQUIVALENT: 0
 INVALID: 0
@@ -47,6 +47,9 @@ TOOLING-LIMITED: 0
 | R-17 | normal capacity remains usable during the final five minutes | simulator | KILLED |
 | R-18 | late reserve is charged only after normal capacity is exhausted | simulator | KILLED |
 | R-19 | an epoch reset does not reset the commitment-scoped late reserve | simulator | KILLED |
+| R-20 | dotted hexadecimal IPv4 cannot bypass the host policy | simulator | KILLED |
+| R-21 | malformed host labels cannot reach the renderer | simulator | KILLED |
+| R-22 | default HTTPS ports share one source identity | simulator | KILLED |
 | R-14 | duplicate JSON keys cannot select a verdict | simulator | KILLED |
 | R-15 | versioned sources require immutable revisions | simulator | KILLED |
 | R-16 | fenced JSON is normalized before strict parsing | simulator | KILLED |
@@ -70,5 +73,8 @@ TOOLING-LIMITED: 0
 | V-18 | verification-rule size is bounded | Direct Mode | KILLED |
 | V-19 | deadline must be after maturity | Direct Mode | KILLED |
 | V-20 | versioned-source identity cannot be skipped | Direct Mode | KILLED |
+| V-21 | Vault rejects dotted hexadecimal IPv4 consistently | Direct Mode | KILLED |
+| V-22 | Vault rejects malformed host labels consistently | Direct Mode | KILLED |
+| V-23 | Vault canonicalizes the default HTTPS port | Direct Mode | KILLED |
 
 The inventory tests executable control-flow and economic invariants. It does not claim that local mocks prove the quality of a live validator model, provider ownership, or runtime features that are not exposed by the pinned SDK.

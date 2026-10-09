@@ -1,5 +1,19 @@
 # VOWMARK
 
+## Release tracks
+
+This branch is the **V4 candidate**. V4 uses a 20-minute minimum review
+window, the repaired final-window capacity policy, and the new source metadata
+surface. It is **not deployed** and has no assigned Registry or Vault
+addresses. A V4 frontend must receive newly deployed addresses through its
+environment configuration before it can be used.
+
+The authorized production release is **V1** at
+[`https://the-vowmark.vercel.app/`](https://the-vowmark.vercel.app/). V1 uses
+the original 15-minute minimum review window and the V1 addresses recorded in
+[`HANDOFF_STATUS.md`](HANDOFF_STATUS.md). V1 contracts do not enforce V4's
+20-minute policy. The V1 release and its historical evidence remain unchanged.
+
 VOWMARK is a backendless GenLayer public-commitment protocol. An issuer puts GEN behind a time-bounded public promise, freezes the evidence policy before the deadline, and gives up unilateral control over the final judgment. After maturity, GenLayer validators independently inspect the declared public evidence and determine whether the commitment was `FULFILLED`, `BREACHED`, or `INCONCLUSIVE`.
 
 The economic consequence is deterministic:
@@ -69,7 +83,7 @@ These are product phases, not a requirement to invent seven redundant storage en
 
 Do not confuse these with GenLayer transaction/consensus statuses such as `ACCEPTED`, `FINALIZED`, `UNDETERMINED` or runtime failure.
 
-## Review timing policy
+## Candidate V4 review timing policy
 
 - Minimum review window: **20 minutes** after maturity (`1200` seconds).
 - Same-reviewer retry cooldown: **5 minutes** (`300` seconds), and the evidence snapshot must change.
@@ -90,7 +104,7 @@ The cooldown is per reviewer; the hourly capacity is per commitment. A coordinat
 
 The frontend should feel like a public accountability register, not a deal dashboard, court, escrow console or developer terminal.
 
-## Live deployment
+## Production V1 deployment
 
 VOWMARK V1 is deployed on GenLayer Studionet 61999. The canonical frontend deployment and final source provenance are recorded in [`HANDOFF_STATUS.md`](HANDOFF_STATUS.md); older deployments are superseded.
 
@@ -105,3 +119,13 @@ VOWMARK V1 is deployed on GenLayer Studionet 61999. The canonical frontend deplo
 The deployment and configuration readback are recorded in [`evidence/fresh_deployment_2026-10-08_pagination.md`](evidence/fresh_deployment_2026-10-08_pagination.md). Final lifecycle evidence is stored under `evidence/live_*_final.json`; artifacts for the superseded contract pair are historical only.
 
 The frontend records issuance hashes immediately, distinguishes provisional from finalized execution, reconciles Vault issuance and Registry registration separately, and provides issuer-only registration retry from `/issue` and `/activity` when the finalized child message is delayed.
+
+## Candidate V4 deployment state
+
+V4 requires a fresh Registry and Vault deployment because its storage and
+evidence metadata surface differ from V1. The V4 addresses, wiring
+transaction, lifecycle proofs and withdrawal proof are intentionally **not
+assigned** in this repository. Deployment, wallet signing, frontend preview
+configuration and production promotion require separate authorization after
+the local gates in [`docs/V4_RELEASE_CHECKLIST.md`](docs/V4_RELEASE_CHECKLIST.md)
+are reviewed.

@@ -2,11 +2,15 @@
 
 This checklist is for the `v4-security-remediation` branch. It does not authorize deployment or production promotion.
 
+The production alias and addresses in [`../HANDOFF_STATUS.md`](../HANDOFF_STATUS.md)
+belong to V1 only. V4 has no assigned addresses until a fresh deployment is
+separately authorized.
+
 ## Implementation gates
 
 - [x] Studionet 61999 remains the only configured target.
 - [x] Registry and Vault source changes compile in the simulator and Direct Mode.
-- [x] URL normalization rejects credentials, control characters, local/private hosts, invalid ports, and non-HTTPS schemes.
+- [x] URL normalization rejects credentials, control characters, local/private hosts, alternate numeric-IP spellings, malformed host labels, invalid ports, and non-HTTPS schemes; explicit `:443` is canonicalized.
 - [x] `VERSIONED_SOURCE` requires a structurally immutable GitHub commit URL.
 - [x] Unverified source classes are labeled explicitly and are not treated as authenticated authority.
 - [x] Validator prompt separates immutable protocol instructions from hostile evidence/commitment records.
@@ -15,11 +19,14 @@ This checklist is for the `v4-security-remediation` branch. It does not authoriz
 - [x] Final-five-minute epoch crossing resets only normal capacity and does not reset the commitment-scoped reserve.
 - [x] Withdrawal requires sender/origin equality and debits credit before external finalized transfer.
 - [x] Frontend types, policy copy, evidence metadata, and board fixtures match the V4 schema.
-- [x] Full Python suite: 67 passed.
-- [x] Mutation gate: 39/39 valid mutants killed.
+- [x] Full Python suite: 87 passed.
+- [x] Mutation gate: 45/45 valid mutants killed.
 - [x] Frontend typecheck, lint, board test, timezone test, and production build passed.
+- [x] Frontend Playwright browser suite: 38 passed across desktop/mobile/responsive and transaction recovery flows.
 - [x] Release guard passed.
 - [x] V4 release-consistency guard passed.
+- [x] Registry/Vault URL decisions agree across simulator and Direct Mode coverage.
+- [x] All four source classes expose explicit verified/unverified status without claiming provider or chain authentication.
 
 ## Deployment gates
 

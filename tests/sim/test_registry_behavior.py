@@ -181,20 +181,92 @@ def test_creation_rejects_anchor_policy_violations(deployed):
 @pytest.mark.parametrize(
     "url",
     [
+        "https://0x7f.0.0.1/proof",
+        "https://0X7F.0.0.1:443/proof",
+        "https://0x7f.0x0.0x0.0x1/proof",
+        "https://0x7f000001/proof",
         "https://127.0.0.1?x=1",
         "https://foo.internal?x=1",
         "https://foo.local#fragment",
         "https://user:pass@example.com/proof",
         "https://[::1]/proof",
+        "https://[::ffff:127.0.0.1]/proof",
         "https://2130706433/proof",
         "https://0177.0.0.1/proof",
+        "https://127.1/proof",
+        "https://example.com%2f/proof",
+        "https://example_com.example/proof",
         "https://example.com:0/proof",
+        "https://example.com:65536/proof",
+        "https://example.com:not-a-port/proof",
+        "https://example.com:443:80/proof",
+        "https://:443/proof",
+        "https:///proof",
+        "https://example.com\\evil/proof",
     ],
 )
 def test_url_parser_rejects_authority_and_private_host_variants(deployed, url):
     engine, registry_address, vault_address = deployed
     with pytest.raises(Exception):
         _create_attempt(engine, vault_address, urls=[url])
+
+
+@pytest.mark.parametrize(
+    ("url", "normalized"),
+    [
+        ("HTTPS://Example.COM.:443/proof?mode=full#section", "https://example.com/proof?mode=full#section"),
+        ("https://例え.テスト/proof", "https://xn--r8jz45g.xn--zckzah/proof"),
+    ],
+)
+def test_url_parser_accepts_legitimate_https_and_canonicalizes_host(deployed, url, normalized):
+    engine, registry_address, vault_address = deployed
+    commitment_id = _create_attempt(engine, vault_address, urls=[url])
+    evidence = engine.call_method(registry_address, "get_evidence", [commitment_id], sender=ISSUER)
+    assert evidence[0]["normalized_url"] == normalized
+
+
+def test_url_parser_rejects_default_port_duplicate_after_canonicalization(deployed):
+    engine, registry_address, vault_address = deployed
+    with pytest.raises(Exception, match="duplicate normalized evidence URL"):
+        _create_attempt(
+            engine,
+            vault_address,
+            urls=["https://example.com/proof", "https://example.com.:443/proof"],
+            source_kinds=["PUBLICATION", "PUBLICATION"],
+            purposes=["first", "same resource"],
+        )
+
+
+@pytest.mark.parametrize(
+    ("url", "error"),
+    [
+        ("https://example_com.example/proof", "evidence URL host is invalid"),
+        ("https://0x7f.0.0.1/proof", "evidence URL host is not public"),
+    ],
+)
+def test_registry_rejects_host_boundary_when_called_by_vault(deployed, url, error):
+    engine, registry_address, vault_address = deployed
+    _warp(engine, "2030-01-01T00:00:00Z")
+    with pytest.raises(Exception, match=error):
+        engine.call_method(
+            registry_address,
+            "register_commitment",
+            [
+                900,
+                ISSUER,
+                "Direct Registry parser boundary",
+                "Fulfilled means the frozen evidence contains the required record.",
+                _timestamp("2030-01-01T00:00:00Z"),
+                _timestamp("2030-01-02T00:00:00Z"),
+                _timestamp("2030-01-03T00:00:00Z"),
+                REMEDY,
+                100,
+                [url],
+                ["PUBLICATION"],
+                ["malformed host test"],
+            ],
+            sender=vault_address,
+        )
 
 
 def test_versioned_source_requires_immutable_provider_revision(deployed):
@@ -206,6 +278,32 @@ def test_versioned_source_requires_immutable_provider_revision(deployed):
     evidence = engine.call_method(registry_address, "get_evidence", [commitment_id], sender=ISSUER)
     assert evidence[0]["revision_id"] == "97b5ca8888eeaca3d2b1deb733c832c8448d4383"
     assert evidence[0]["authority_status"] == "STRUCTURALLY_VERIFIED_REVISION"
+
+
+def test_source_classes_remain_explicitly_unverified_except_for_structure(deployed):
+    engine, registry_address, vault_address = deployed
+    urls = [
+        "https://example.com/publication",
+        "https://raw.githubusercontent.com/Bibidee/vowmark/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/evidence/proof.txt",
+        "https://explorer-studio.genlayer.com/tx/0xdeadbeef",
+        "https://partner.example.com/record/42",
+    ]
+    kinds = ["PUBLICATION", "VERSIONED_SOURCE", "ONCHAIN_RECORD", "THIRD_PARTY_RECORD"]
+    commitment_id = _create_attempt(
+        engine,
+        vault_address,
+        urls=urls,
+        source_kinds=kinds,
+        purposes=["publication", "immutable revision", "onchain record", "third-party record"],
+    )
+    evidence = engine.call_method(registry_address, "get_evidence", [commitment_id], sender=ISSUER)
+    assert [item["authority_status"] for item in evidence] == [
+        "DECLARED_PUBLICATION_UNVERIFIED",
+        "STRUCTURALLY_VERIFIED_REVISION",
+        "DECLARED_ONCHAIN_RECORD_UNVERIFIED",
+        "DECLARED_THIRD_PARTY_UNVERIFIED",
+    ]
+    assert evidence[1]["revision_id"] == "a" * 40
 
 
 def test_vault_constructor_and_registry_wiring_are_nonzero_and_immutable(deployed):

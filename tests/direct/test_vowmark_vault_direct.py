@@ -62,6 +62,21 @@ def test_vault_rejects_invalid_creation_roles_and_anchor_policy(direct_vm, direc
             args = list(_issue_args())
             args[5] = ["http://example.com/evidence"]
             vault.create_commitment(*args)
+        for unsafe_url in (
+            "https://0x7f.0.0.1/evidence",
+            "https://0x7f000001/evidence",
+            "https://127.1/evidence",
+            "https://[::ffff:127.0.0.1]/evidence",
+            "https://example.com%2f/evidence",
+            "https://example_com.example/evidence",
+            "https://example.com:65536/evidence",
+            "https://example.com:not-a-port/evidence",
+            "https://:443/evidence",
+        ):
+            with direct_vm.expect_revert():
+                args = list(_issue_args())
+                args[5] = [unsafe_url]
+                vault.create_commitment(*args)
         with direct_vm.expect_revert("immutable GitHub commit URL"):
             args = list(_issue_args())
             args[5] = ["https://raw.githubusercontent.com/Bibidee/vowmark/main/evidence/proof.txt"]
@@ -72,6 +87,12 @@ def test_vault_rejects_invalid_creation_roles_and_anchor_policy(direct_vm, direc
             args[5] = ["https://example.com/evidence", "https://example.com/evidence"]
             args[6] = ["PUBLICATION", "PUBLICATION"]
             args[7] = ["one", "two"]
+            vault.create_commitment(*args)
+        with direct_vm.expect_revert("duplicate normalized evidence URL"):
+            args = list(_issue_args())
+            args[5] = ["https://example.com/evidence", "https://example.com.:443/evidence"]
+            args[6] = ["PUBLICATION", "PUBLICATION"]
+            args[7] = ["one", "same resource"]
             vault.create_commitment(*args)
         with direct_vm.expect_revert("evidence anchor fields are invalid"):
             args = list(_issue_args())

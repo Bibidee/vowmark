@@ -1,5 +1,21 @@
 # VOWMARK Deployment Runbook
 
+## Release separation
+
+This runbook contains two deliberately separate tracks:
+
+- **Production V1:** already deployed and authorized at the addresses in
+  [`../HANDOFF_STATUS.md`](../HANDOFF_STATUS.md). Its minimum review window
+  is **15 minutes**. Those contracts and the production alias must remain
+  unchanged.
+- **Candidate V4:** this branch's undeployed release. Its minimum review
+  window is **20 minutes**, its capacity policy includes the repaired bounded
+  final-window reserve, and its Registry/Vault addresses are **unassigned**
+  until a separately authorized deployment.
+
+Never use V1 addresses as evidence that V4 has been deployed, and never read
+the V4 20-minute policy back from the V1 contracts.
+
 ## Fixed network
 
 - GenLayer Studionet
@@ -30,7 +46,7 @@ Record only values observed from the final build:
 - CI run link;
 - known limitation(s).
 
-## Environment variables
+## Production V1 environment variables
 
 The final implementation may refine names, but keep one obvious network configuration source. Suggested:
 
@@ -42,9 +58,27 @@ NEXT_PUBLIC_VOWMARK_REGISTRY_ADDRESS=0x3Be513bB6CAe652826A6092C0715AF39E7189c71
 NEXT_PUBLIC_VOWMARK_VAULT_ADDRESS=0xf8D89f89aD160546780eD76Cd64C550d91bAf501
 ```
 
-Do not leave stale addresses or alternate networks in production environment configuration.
+These values describe only the authorized V1 frontend. Do not copy them into
+a V4 preview or use them as V4 deployment evidence.
 
-The deployed Registry must read back this timing policy from `get_config()`:
+## Candidate V4 environment variables
+
+V4 has no contract addresses yet. Configure these only after a fresh,
+finalized V4 deployment and configuration readback:
+
+```text
+NEXT_PUBLIC_GENLAYER_CHAIN_ID=61999
+NEXT_PUBLIC_GENLAYER_RPC_URL=https://studio.genlayer.com/api
+NEXT_PUBLIC_GENLAYER_EXPLORER=https://explorer-studio.genlayer.com
+NEXT_PUBLIC_VOWMARK_REGISTRY_ADDRESS=<fresh V4 Registry address>
+NEXT_PUBLIC_VOWMARK_VAULT_ADDRESS=<fresh V4 Vault address>
+```
+
+Do not leave stale V1 addresses or alternate networks in a V4 environment.
+
+The deployed V1 Registry readback is historically **900 seconds (15
+minutes)**. A fresh V4 Registry must read back this candidate timing policy
+from `get_config()`:
 
 - `min_review_window`: `1200` seconds;
 - `retry_cooldown`: `300` seconds, scoped per reviewer;
@@ -54,4 +88,4 @@ The deployed Registry must read back this timing policy from `get_config()`:
 
 ## Submission rule
 
-`ACCEPTED` is not enough. Deployment/configuration/lifecycle transactions recorded as canonical evidence must be verified to the final state required by the current GenLayer runtime. Reread contract configuration after deployment. The current canonical addresses and evidence are in [`../HANDOFF_STATUS.md`](../HANDOFF_STATUS.md) and [`../evidence/fresh_deployment_2026-10-08_pagination.md`](../evidence/fresh_deployment_2026-10-08_pagination.md).
+`ACCEPTED` is not enough. Deployment/configuration/lifecycle transactions recorded as canonical evidence must be verified to the final state required by the current GenLayer runtime. Reread contract configuration after deployment. The V1 canonical addresses and evidence are in [`../HANDOFF_STATUS.md`](../HANDOFF_STATUS.md) and [`../evidence/fresh_deployment_2026-10-08_pagination.md`](../evidence/fresh_deployment_2026-10-08_pagination.md). V4 must receive a separate evidence artifact; no V4 deployment evidence exists yet.

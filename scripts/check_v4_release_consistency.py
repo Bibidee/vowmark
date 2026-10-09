@@ -54,6 +54,12 @@ def main() -> int:
         config = read("web/lib/config.ts")
         if "id: 61999" not in config or 'hexId: "0xf22f"' not in config:
             fail("frontend config drifted from Studionet 61999")
+        if 'RELEASE_TRACK = "V4_CANDIDATE"' not in config:
+            fail("frontend config is not explicitly marked as the V4 candidate")
+        if 'process.env.NEXT_PUBLIC_VOWMARK_REGISTRY_ADDRESS ||\n  ""' not in config or 'process.env.NEXT_PUBLIC_VOWMARK_VAULT_ADDRESS ||\n  ""' not in config:
+            fail("V4 frontend config must leave contract addresses unassigned until deployment")
+        if "0x3Be513bB6CAe652826A6092C0715AF39E7189c71" in config or "0xf8D89f89aD160546780eD76Cd64C550d91bAf501" in config:
+            fail("V4 frontend config must not embed the authorized V1 contract addresses")
         production = read("evidence/FINAL_PROOF_MATRIX.md")
         if "https://the-vowmark.vercel.app/" not in production:
             fail("the authorized production alias is missing from the frozen V1 proof matrix")
@@ -71,6 +77,8 @@ def main() -> int:
             "BEGIN_UNTRUSTED_COMMITMENT_JSON",
             "reject_duplicate_keys",
             "STRUCTURALLY_VERIFIED_REVISION",
+            "hex_prefix",
+            "alternate_numeric",
         )
         for marker in required_source_markers:
             if marker not in registry:
@@ -82,6 +90,19 @@ def main() -> int:
         release = read("docs/V4_SECURITY_REMEDIATION.md")
         if "not deployed" not in release.lower() or "not promoted" not in release.lower():
             fail("V4 report does not preserve the undeployed/not-promoted status")
+        if "15-minute" not in release or "20-minute" not in release:
+            fail("V4 report does not distinguish V1 and V4 timing policies")
+        deployment = read("docs/DEPLOYMENT.md")
+        for marker in ("Production V1", "Candidate V4", "900", "1200", "V4 has no contract addresses yet"):
+            if marker not in deployment:
+                fail(f"deployment runbook is missing V1/V4 separation marker: {marker}")
+        readme = read("README.md")
+        for marker in ("Release tracks", "Production V1", "Candidate V4", "V1 contracts do not enforce V4"):
+            if marker not in readme:
+                fail(f"README is missing V1/V4 separation marker: {marker}")
+        evidence_matrix = read("evidence/FINAL_PROOF_MATRIX.md")
+        if "authorized **V1**" not in evidence_matrix or "15 minutes" not in evidence_matrix:
+            fail("final proof matrix is not clearly identified as V1 evidence")
         report = read("docs/V4_MUTATION_TEST_REPORT.md")
         sys.path.insert(0, str(ROOT / "scripts"))
         from run_mutation_tests import MUTANTS  # noqa: PLC0415

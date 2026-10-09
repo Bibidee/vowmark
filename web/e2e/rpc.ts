@@ -1,8 +1,6 @@
 import type { Page } from "@playwright/test";
 import { DEFAULT_ACCOUNT, DEFAULT_TX_HASH, RETRY_TX_HASH } from "./provider";
-
-const VAULT = "0xf8d89f89ad160546780ed76cd64c550d91baf501";
-const REGISTRY = "0x3be513bb6cae652826a6092c0715af39e7189c71";
+import { E2E_REGISTRY as REGISTRY, E2E_VAULT as VAULT } from "./config";
 
 type ActivityMode = "PENDING" | "ACCEPTED" | "FAILED" | "UNDETERMINED" | "REGISTRATION_PENDING";
 

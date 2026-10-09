@@ -1,7 +1,9 @@
 # VOWMARK Final Smoke Test Plan
 
-This plan is prepared but not executed. It is for a separately authorized live
-Studionet smoke test only.
+This is the prepared **V1 production-pair** smoke-test plan. It is historical
+runbook material for the addresses below and does not deploy or validate the
+undeployed V4 candidate. A V4 canary must use freshly deployed V4 addresses
+and the 20-minute policy described in [`V4_RELEASE_CHECKLIST.md`](V4_RELEASE_CHECKLIST.md).
 
 1. Verify GenLayer Studionet chain `61999`.
 2. Verify canonical Registry `0x3Be513bB6CAe652826A6092C0715AF39E7189c71` and Vault `0xf8D89f89aD160546780eD76Cd64C550d91bAf501`.

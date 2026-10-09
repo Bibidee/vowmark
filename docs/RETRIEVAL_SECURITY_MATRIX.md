@@ -16,13 +16,13 @@ does not perform risky runtime/network exploitation against production.
 | Malformed/empty authority | `VOWMARK-REJECTED` | Authority and dot checks |
 | Hostname without a dot | `VOWMARK-REJECTED` | Public-hostname check |
 | Bracketed IPv6 loopback/private form | `VOWMARK-REJECTED` by current parser | The simple host split rejects bracketed IPv6 forms; this is not a complete IPv6 policy |
-| Dotted-octal/alternate numeric IP | `VOWMARK-ACCEPTED / RUNTIME-DEPENDENT` | Not all numeric spellings are canonicalized by VOWMARK |
+| Dotted-octal/alternate numeric IP | `VOWMARK-REJECTED` | Decimal dotted forms, shortened forms and dotted hexadecimal forms are rejected before source storage |
 | DNS alias to private IP | `VOWMARK-ACCEPTED / RUNTIME-DEPENDENT` | DNS is not resolved or pinned by the contract |
 | Public → private redirect | `UNVERIFIED` | Final redirect target is not inspected by VOWMARK |
 | Redirect chain | `UNVERIFIED` | Redirect count/policy is runtime-owned |
 | DNS rebinding | `UNVERIFIED` | No resolver pinning is implemented by VOWMARK |
-| Unusual port | `VOWMARK-ACCEPTED / RUNTIME-DEPENDENT` | Contract parser accepts authority ports; GenVM policy decides availability |
-| Percent/encoding edge cases | `UNVERIFIED` | Contract normalization is not a full URL parser |
+| Unusual port | `VOWMARK-ACCEPTED / RUNTIME-DEPENDENT` | Valid non-default ports remain possible; explicit `:443` is canonicalized, while GenVM policy decides availability |
+| Percent/encoding edge cases | `VOWMARK-REJECTED` for authority-host delimiters | Percent characters and malformed host labels are rejected after parsing; path/query/fragment encoding remains part of the frozen source identity |
 | Oversized response | `VOWMARK-REJECTED` after render | Returned text over 12,000 characters becomes `INCONCLUSIVE`; pre-render resource limits are runtime-owned |
 
 GenVM runtime URL policy remains a separate dependency. No claim is made that

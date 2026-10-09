@@ -11,6 +11,11 @@ import { TransactionRail } from "@/components/TransactionRail";
 
 function date(value: bigint) { return new Date(Number(value) * 1000).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" }); }
 
+function readableCommitmentError(cause: unknown) {
+  const message = cause instanceof Error ? cause.message : "the canonical record is unavailable";
+  return /^unable to read/i.test(message) ? message : `Unable to read commitment: ${message}`;
+}
+
 function CreditPanel({ refreshKey }: { refreshKey: number }) {
   const [wallet, setWallet] = useState("");
   const [credit, setCredit] = useState<bigint>();
@@ -101,7 +106,7 @@ export function CommitmentView({ id }: { id: string }) {
       setReviewerLastAttemptAt(reviewerAddress ? asBigInt(reviewerLastAttemptValue) : undefined);
       setVaultSettlement(settlementValue as Record<string, unknown> | undefined);
       return true;
-    } catch (cause) { setError(cause instanceof Error ? cause.message : "Unable to read this commitment"); return false; }
+    } catch (cause) { setError(readableCommitmentError(cause)); return false; }
     finally { setLoading(false); }
   }, [id]);
   useEffect(() => { load(); }, [load]);

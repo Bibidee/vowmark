@@ -1,5 +1,9 @@
 # VOWMARK V1 handoff status
 
+This is a **V1-only** production handoff. It does not describe or authorize
+the undeployed V4 candidate on `v4-security-remediation`; V4 uses a separate
+20-minute policy and requires fresh contract addresses and lifecycle evidence.
+
 VOWMARK V1 is deployed on GenLayer Studionet 61999. The final frontend URL and source/CI provenance are recorded below after the release freeze. The canonical deployment and evidence are documented in [`evidence/FINAL_PROOF_MATRIX.md`](evidence/FINAL_PROOF_MATRIX.md).
 
 ## Canonical deployment

@@ -66,13 +66,13 @@ export function executionFailureDescription(receipt: unknown): string {
 
 function requireRegistry() {
   if (!REGISTRY_ADDRESS) {
-    throw new Error("VOWMARK registry address is not configured yet.");
+    throw new Error("Unable to read VOWMARK registry: address is not configured yet.");
   }
   return REGISTRY_ADDRESS as `0x${string}`;
 }
 
 function requireVault() {
-  if (!VAULT_ADDRESS) throw new Error("VOWMARK vault address is not configured yet.");
+  if (!VAULT_ADDRESS) throw new Error("Unable to read VOWMARK vault: address is not configured yet.");
   return VAULT_ADDRESS as `0x${string}`;
 }
 

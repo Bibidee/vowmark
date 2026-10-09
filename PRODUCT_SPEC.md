@@ -1,4 +1,10 @@
-# VOWMARK V1 Product Specification
+# VOWMARK V4 Candidate Product Specification
+
+This document describes the **undeployed V4 candidate** on the
+`v4-security-remediation` branch. It is not the specification of the
+authorized production V1 contracts. V1 production uses the original
+15-minute minimum review window; this candidate uses 20 minutes and must be
+deployed as a fresh Registry/Vault pair before it can be promoted.
 
 ## Product sentence
 
@@ -14,7 +20,7 @@ Web3 teams, open-source builders, grant recipients, public-goods teams and organ
 - publish a governance or transparency report before a vote;
 - complete a publicly inspectable grant deliverable before a deadline.
 
-V1 is intentionally not for subjective promises such as “make the community happy,” “build a beautiful product,” or “provide excellent service.”
+V4 is intentionally not for subjective promises such as “make the community happy,” “build a beautiful product,” or “provide excellent service.”
 
 ## Core problem
 
@@ -28,7 +34,7 @@ Creates the commitment, locks the bond, selects an immutable remedy address, fre
 
 ### Reviewer
 
-Any wallet may trigger a review after maturity and before the final review deadline, subject to retry/cooldown rules. In V1 the reviewer does **not** provide a free-form complaint and does **not** get to redefine the evidence policy.
+Any wallet may trigger a review after maturity and before the final review deadline, subject to retry/cooldown rules. In V4 the reviewer does **not** provide a free-form complaint and does **not** get to redefine the evidence policy.
 
 ### Remedy address
 
@@ -70,7 +76,7 @@ Each anchor is frozen at issuance and contains at minimum:
 - source kind;
 - short human-readable purpose/label.
 
-Recommended V1 source kinds:
+Supported V4 source kinds:
 
 - `PUBLICATION`
 - `VERSIONED_SOURCE`
@@ -79,7 +85,7 @@ Recommended V1 source kinds:
 
 The names can be adjusted only for a concrete implementation reason. Do not turn source kinds into a hidden ranking system or centralized authority registry.
 
-V1 does not crawl the open internet. Validators fetch only the frozen URLs. V1 also does not accept arbitrary reviewer-supplied uploads or free-form evidence dumps.
+V4 does not crawl the open internet. Validators fetch only the frozen URLs. V4 also does not accept arbitrary reviewer-supplied uploads or free-form evidence dumps.
 
 ## Admissibility and safety
 
@@ -144,7 +150,7 @@ If no reliable conclusive verdict exists by the final review deadline, anyone ma
 - is not `FULFILLED`;
 - is not `BREACHED`;
 - must remain visible forever in issuer history;
-- returns the unresolved bond according to the V1 policy to the issuer;
+- returns the unresolved bond according to the V4 policy to the issuer;
 - does not allow the UI to imply success.
 
 ## Economic semantics
@@ -168,7 +174,7 @@ The protocol should expose backendless read paths for an issuer’s commitments 
 - breached;
 - expired unresolved.
 
-Do not introduce an opaque reputation score in V1. The public record is the product.
+Do not introduce an opaque reputation score in V4. The public record is the product.
 
 ## Non-goals
 

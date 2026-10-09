@@ -139,6 +139,8 @@ class VowmarkVault(gl.Contract):
             raise gl.vm.UserError("evidence URL host is invalid")
         if port is not None and not 1 <= port <= 65535:
             raise gl.vm.UserError("evidence URL port is invalid")
+        if port == 443:
+            port = None
         try:
             ip = ipaddress.ip_address(host)
         except ValueError:
@@ -154,6 +156,23 @@ class VowmarkVault(gl.Contract):
                 raise gl.vm.UserError("evidence URL must use a public hostname")
             labels = host.split(".")
             if any(not label or len(label) > 63 or label.startswith("-") or label.endswith("-") for label in labels):
+                raise gl.vm.UserError("evidence URL host is invalid")
+            # Keep Vault's issuance boundary identical to Registry's parser.
+            # Dotted hexadecimal IPv4 spellings are otherwise treated as
+            # ordinary hostnames by urllib.parse.
+            hex_prefix = False
+            alternate_numeric = True
+            for label in labels:
+                if label.startswith("0x"):
+                    hex_prefix = True
+                    digits = label[2:]
+                    if not digits or any(character not in "0123456789abcdef" for character in digits):
+                        alternate_numeric = False
+                elif not label.isdigit():
+                    alternate_numeric = False
+            if len(labels) == 4 and hex_prefix and alternate_numeric:
+                raise gl.vm.UserError("evidence URL host is not public")
+            if any(character not in "abcdefghijklmnopqrstuvwxyz0123456789-" for label in labels for character in label):
                 raise gl.vm.UserError("evidence URL host is invalid")
             if all(label.isdigit() for label in labels):
                 if len(labels) != 4 or any((len(label) > 1 and label.startswith("0")) or int(label) > 255 for label in labels):

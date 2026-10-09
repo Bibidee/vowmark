@@ -31,6 +31,9 @@ separately authorized.
 - [x] Mutation gate: 49/49 valid mutants killed.
 - [x] Frontend typecheck, lint, board test, timezone test, and production build passed.
 - [x] Frontend Playwright browser suite: 38 passed across desktop/mobile/responsive and transaction recovery flows.
+- [x] Production-only npm audit: 0 findings; full development-tree audit:
+  5 high findings through unpatched `braces@3.0.3`, disclosed in the security
+  report rather than hidden behind the production-only result.
 - [x] Release guard passed.
 - [x] V4 release-consistency guard passed.
 - [x] Registry/Vault URL decisions agree across simulator and Direct Mode coverage.

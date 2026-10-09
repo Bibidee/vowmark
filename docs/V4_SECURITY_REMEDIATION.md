@@ -109,6 +109,17 @@ Executed from the managed Windows workspace with the repository’s `.venv-direc
 dependency graph on 2026-10-09 and reported **0 vulnerabilities**. This does
 not audit the chain runtime or unlisted dependencies.
 
+The full (including development dependencies) audit reported **5 high
+findings** along one chain:
+`eslint-config-next@16.4.0` → `@next/eslint-plugin-next@16.4.0` →
+`fast-glob@3.3.1` → `micromatch@4.0.8` → `braces@3.0.3`.
+The root [braces advisory](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm)
+lists **no patched version**. `npm audit` offered an `eslint-config-next`
+14.2.35 major downgrade, incompatible with this Next 16 release, so it was
+not applied. This affects repo-controlled lint tooling, not the production
+dependency graph; it remains an explicit development-tool risk, not a claim
+that the full dependency tree is clean.
+
 ## Controlled live canary
 
 The fresh V4 pair was deployed and reread on Studionet 61999. The separate

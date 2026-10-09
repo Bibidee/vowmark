@@ -37,6 +37,9 @@ reserve, and existing economic routing.
   remains and its withdrawal is `PENDING AUTHORIZED REMEDY-WALLET SIGNATURE`.
 - DNS rebinding, redirect destinations and failed external-transfer recovery
   remain runtime limitations. No unsafe retry/refund was introduced.
+- Production-only npm audit found 0 vulnerabilities; the full dev-tool tree
+  reports 5 high findings through `braces@3.0.3`, which has no published
+  patched version. This is disclosed, not mislabeled as a clean full audit.
 
 Evidence: [live canary](https://github.com/Bibidee/vowmark/blob/v4-security-remediation/evidence/live_v4_smoke_2026-10-09.md),
 [withdrawal audit](https://github.com/Bibidee/vowmark/blob/v4-security-remediation/evidence/live_v4_withdrawal_delivery_2026-10-09.md),

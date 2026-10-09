@@ -54,6 +54,12 @@ jobs:
         with:
           python-version: "3.12"
       - run: python -m pip install --upgrade pip pytest "genlayer-test[sim]==0.29.2" genlayer-test==0.29.2
+      - name: Cache published GenVM simulator bundle
+        run: |
+          mkdir -p "$HOME/.cache/gltest-direct"
+          curl --fail --location --retry 3 \
+            "https://github.com/genlayerlabs/genvm/releases/download/v0.2.16/genvm-universal.tar.xz" \
+            --output "$HOME/.cache/gltest-direct/genvm-universal-v0.2.16.tar.xz"
       - run: python scripts/run_mutation_tests.py
 
   release-consistency:

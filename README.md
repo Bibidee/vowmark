@@ -132,7 +132,7 @@ and live canary evidence are recorded in
 - Registry deployment: [`0xa89729b327ce510e46f0183dc95c2f7d57ba0073ae3c6f4f720010b048b3564f`](https://explorer-studio.genlayer.com/tx/0xa89729b327ce510e46f0183dc95c2f7d57ba0073ae3c6f4f720010b048b3564f)
 - Vault deployment: [`0x87f195ae06bb4eb66deff61bdc5012f35d15c9dbacf0b943806a55183d5ed9ed`](https://explorer-studio.genlayer.com/tx/0x87f195ae06bb4eb66deff61bdc5012f35d15c9dbacf0b943806a55183d5ed9ed)
 - Finalized wiring: [`0xc2c4bfae0fdb7f0b8c86459a4a5c8bb9ad61f6970fe642a6383fa8a1f60b36f4`](https://explorer-studio.genlayer.com/tx/0xc2c4bfae0fdb7f0b8c86459a4a5c8bb9ad61f6970fe642a6383fa8a1f60b36f4)
-- V4 Preview: [`vowmark-80l3g9uke-bibidees-projects.vercel.app`](https://vowmark-80l3g9uke-bibidees-projects.vercel.app/)
+- V4 Preview: [`vowmark-dzfxyyoxy-bibidees-projects.vercel.app`](https://vowmark-dzfxyyoxy-bibidees-projects.vercel.app/)
 
 The preview is wired to the fresh V4 addresses through Preview-only Vercel
 environment configuration. Production promotion remains a separate decision;

@@ -23,8 +23,8 @@ does not replace the V1 production evidence in `HANDOFF_STATUS.md`.
 
 ## V4 Preview wiring
 
-- Preview URL: [`https://vowmark-80l3g9uke-bibidees-projects.vercel.app/`](https://vowmark-80l3g9uke-bibidees-projects.vercel.app/)
-- Deployment: [`dpl_GqGeLapmJv5mMtEcfURGfcrUVNCr`](https://vercel.com/bibidees-projects/vowmark/GqGeLapmJv5mMtEcfURGfcrUVNCr)
+- Preview URL: [`https://vowmark-dzfxyyoxy-bibidees-projects.vercel.app/`](https://vowmark-dzfxyyoxy-bibidees-projects.vercel.app/)
+- Deployment: [`dpl_GPxnW6KKQgtjuoyEfRRfTJQSgZ4a`](https://vercel.com/bibidees-projects/vowmark/GPxnW6KKQgtjuoyEfRRfTJQSgZ4a)
 - Build state: `READY`
 - Configuration scope: Preview branch `v4-security-remediation` only
 - Bundle verification: the deployed client bundle contains both fresh V4

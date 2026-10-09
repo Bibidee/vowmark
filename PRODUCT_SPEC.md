@@ -1,10 +1,11 @@
 # VOWMARK V4 Candidate Product Specification
 
-This document describes the **undeployed V4 candidate** on the
+This document describes the **V4 candidate** on the
 `v4-security-remediation` branch. It is not the specification of the
 authorized production V1 contracts. V1 production uses the original
-15-minute minimum review window; this candidate uses 20 minutes and must be
-deployed as a fresh Registry/Vault pair before it can be promoted.
+15-minute minimum review window. A historical V4 canary uses 20 minutes, but
+predates the final numeric-host URL fix. Corrected V4 code needs a new
+Registry/Vault deployment and live acceptance before promotion.
 
 ## Product sentence
 

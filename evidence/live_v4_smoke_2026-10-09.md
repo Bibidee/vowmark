@@ -4,6 +4,10 @@ Generated: 2026-10-09
 
 This is V4 evidence for the controlled `v4-security-remediation` canary. It
 does not replace the V1 production evidence in `HANDOFF_STATUS.md`.
+This canary predates the shortened numeric-IP fix. The contract source is the
+`9d4082c` snapshot, unchanged through pre-fix `5e6a917`; the corrected
+source on this branch requires new deployment and acceptance. The original
+canary is historical evidence only.
 
 ## Deployment and wiring
 
@@ -23,12 +27,13 @@ does not replace the V1 production evidence in `HANDOFF_STATUS.md`.
 
 ## V4 Preview wiring
 
-- Preview URL: [`https://vowmark-dzfxyyoxy-bibidees-projects.vercel.app/`](https://vowmark-dzfxyyoxy-bibidees-projects.vercel.app/)
-- Deployment: [`dpl_GPxnW6KKQgtjuoyEfRRfTJQSgZ4a`](https://vercel.com/bibidees-projects/vowmark/GPxnW6KKQgtjuoyEfRRfTJQSgZ4a)
+- Latest verified Preview URL: [`https://vowmark-7xflueq8o-bibidees-projects.vercel.app/`](https://vowmark-7xflueq8o-bibidees-projects.vercel.app/)
+- Deployment: [`dpl_2KmXJ98a1UeATTvDnQ1FkzszKbwq`](https://vercel.com/bibidees-projects/vowmark/2KmXJ98a1UeATTvDnQ1FkzszKbwq), linked to pre-fix commit `5e6a917` by its GitHub Vercel status check. Earlier `dpl_GPxnW6KKQgtjuoyEfRRfTJQSgZ4a` remains historical.
 - Build state: `READY`
 - Configuration scope: Preview branch `v4-security-remediation` only
 - Bundle verification: the deployed client bundle contains both fresh V4
-  contract addresses; the Preview route returned HTTP `200`.
+  contract addresses and chain `61999`; `/`, `/issue`, `/activity`, and
+  `/commitment/1` returned HTTP `200` on 2026-10-09.
 - Production remains V1 at [`https://the-vowmark.vercel.app/`](https://the-vowmark.vercel.app/).
 
 ## Live lifecycle results
@@ -47,8 +52,13 @@ V4 correctly finalized that issuance as an execution error with no commitment
 created and no credit change. The live control was then rerun with the valid
 public 404 anchor above and produced `INCONCLUSIVE` as intended.
 
-## Conclusion
+## Withdrawal evidence boundary and conclusion
 
 The fresh V4 pair, Preview wiring, fulfilled/breached/inconclusive outcomes,
-real-deadline expiry, finalized settlement reconciliation, and withdrawal
-readbacks are proven on Studionet. No production promotion was performed.
+real-deadline expiry, finalized settlement reconciliation, and **parent
+withdrawal calls with emitted external messages** are proven on Studionet.
+External delivery to the issuer was not independently verified. Remedy-wallet
+withdrawal is `PENDING AUTHORIZED REMEDY-WALLET SIGNATURE`. Exact receipt
+limitations are in [`live_v4_withdrawal_delivery_2026-10-09.md`](live_v4_withdrawal_delivery_2026-10-09.md).
+No production promotion was performed, and this old pair does not contain
+the corrected URL validation.

@@ -63,7 +63,15 @@ def test_vault_rejects_invalid_creation_roles_and_anchor_policy(direct_vm, direc
             args[5] = ["http://example.com/evidence"]
             vault.create_commitment(*args)
         for unsafe_url in (
+            "https://0x7f.1/evidence",
+            "https://0x7f.0.1/evidence",
             "https://0x7f.0.0.1/evidence",
+            "https://0X7F.1/evidence",
+            "https://0177.1/evidence",
+            "https://0x7f.0001/evidence",
+            "https://0x7f.0x1/evidence",
+            "https://example.123/evidence",
+            "https://2130706433/evidence",
             "https://0x7f000001/evidence",
             "https://127.1/evidence",
             "https://[::ffff:127.0.0.1]/evidence",
@@ -77,6 +85,7 @@ def test_vault_rejects_invalid_creation_roles_and_anchor_policy(direct_vm, direc
                 args = list(_issue_args())
                 args[5] = [unsafe_url]
                 vault.create_commitment(*args)
+            assert vault.get_credit(ISSUER) == 0
         with direct_vm.expect_revert("immutable GitHub commit URL"):
             args = list(_issue_args())
             args[5] = ["https://raw.githubusercontent.com/Bibidee/vowmark/main/evidence/proof.txt"]

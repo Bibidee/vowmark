@@ -1,8 +1,9 @@
 # VOWMARK V1 handoff status
 
 This is a **V1-only** production handoff. It does not describe or authorize
-the undeployed V4 candidate on `v4-security-remediation`; V4 uses a separate
-20-minute policy and requires fresh contract addresses and lifecycle evidence.
+the V4 canary on `v4-security-remediation`; V4 uses a separate 20-minute
+policy. The deployed canary predates the final URL fix, which requires a new
+authorized Registry/Vault pair and lifecycle evidence.
 
 VOWMARK V1 is deployed on GenLayer Studionet 61999. The final frontend URL and source/CI provenance are recorded below after the release freeze. The canonical deployment and evidence are documented in [`evidence/FINAL_PROOF_MATRIX.md`](evidence/FINAL_PROOF_MATRIX.md).
 
@@ -43,3 +44,19 @@ VOWMARK V1 is deployed on GenLayer Studionet 61999. The final frontend URL and s
 ## Honest limitation
 
 Fresh final-pair expiry candidate #6 completed after its real 15-minute deadline; the finalized evidence is in `evidence/live_expired_final.json`. The simulator cannot suppress the first finalized child message, so registration recovery remains proven only as immutable, duplicate-safe retry replay after automatic delivery rather than a missing-child injection.
+
+## Separate V4 canary (not V1 production)
+
+V4's historical Studionet Registry `0xE425f8c6E0780059b80cF34CB5e4A53e85a4Be26`
+and Vault `0x36D41a7BBf88b89A166AE71Dd8D045d3734a462C` were wired by
+finalized transaction
+[`0xc2c4bfae…b36f4`](https://explorer-studio.genlayer.com/tx/0xc2c4bfae0fdb7f0b8c86459a4a5c8bb9ad61f6970fe642a6383fa8a1f60b36f4).
+The source matches the `9d4082c` snapshot retained through `5e6a917`.
+The latest verified pre-fix Preview is
+[`vowmark-7xflueq8o-bibidees-projects.vercel.app`](https://vowmark-7xflueq8o-bibidees-projects.vercel.app/),
+deployment `dpl_2KmXJ98a1UeATTvDnQ1FkzszKbwq`. The final numeric-host fix
+is **not** deployed at those addresses. Live lifecycle evidence is in
+[`evidence/live_v4_smoke_2026-10-09.md`](evidence/live_v4_smoke_2026-10-09.md).
+Issuer withdrawal calls prove parent finality and external-message emission,
+not independent delivery; see
+[`evidence/live_v4_withdrawal_delivery_2026-10-09.md`](evidence/live_v4_withdrawal_delivery_2026-10-09.md).

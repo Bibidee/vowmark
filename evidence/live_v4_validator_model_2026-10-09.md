@@ -37,4 +37,8 @@ runtime behavior, not silently relabeled as universal validator success.
 
 The withdrawal boundary was exercised by finalized transactions and credit
 readback. Native balance delta was not used as an exact net-receipt claim,
-because the sender's balance also includes transaction fees.
+because the sender's balance also includes transaction fees. Both parent
+receipts emitted finalized external messages, but this audit did not obtain
+an independent child-delivery result. See
+[`live_v4_withdrawal_delivery_2026-10-09.md`](live_v4_withdrawal_delivery_2026-10-09.md).
+The original canary predates the corrected numeric-host URL policy.

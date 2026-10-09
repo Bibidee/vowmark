@@ -181,7 +181,14 @@ def test_creation_rejects_anchor_policy_violations(deployed):
 @pytest.mark.parametrize(
     "url",
     [
+        "https://0x7f.1/proof",
+        "https://0x7f.0.1/proof",
         "https://0x7f.0.0.1/proof",
+        "https://0X7F.1/proof",
+        "https://0177.1/proof",
+        "https://0x7f.0001/proof",
+        "https://0x7f.0x1/proof",
+        "https://example.123/proof",
         "https://0X7F.0.0.1:443/proof",
         "https://0x7f.0x0.0x0.0x1/proof",
         "https://0x7f000001/proof",
@@ -211,10 +218,48 @@ def test_url_parser_rejects_authority_and_private_host_variants(deployed, url):
         _create_attempt(engine, vault_address, urls=[url])
 
 
+@pytest.mark.parametrize("url", [
+    "https://0x7f.1/proof",
+    "https://0x7f.0.1/proof",
+    "https://0x7f.0.0.1/proof",
+    "https://0x7f000001/proof",
+    "https://0X7F.1/proof",
+    "https://0177.1/proof",
+    "https://127.1/proof",
+    "https://2130706433/proof",
+    "https://0x7f.0001/proof",
+    "https://0x7f.0x1/proof",
+    "https://example.123/proof",
+    "https://[::ffff:127.0.0.1]/proof",
+])
+def test_numeric_host_rejected_by_both_boundaries_without_custody_side_effects(deployed, url):
+    engine, registry_address, vault_address = deployed
+    before_total = engine.call_method(registry_address, "get_total_commitments", [], sender=ISSUER)
+    before_credit = engine.call_method(vault_address, "get_credit", [ISSUER], sender=ISSUER)
+    with pytest.raises(Exception):
+        _create_attempt(engine, vault_address, urls=[url])
+    assert engine.call_method(registry_address, "get_total_commitments", [], sender=ISSUER) == before_total
+    assert engine.call_method(vault_address, "get_credit", [ISSUER], sender=ISSUER) == before_credit
+    assert engine.call_method(vault_address, "get_next_commitment_id", [], sender=ISSUER) == 0
+    with pytest.raises(Exception, match="issuance does not exist"):
+        engine.call_method(vault_address, "get_issuance", [0], sender=ISSUER)
+    _warp(engine, "2030-01-01T00:00:00Z")
+    with pytest.raises(Exception):
+        engine.call_method(
+            registry_address, "register_commitment",
+            [900, ISSUER, "Parser parity", "Time-bearing proof required",
+             _timestamp("2030-01-01T00:00:00Z"), _timestamp("2030-01-02T00:00:00Z"),
+             _timestamp("2030-01-03T00:00:00Z"), REMEDY, 100,
+             [url], ["PUBLICATION"], ["numeric alias"]], sender=vault_address,
+        )
+    assert engine.call_method(registry_address, "get_total_commitments", [], sender=ISSUER) == before_total
+
+
 @pytest.mark.parametrize(
     ("url", "normalized"),
     [
         ("HTTPS://Example.COM.:443/proof?mode=full#section", "https://example.com/proof?mode=full#section"),
+        ("https://team42.example.com/a/b?one=1&two=2#part", "https://team42.example.com/a/b?one=1&two=2#part"),
         ("https://例え.テスト/proof", "https://xn--r8jz45g.xn--zckzah/proof"),
     ],
 )

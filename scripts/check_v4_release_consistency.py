@@ -77,15 +77,17 @@ def main() -> int:
             "BEGIN_UNTRUSTED_COMMITMENT_JSON",
             "reject_duplicate_keys",
             "STRUCTURALLY_VERIFIED_REVISION",
-            "hex_prefix",
-            "alternate_numeric",
+            "last_label = labels[-1]",
+            'last_label.startswith("0x")',
         )
         for marker in required_source_markers:
             if marker not in registry:
                 fail(f"Registry is missing V4 marker: {marker}")
-        for marker in ("sender equals origin", "failure_recovery", "external finalized transfer"):
+        for marker in ("sender equals origin", "failure_recovery", "external finalized transfer", "last_label = labels[-1]", 'last_label.startswith("0x")'):
             if marker not in vault:
                 fail(f"Vault is missing V4 marker: {marker}")
+        if "if len(labels) == 4" in registry or "if len(labels) == 4" in vault:
+            fail("shortened numeric-IP hosts are not protected by the URL policy")
 
         release = read("docs/V4_SECURITY_REMEDIATION.md")
         if "not promoted" not in release.lower() or "live canary" not in release.lower():

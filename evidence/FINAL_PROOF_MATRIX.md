@@ -1,6 +1,10 @@
 # VOWMARK V1 final proof matrix
 
-This is the release matrix for the current Registry/Vault pair. Earlier deployment addresses and lifecycle artifacts are historical and superseded.
+This is the release matrix for the authorized **V1** Registry/Vault pair.
+It is not V4 evidence. V1's minimum review window is 15 minutes; the
+undeployed V4 candidate's 20-minute policy is checked separately by the V4
+release artifacts. Earlier deployment addresses and lifecycle artifacts are
+historical and superseded.
 
 ## Deployment
 

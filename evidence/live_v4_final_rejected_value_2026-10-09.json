@@ -1,0 +1,21 @@
+{
+  "network": "GenLayer Studionet",
+  "chainId": 61999,
+  "registry": "0x3cA983F7CC78d10d3970a6Da719b12e17E4e4eF7",
+  "vault": "0xE9e153dc4E33762B2bA468EaC74bEABfe9cED4Ce",
+  "account": "0x794678AD7e8B6c87dAb33303a3A512c821e6De9A",
+  "rejectedTransaction": "0xdbd5e7197bb2a41da45157a1c2597af459bf7a592d460c0a6cd470efa5c9c255",
+  "withdrawalTransaction": "0x557c82110299e1eb71b37c461159db7640d910e497c378cdeef054ee6545c40d",
+  "url": "https://127.1/vowmark-v4-url-rejection",
+  "transactionStatus": "FINALIZED",
+  "executionResult": "SUCCESS",
+  "returnedCommitmentId": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+  "rejectionReason": "UserError(message='evidence URL host is not public')",
+  "nextCommitmentIdBefore": "0",
+  "nextCommitmentIdAfter": "0",
+  "creditBefore": "0",
+  "creditAfterRejection": "100000000000000",
+  "creditAfterWithdrawal": "0",
+  "withdrawalStatus": "FINALIZED",
+  "withdrawalExecutionResult": "SUCCESS"
+}

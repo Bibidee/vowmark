@@ -31,6 +31,9 @@ POST_APPLICATION_ALLOWED_PREFIXES = (
     "benchmarks/JUDGMENT_BENCHMARK_RESULTS.md",
     "docs/",
     "scripts/check_release_consistency.py",
+    "scripts/withdrawal_evidence_helpers.mjs",
+    "tests/sim/test_registry_behavior.py",
+    "tests/sim/test_economic_accounting.py",
 )
 POST_APPLICATION_FORBIDDEN_PREFIXES = (
     "contracts/",
@@ -39,7 +42,6 @@ POST_APPLICATION_FORBIDDEN_PREFIXES = (
     "web/lib/",
     "web/e2e/",
     "tests/direct/",
-    "tests/sim/",
 )
 
 

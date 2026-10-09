@@ -5,8 +5,9 @@ import { studionet } from "genlayer-js/chains";
 import { TransactionStatus } from "genlayer-js/types";
 
 const RPC = "https://studio.genlayer.com/api";
-const REGISTRY = process.env.VOWMARK_REGISTRY_ADDRESS || "0x3Be513bB6CAe652826A6092C0715AF39E7189c71";
-const VAULT = process.env.VOWMARK_VAULT_ADDRESS || "0xf8D89f89aD160546780eD76Cd64C550d91bAf501";
+const REGISTRY = process.env.VOWMARK_REGISTRY_ADDRESS;
+const VAULT = process.env.VOWMARK_VAULT_ADDRESS;
+if (!REGISTRY || !VAULT) throw new Error("VOWMARK_REGISTRY_ADDRESS and VOWMARK_VAULT_ADDRESS are required");
 const rawCommitmentId = process.env.VOWMARK_EXPIRED_COMMITMENT_ID;
 if (!rawCommitmentId) throw new Error("VOWMARK_EXPIRED_COMMITMENT_ID is required");
 const COMMITMENT_ID = BigInt(rawCommitmentId);

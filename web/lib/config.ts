@@ -1,3 +1,7 @@
+// This checkout is the undeployed V4 candidate. Production V1 keeps its
+// separately authorized frontend build and its historical addresses.
+export const RELEASE_TRACK = "V4_CANDIDATE" as const;
+
 export const NETWORK = {
   id: 61999,
   hexId: "0xf22f",
@@ -10,16 +14,19 @@ export const NETWORK = {
 
 export const REGISTRY_ADDRESS =
   process.env.NEXT_PUBLIC_VOWMARK_REGISTRY_ADDRESS ||
-  "0x3Be513bB6CAe652826A6092C0715AF39E7189c71";
+  "";
 export const VAULT_ADDRESS =
   process.env.NEXT_PUBLIC_VOWMARK_VAULT_ADDRESS ||
-  "0xf8D89f89aD160546780eD76Cd64C550d91bAf501";
+  "";
+export const REJECTED_COMMITMENT_ID = (1n << 256n) - 1n;
 
 export const REVIEW_POLICY = {
-  minimumWindowSeconds: 15 * 60,
+  minimumWindowSeconds: 20 * 60,
   retryCooldownSeconds: 5 * 60,
   epochSeconds: 60 * 60,
   maxAttemptsPerEpoch: 32,
+  lateReserveSeconds: 5 * 60,
+  maxLateAttempts: 4,
   maximumWindowSeconds: 90 * 24 * 60 * 60,
 } as const;
 

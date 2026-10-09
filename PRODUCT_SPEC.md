@@ -1,4 +1,11 @@
-# VOWMARK V1 Product Specification
+# VOWMARK V4 Candidate Product Specification
+
+This document describes the **V4 candidate** on the
+`v4-security-remediation` branch. It is not the specification of the
+authorized production V1 contracts. V1 production uses the original
+15-minute minimum review window. A historical V4 canary uses 20 minutes, but
+predates the final numeric-host URL fix. Corrected V4 code needs a new
+Registry/Vault deployment and live acceptance before promotion.
 
 ## Product sentence
 
@@ -14,7 +21,7 @@ Web3 teams, open-source builders, grant recipients, public-goods teams and organ
 - publish a governance or transparency report before a vote;
 - complete a publicly inspectable grant deliverable before a deadline.
 
-V1 is intentionally not for subjective promises such as “make the community happy,” “build a beautiful product,” or “provide excellent service.”
+V4 is intentionally not for subjective promises such as “make the community happy,” “build a beautiful product,” or “provide excellent service.”
 
 ## Core problem
 
@@ -28,7 +35,7 @@ Creates the commitment, locks the bond, selects an immutable remedy address, fre
 
 ### Reviewer
 
-Any wallet may trigger a review after maturity and before the final review deadline, subject to retry/cooldown rules. In V1 the reviewer does **not** provide a free-form complaint and does **not** get to redefine the evidence policy.
+Any wallet may trigger a review after maturity and before the final review deadline, subject to retry/cooldown rules. In V4 the reviewer does **not** provide a free-form complaint and does **not** get to redefine the evidence policy.
 
 ### Remedy address
 
@@ -70,7 +77,7 @@ Each anchor is frozen at issuance and contains at minimum:
 - source kind;
 - short human-readable purpose/label.
 
-Recommended V1 source kinds:
+Supported V4 source kinds:
 
 - `PUBLICATION`
 - `VERSIONED_SOURCE`
@@ -79,7 +86,7 @@ Recommended V1 source kinds:
 
 The names can be adjusted only for a concrete implementation reason. Do not turn source kinds into a hidden ranking system or centralized authority registry.
 
-V1 does not crawl the open internet. Validators fetch only the frozen URLs. V1 also does not accept arbitrary reviewer-supplied uploads or free-form evidence dumps.
+V4 does not crawl the open internet. Validators fetch only the frozen URLs. V4 also does not accept arbitrary reviewer-supplied uploads or free-form evidence dumps.
 
 ## Admissibility and safety
 
@@ -126,10 +133,11 @@ The available admissible evidence is insufficient for a reliable `FULFILLED` or 
 - No review after a conclusive terminal verdict.
 - Reviews must stop after the final review deadline.
 - Inconclusive attempts are append-only.
-- The final review deadline must be at least 15 minutes after maturity.
+- The final review deadline must be at least 20 minutes after maturity.
 - The same reviewer may retry after 5 minutes only when the evidence snapshot changes.
 - The exact same evidence snapshot must not create unbounded duplicate history.
 - Review capacity is bounded at 32 accepted attempts per 1-hour epoch to limit Sybil throughput without imposing a permanent lifetime attempt cap on an open commitment.
+- The final five minutes keep using normal epoch capacity while it remains available; after normal capacity is exhausted, up to 4 reserve attempts are available until the deadline. If the final five minutes cross an epoch boundary, normal capacity resets for the new epoch while the reserve remains bounded across the final window.
 - A new attempt is meaningful only if time or source content may have changed.
 
 The maximum review window is 90 days. A coordinated Sybil set may still temporarily consume one hourly epoch; the contract does not claim Sybil griefing is impossible.
@@ -143,7 +151,7 @@ If no reliable conclusive verdict exists by the final review deadline, anyone ma
 - is not `FULFILLED`;
 - is not `BREACHED`;
 - must remain visible forever in issuer history;
-- returns the unresolved bond according to the V1 policy to the issuer;
+- returns the unresolved bond according to the V4 policy to the issuer;
 - does not allow the UI to imply success.
 
 ## Economic semantics
@@ -167,7 +175,7 @@ The protocol should expose backendless read paths for an issuer’s commitments 
 - breached;
 - expired unresolved.
 
-Do not introduce an opaque reputation score in V1. The public record is the product.
+Do not introduce an opaque reputation score in V4. The public record is the product.
 
 ## Non-goals
 

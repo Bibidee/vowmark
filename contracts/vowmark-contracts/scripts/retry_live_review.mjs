@@ -1,0 +1,28 @@
+import keytar from "keytar";
+import { createAccount, createClient } from "genlayer-js";
+import { studionet } from "genlayer-js/chains";
+import { TransactionStatus } from "genlayer-js/types";
+
+const RPC = "https://studio.genlayer.com/api";
+const registry = process.env.VOWMARK_REGISTRY_ADDRESS;
+const id = process.env.VOWMARK_COMMITMENT_ID;
+const name = process.env.VOWMARK_ACCOUNT_NAME || "live-alice";
+if (!registry || id === undefined) throw new Error("VOWMARK_REGISTRY_ADDRESS and VOWMARK_COMMITMENT_ID are required");
+const privateKey = await keytar.getPassword("genlayer-cli", `account:${name}`);
+if (!privateKey) throw new Error(`${name} is not unlocked in the CLI keychain`);
+const account = createAccount(privateKey);
+const chain = { ...studionet, rpcUrls: { ...studionet.rpcUrls, default: { http: [RPC] } } };
+const client = createClient({ chain, endpoint: RPC, account });
+const read = (functionName, args) => client.readContract({ address: registry, functionName, args, stateStatus: TransactionStatus.FINALIZED });
+const before = await read("get_commitment", [BigInt(id)]);
+const old = before instanceof Map ? Object.fromEntries(before) : before;
+if (old.outcome !== "OPEN") throw new Error(`Commitment ${id} is already ${old.outcome}`);
+const hash = await client.writeContract({ address: registry, functionName: "review_commitment", args: [BigInt(id)], value: 0n });
+console.log(JSON.stringify({ stage: "submitted", account: account.address, id, hash }));
+const receipt = await client.waitForTransactionReceipt({ hash, status: TransactionStatus.FINALIZED, retries: 240, interval: 5000 });
+const leader = Array.isArray(receipt.consensus_data?.leader_receipt) ? receipt.consensus_data.leader_receipt[0] : receipt.consensus_data?.leader_receipt;
+const after = await read("get_commitment", [BigInt(id)]);
+const current = after instanceof Map ? Object.fromEntries(after) : after;
+const summary = { account: account.address, id, hash, status: receipt.status_name ?? receipt.status, executionResult: leader?.execution_result, error: leader?.error || leader?.result?.payload || leader?.genvm_result?.raw_error || null, votes: receipt.consensus_data?.votes, outcome: current.outcome, verdict: current.latest_verdict, attemptCount: String(current.attempt_count), settlementState: current.settlement_state };
+console.log(JSON.stringify(summary, null, 2));
+if (!(String(summary.status).toUpperCase() === "FINALIZED" && summary.executionResult === "SUCCESS" && leader?.result?.status === "return")) process.exitCode = 1;

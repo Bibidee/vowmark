@@ -32,8 +32,10 @@ def test_registry_uses_vault_first_no_value_settlement_and_immutable_terms():
     assert "identical evidence snapshot was already reviewed" in REGISTRY
     assert "RETRY_COOLDOWN" in REGISTRY
     assert "MAX_REVIEW_ATTEMPTS_PER_EPOCH" in REGISTRY
+    assert "LATE_REVIEW_RESERVE_SECONDS" in REGISTRY
+    assert "MAX_LATE_REVIEW_ATTEMPTS" in REGISTRY
     assert "MAX_REVIEW_PAGE" in REGISTRY
-    assert "MIN_REVIEW_WINDOW = 15 * 60" in REGISTRY
+    assert "MIN_REVIEW_WINDOW = 20 * 60" in REGISTRY
     assert "RETRY_COOLDOWN = 5 * 60" in REGISTRY
     assert "REVIEW_EPOCH_SECONDS = 60 * 60" in REGISTRY
     assert "def get_review_count(" in REGISTRY
@@ -43,6 +45,7 @@ def test_registry_uses_vault_first_no_value_settlement_and_immutable_terms():
     assert "reviewer_last_attempt_at" in REGISTRY
     assert '"review_cooldown_scope": "per_reviewer"' in REGISTRY
     assert '"review_attempts_are_not_lifetime_capped": True' in REGISTRY
+    assert '"authority_status"' in REGISTRY
 
 
 def test_validator_is_bounded_and_prompt_injection_resistant():
@@ -54,17 +57,21 @@ def test_validator_is_bounded_and_prompt_injection_resistant():
     assert "MAX_EVIDENCE_TEXT" in REGISTRY
     assert "OVERSIZED" in REGISTRY
     assert "INCONCLUSIVE" in REGISTRY
+    assert "reject_duplicate_keys" in REGISTRY
+    assert "schema is not exact" in REGISTRY
+    assert "BEGIN_UNTRUSTED_COMMITMENT_JSON" in REGISTRY
 
 
 def test_vault_is_custody_boundary_and_debits_before_external_send():
     assert "def create_commitment(" in VAULT
     assert "def retry_registration(" in VAULT
     assert "only the immutable registry may settle" in VAULT
-    assert "MIN_REVIEW_WINDOW = 15 * 60" in VAULT
+    assert "MIN_REVIEW_WINDOW = 20 * 60" in VAULT
     assert "settled_commitments" in VAULT
     assert "withdrawal exceeds available credit" in VAULT
-    assert "withdrawal requires a direct EOA caller" in VAULT
+    assert "withdrawal requires a direct top-level caller" in VAULT
     assert "requires_sender_equals_origin" in VAULT
+    assert "runtime_eoa_proof" in VAULT
     assert '"statement": issuance.statement' in VAULT
     assert '"verification_rule": issuance.verification_rule' in VAULT
     debit = VAULT.index("self.credits[sender] = current_credit - amount")

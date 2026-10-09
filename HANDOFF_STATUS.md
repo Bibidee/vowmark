@@ -1,5 +1,10 @@
 # VOWMARK V1 handoff status
 
+This is a **V1-only** production handoff. It does not describe or authorize
+the V4 canary on `v4-security-remediation`; V4 uses a separate 20-minute
+policy. The deployed canary predates the final URL fix, which requires a new
+authorized Registry/Vault pair and lifecycle evidence.
+
 VOWMARK V1 is deployed on GenLayer Studionet 61999. The final frontend URL and source/CI provenance are recorded below after the release freeze. The canonical deployment and evidence are documented in [`evidence/FINAL_PROOF_MATRIX.md`](evidence/FINAL_PROOF_MATRIX.md).
 
 ## Canonical deployment
@@ -10,7 +15,7 @@ VOWMARK V1 is deployed on GenLayer Studionet 61999. The final frontend URL and s
 - Vault deployment: [`0x3ed672661391d9fe4beab5577f8d27fc7649c99ff74f9909cd42a5d129420938`](https://explorer-studio.genlayer.com/tx/0x3ed672661391d9fe4beab5577f8d27fc7649c99ff74f9909cd42a5d129420938)
 - Wiring: [`0xc05171edd4b81eb60ff6869e2df5f07b8bec3de504d704154caa9b3085a1fc6e`](https://explorer-studio.genlayer.com/tx/0xc05171edd4b81eb60ff6869e2df5f07b8bec3de504d704154caa9b3085a1fc6e)
 - Configuration readback: [`fresh_deployment_2026-10-08_pagination.md`](evidence/fresh_deployment_2026-10-08_pagination.md)
-- Frontend: [`the-vowmark.vercel.app`](https://the-vowmark.vercel.app/) points to Vercel deployment [`dpl_E7BqsrfqrsiPEEwEGnGS2iqQBXsd`](https://vercel.com/bibidees-projects/vowmark/E7BqsrfqrsiPEEwEGnGS2iqQBXsd), state `READY`, target `production`.
+- Frontend: [`the-vowmark.vercel.app`](https://the-vowmark.vercel.app/) originally pointed to release deployment [`dpl_E7BqsrfqrsiPEEwEGnGS2iqQBXsd`](https://vercel.com/bibidees-projects/vowmark/E7BqsrfqrsiPEEwEGnGS2iqQBXsd). On 2026-10-09 it resolved to READY production deployment `dpl_3bjNZZ4b3FwHTeXj5a6k4RuoUFGH`; its public bundle still held the authorized V1 addresses, not V4.
 - Application source: [`8dbb131958d28f87d9f618a9d2bbd09744a6986b`](https://github.com/Bibidee/vowmark/commit/8dbb131958d28f87d9f618a9d2bbd09744a6986b); the manual Vercel deployment was created from this checked-out SHA.
 
 ## Release state
@@ -39,3 +44,22 @@ VOWMARK V1 is deployed on GenLayer Studionet 61999. The final frontend URL and s
 ## Honest limitation
 
 Fresh final-pair expiry candidate #6 completed after its real 15-minute deadline; the finalized evidence is in `evidence/live_expired_final.json`. The simulator cannot suppress the first finalized child message, so registration recovery remains proven only as immutable, duplicate-safe retry replay after automatic delivery rather than a missing-child injection.
+
+## Separate V4 canary (not V1 production)
+
+V4's historical Studionet Registry `0xE425f8c6E0780059b80cF34CB5e4A53e85a4Be26`
+and Vault `0x36D41a7BBf88b89A166AE71Dd8D045d3734a462C` were wired by
+finalized transaction
+[`0xc2c4bfae…b36f4`](https://explorer-studio.genlayer.com/tx/0xc2c4bfae0fdb7f0b8c86459a4a5c8bb9ad61f6970fe642a6383fa8a1f60b36f4).
+The source matches the `9d4082c` snapshot retained through `5e6a917`.
+The branch Preview alias is
+[`vowmark-git-v4-security-remediation-bibidees-projects.vercel.app`](https://vowmark-git-v4-security-remediation-bibidees-projects.vercel.app/).
+The verified corrected-source snapshot at commit `869b70e` is
+[`vowmark-9t7jotj8w-bibidees-projects.vercel.app`](https://vowmark-9t7jotj8w-bibidees-projects.vercel.app/),
+deployment `dpl_7oj5inoBkucQVo35KAyQtSRTEdKf`. Its bundle still points to
+the historical canary; the final numeric-host fix is **not** deployed at
+those addresses. Live lifecycle evidence is in
+[`evidence/live_v4_smoke_2026-10-09.md`](evidence/live_v4_smoke_2026-10-09.md).
+Issuer withdrawal calls prove parent finality and external-message emission,
+not independent delivery; see
+[`evidence/live_v4_withdrawal_delivery_2026-10-09.md`](evidence/live_v4_withdrawal_delivery_2026-10-09.md).

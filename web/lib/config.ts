@@ -18,6 +18,7 @@ export const REGISTRY_ADDRESS =
 export const VAULT_ADDRESS =
   process.env.NEXT_PUBLIC_VOWMARK_VAULT_ADDRESS ||
   "";
+export const REJECTED_COMMITMENT_ID = (1n << 256n) - 1n;
 
 export const REVIEW_POLICY = {
   minimumWindowSeconds: 20 * 60,

@@ -41,6 +41,18 @@ test.describe("VOWMARK browser contract", () => {
     await expect(page.locator(".error-box")).toContainText(/injected wallet|wallet/i);
   });
 
+  test("numeric-IP evidence is blocked before a payable wallet request", async ({ page }) => {
+    await page.goto("/issue");
+    await page.getByLabel("The commitment").fill("Publish a dated release record");
+    await page.getByLabel("The test").fill("A public dated record proves the release");
+    await page.getByLabel("If you break it").fill("0x1111111111111111111111111111111111111111");
+    await page.getByLabel("Evidence node // 01").fill("https://127.1/evidence");
+    await page.getByLabel("What does this source prove?").fill("The dated release record");
+    await page.getByRole("button", { name: /freeze and issue commitment/i }).click();
+    await expect(page.locator(".error-box[role=alert]")).toContainText(/public DNS hostnames/i);
+    await expect(page.locator(".success-box")).toHaveCount(0);
+  });
+
   test("commitment route keeps canonical-read and transaction states explicit", async ({ page }) => {
     await page.goto("/commitment/1");
     const trace = page.locator(".transaction-rail");

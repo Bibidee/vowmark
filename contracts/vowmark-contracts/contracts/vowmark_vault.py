@@ -14,6 +14,7 @@ MAX_URL = 500
 MAX_LABEL = 180
 MIN_REVIEW_WINDOW = 20 * 60
 MAX_REVIEW_WINDOW = 90 * 24 * 60 * 60
+REJECTED_COMMITMENT_ID = (1 << 256) - 1
 
 OUTCOME_FULFILLED = "FULFILLED"
 OUTCOME_BREACHED = "BREACHED"
@@ -78,6 +79,7 @@ class VowmarkVault(gl.Contract):
     issuance_evidence: TreeMap[u256, TreeMap[u256, PendingAnchor]]
     credits: TreeMap[Address, u256]
     settled_commitments: TreeMap[u256, bool]
+    last_rejection_reasons: TreeMap[Address, str]
 
     def __init__(self, registry_address: str):
         self.registry_address = self._address_arg(registry_address)
@@ -258,8 +260,21 @@ class VowmarkVault(gl.Contract):
         if gl.message.value == u256(0):
             raise gl.vm.UserError("bond must be greater than zero")
         issuer = self._address_arg(gl.message.sender_address)
-        remedy = self._address_arg(remedy_address)
-        anchors = self._validate_terms(issuer, remedy, statement, verification_rule, maturity_at, final_review_deadline, anchor_urls, anchor_source_kinds, anchor_purposes)
+        bond = gl.message.value
+        # Studionet credits value to a payable contract even when GenVM later
+        # finalizes the call with an execution error. Hold the incoming value as
+        # withdrawable credit until every user-controlled term is validated.
+        # Invalid terms therefore return a reserved marker instead of reverting
+        # with value trapped outside VOWMARK's accounting.
+        self.credits[issuer] = self.credits.get(issuer, u256(0)) + bond
+        try:
+            remedy = self._address_arg(remedy_address)
+            anchors = self._validate_terms(issuer, remedy, statement, verification_rule, maturity_at, final_review_deadline, anchor_urls, anchor_source_kinds, anchor_purposes)
+        except Exception as error:
+            self.last_rejection_reasons[issuer] = str(error)
+            return u256(REJECTED_COMMITMENT_ID)
+        self.credits[issuer] = self.credits[issuer] - bond
+        self.last_rejection_reasons[issuer] = ""
         created_at = self._now()
         commitment_id = self.next_commitment_id
         self.next_commitment_id += u256(1)
@@ -267,7 +282,7 @@ class VowmarkVault(gl.Contract):
             commitment_id=commitment_id,
             issuer=issuer,
             remedy=remedy,
-            bond=gl.message.value,
+            bond=bond,
             statement=statement.strip(),
             verification_rule=verification_rule.strip(),
             created_at=created_at,
@@ -348,6 +363,14 @@ class VowmarkVault(gl.Contract):
     @gl.public.view
     def get_credit(self, wallet_address: str) -> u256:
         return self.credits.get(self._address_arg(wallet_address), u256(0))
+
+    @gl.public.view
+    def get_rejection_marker(self) -> u256:
+        return u256(REJECTED_COMMITMENT_ID)
+
+    @gl.public.view
+    def get_last_rejection_reason(self, wallet_address: str) -> str:
+        return self.last_rejection_reasons.get(self._address_arg(wallet_address), "")
 
     @gl.public.view
     def get_registry(self) -> str:

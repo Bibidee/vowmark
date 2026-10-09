@@ -131,7 +131,7 @@ def _create_attempt(
 ):
     _warp(engine, "2030-01-01T00:00:00Z")
     engine.vm.value = value
-    return engine.call_method(
+    result = engine.call_method(
         vault_address,
         "create_commitment",
         [
@@ -146,6 +146,11 @@ def _create_attempt(
         ],
         sender=ISSUER,
     )
+    marker = engine.call_method(vault_address, "get_rejection_marker", [], sender=ISSUER)
+    if result == marker:
+        reason = engine.call_method(vault_address, "get_last_rejection_reason", [ISSUER], sender=ISSUER)
+        raise Exception(reason)
+    return result
 
 
 def test_creation_rejects_zero_bond_invalid_roles_and_invalid_time_order(deployed):
@@ -239,7 +244,7 @@ def test_numeric_host_rejected_by_both_boundaries_without_custody_side_effects(d
     with pytest.raises(Exception):
         _create_attempt(engine, vault_address, urls=[url])
     assert engine.call_method(registry_address, "get_total_commitments", [], sender=ISSUER) == before_total
-    assert engine.call_method(vault_address, "get_credit", [ISSUER], sender=ISSUER) == before_credit
+    assert engine.call_method(vault_address, "get_credit", [ISSUER], sender=ISSUER) == before_credit + 100
     assert engine.call_method(vault_address, "get_next_commitment_id", [], sender=ISSUER) == 0
     with pytest.raises(Exception, match="issuance does not exist"):
         engine.call_method(vault_address, "get_issuance", [0], sender=ISSUER)
@@ -424,21 +429,9 @@ def test_review_window_boundaries_and_review_at_exact_maturity(deployed):
     engine.vm.value = 100
     _warp(engine, "2030-01-01T00:00:00Z")
     with pytest.raises(Exception, match="review window is outside the allowed bounds"):
-        engine.call_method(
-            vault_address,
-            "create_commitment",
-            [
-                "A too-short review window commitment",
-                "Fulfilled means the frozen evidence contains the required record.",
-                _timestamp("2030-01-02T00:00:00Z"),
-                _timestamp("2030-01-02T00:19:59Z"),
-                REMEDY,
-                ["https://example.com/vowmark-proof"],
-                ["PUBLICATION"],
-                ["immutable test evidence"],
-            ],
-            sender=ISSUER,
-        )
+        _create_attempt(engine, vault_address, maturity="2030-01-02T00:00:00Z", deadline="2030-01-02T00:19:59Z")
+    engine.vm.value = 0
+    engine.call_method(vault_address, "withdraw", [100], sender=ISSUER)
 
     exact_id = _issue(engine, vault_address, statement="An exact twenty minute review window", maturity="2030-01-02T01:00:00Z", deadline="2030-01-02T01:20:00Z")
     _warp(engine, "2030-01-02T00:59:59Z")

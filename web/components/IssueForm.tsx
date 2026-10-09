@@ -3,10 +3,11 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { connectWallet, extractExecutionReturn, getWalletState, readRegistry, readVault, waitForFinality, writeVault } from "@/lib/genlayer";
-import { formatGen, parseGen, REVIEW_POLICY } from "@/lib/config";
+import { formatGen, parseGen, REJECTED_COMMITMENT_ID, REVIEW_POLICY } from "@/lib/config";
 import { rememberActivity, updateActivity } from "@/lib/activity";
 import { asBigInt, type SourceKind } from "@/lib/types";
 import { localDateTimeFromNow, localUnixSeconds, parseLocalDateTime } from "@/lib/localDateTime";
+import { validateEvidenceDraft } from "@/lib/issueValidation";
 
 type Anchor = { url: string; sourceKind: SourceKind; purpose: string };
 const initialAnchor: Anchor = { url: "", sourceKind: "PUBLICATION", purpose: "" };
@@ -43,6 +44,8 @@ export function IssueForm() {
   const [recoveryHash, setRecoveryHash] = useState("");
   const [issuance, setIssuance] = useState<Record<string, unknown>>();
   const [submitting, setSubmitting] = useState(false);
+  const [recoverableCredit, setRecoverableCredit] = useState(0n);
+  const [withdrawingCredit, setWithdrawingCredit] = useState(false);
   useEffect(() => {
     const initialMaturity = localDateTimeFromNow(7 * 24 * 60 * 60);
     const initialDeadline = localDateTimeFromNow(14 * 24 * 60 * 60);
@@ -59,11 +62,14 @@ export function IssueForm() {
   function validate() {
     if (statement.trim().length < 10) throw new Error("Write a specific commitment statement.");
     if (rule.trim().length < 10) throw new Error("Describe how validators can decide the promise.");
+    if (statement.length > 2000 || rule.length > 3000) throw new Error("The commitment or verification rule is too long.");
     if (maturitySeconds <= BigInt(Math.floor(Date.now() / 1000))) throw new Error("Maturity must be in the future.");
     if (deadlineSeconds <= maturitySeconds) throw new Error("The final review deadline must be after maturity.");
     if (deadlineSeconds - maturitySeconds < BigInt(REVIEW_POLICY.minimumWindowSeconds)) throw new Error("The review window must be at least 20 minutes.");
+    if (deadlineSeconds - maturitySeconds > BigInt(REVIEW_POLICY.maximumWindowSeconds)) throw new Error("The review window cannot exceed 90 days.");
     if (!/^0x[0-9a-fA-F]{40}$/.test(remedy) || /^0x0{40}$/i.test(remedy)) throw new Error("Enter a valid nonzero remedy address.");
-    if (anchors.some((item) => !item.url.startsWith("https://") || !item.purpose.trim())) throw new Error("Every evidence anchor needs an HTTPS URL and purpose.");
+    if (parseGen(bond) <= 0n) throw new Error("The bond must be greater than zero GEN.");
+    validateEvidenceDraft(anchors);
   }
 
   function verifyIssuanceTerms(value: Record<string, unknown>, actualId: bigint, issuer: string) {
@@ -126,6 +132,7 @@ export function IssueForm() {
       let wallet = await getWalletState().catch(() => null);
       if (!wallet?.address) wallet = await connectWallet();
       if (!wallet.isCorrectNetwork) throw new Error("Switch your wallet to GenLayer Studionet before signing.");
+      if (wallet.address.toLowerCase() === remedy.toLowerCase()) throw new Error("The remedy address must differ from the issuer wallet.");
       txHash = String(await writeVault(wallet.address, "create_commitment", [statement, rule, maturitySeconds, deadlineSeconds, remedy, anchors.map((item) => item.url), anchors.map((item) => item.sourceKind), anchors.map((item) => item.purpose)], parseGen(bond)));
       setSubmitted(txHash);
       rememberActivity({ hash: txHash, kind: "issue", label: "Issue commitment", issuer: wallet.address, state: "SUBMITTED", createdAt: new Date().toISOString() });
@@ -133,6 +140,16 @@ export function IssueForm() {
       updateActivity(txHash, { state: "FINALIZED_EXECUTION" });
       const actualId = extractExecutionReturn(receipt);
       if (actualId === undefined || actualId < 0n) throw new Error("Finalized issuance did not return a canonical commitment id.");
+      if (actualId === REJECTED_COMMITMENT_ID) {
+        const [creditValue, reasonValue] = await Promise.all([
+          readVault("get_credit", [wallet.address]),
+          readVault("get_last_rejection_reason", [wallet.address]),
+        ]);
+        const credit = asBigInt(creditValue);
+        const reason = typeof reasonValue === "string" && reasonValue ? reasonValue : "the submitted terms did not pass the Vault policy";
+        setRecoverableCredit(credit);
+        throw new Error(`Issuance rejected: ${reason}. ${formatGen(credit)} remains recoverable as Vault credit.`);
+      }
       setCommitmentId(actualId.toString());
       const current = await readIssuanceAfterRegistration(actualId);
       setIssuance(current);
@@ -149,6 +166,24 @@ export function IssueForm() {
       if (txHash) updateActivity(txHash, { state: "FAILED", error: message });
       setError(message);
     } finally { setSubmitting(false); }
+  }
+
+  async function withdrawRecoverableCredit() {
+    setError(""); setWithdrawingCredit(true);
+    try {
+      let wallet = await getWalletState().catch(() => null);
+      if (!wallet?.address) wallet = await connectWallet();
+      if (!wallet.isCorrectNetwork) throw new Error("Switch your wallet to GenLayer Studionet before withdrawing.");
+      const currentCredit = asBigInt(await readVault("get_credit", [wallet.address]));
+      if (currentCredit <= 0n) { setRecoverableCredit(0n); throw new Error("This wallet has no Vault credit to withdraw."); }
+      const hash = String(await writeVault(wallet.address, "withdraw", [currentCredit]));
+      rememberActivity({ hash, kind: "withdraw", label: "Withdraw recoverable Vault credit", issuer: wallet.address, state: "SUBMITTED", createdAt: new Date().toISOString() });
+      await waitForFinality(hash);
+      updateActivity(hash, { state: "FINALIZED_EXECUTION" });
+      setRecoverableCredit(asBigInt(await readVault("get_credit", [wallet.address])));
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Vault credit withdrawal failed.");
+    } finally { setWithdrawingCredit(false); }
   }
 
   return (
@@ -181,6 +216,7 @@ export function IssueForm() {
             {anchors.length < 5 ? <button type="button" className="secondary-button" onClick={() => setAnchors((items) => [...items, { ...initialAnchor }])}>+ Insert evidence node</button> : null}
           </section>
           {error ? <div className="error-box" role="alert" aria-live="assertive">{error}</div> : null}
+          {recoverableCredit > 0n ? <div className="warning-box registration-recovery" role="status"><strong>RECOVERABLE VAULT CREDIT</strong><span>{formatGen(recoverableCredit)} is credited to the connected issuer wallet.</span><button type="button" className="secondary-button" onClick={withdrawRecoverableCredit} disabled={withdrawingCredit}>{withdrawingCredit ? "Waiting for withdrawal finality…" : "Withdraw recoverable Vault credit"}</button></div> : null}
           {registrationPending ? <div className="warning-box registration-recovery" role="status" aria-live="polite"><strong>ISSUED / REGISTRATION PENDING</strong><span>Vault issuance #{commitmentId} is finalized and the bond is held. The Registry child has not confirmed yet.</span><span>Original transaction: <Link className="text-link" href="/activity">{submitted ? submitted.slice(0, 10) : "view Activity"}</Link>{recoveryHash ? ` / retry ${recoveryHash.slice(0, 10)}` : ""}</span><button type="button" className="secondary-button" onClick={retryRegistration} disabled={retryingRegistration}>{retryingRegistration ? "Waiting for registration finality…" : "Retry Registry registration"}</button></div> : null}
           {submitted && finalized ? <div className="success-box" role="status" aria-live="polite">Issuance finalized and registered. {commitmentId ? <Link className="text-link" href={`/commitment/${commitmentId}`}>Open commitment #{commitmentId}</Link> : null} / <Link className="text-link" href="/activity">view transaction</Link>.</div> : null}
           {submitted && !finalized && !registrationPending && !error ? <div className="hint" role="status" aria-live="polite">Transaction submitted; waiting for finalized execution.</div> : null}

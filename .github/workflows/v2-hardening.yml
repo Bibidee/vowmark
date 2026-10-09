@@ -95,6 +95,7 @@ jobs:
       - run: npm run lint
       - run: npm run test:board
       - run: npm run test:timezone
+      - run: npm run test:issue
       - run: npm run build
       - run: npm audit --omit=dev
       - run: npx playwright install --with-deps chromium

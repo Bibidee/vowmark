@@ -1,0 +1,90 @@
+{
+  "generatedAt": "2026-10-09T12:40:13.304Z",
+  "network": "GenLayer Studionet",
+  "chainId": 61999,
+  "accountName": "thermo-sponsor",
+  "registry": "0x1FB76aD1Ed64674bF500980B7eF2cDd3951CEE21",
+  "vault": "0x3fBCDd7f1584d1ce078D296604283e4Fc86A55EE",
+  "account": "0x794678AD7e8B6c87dAb33303a3A512c821e6De9A",
+  "bond": "100000000000000",
+  "deployment": {
+    "registryTx": null,
+    "vaultTx": null,
+    "wiringTx": null
+  },
+  "results": [
+    {
+      "label": "breached-candidate",
+      "proof": {
+        "label": "breached-candidate",
+        "statement": "The public evidence page contains the exact phrase VOWMARK-DOES-NOT-EXIST by maturity.",
+        "rule": "FULFILLED requires the exact phrase VOWMARK-DOES-NOT-EXIST to appear in the frozen page content; its absence is direct evidence of breach.",
+        "url": "https://example.com/",
+        "sourceKind": "PUBLICATION",
+        "purpose": "negative control page"
+      },
+      "commitmentId": "2",
+      "maturity": "1791549508",
+      "deadline": "1791550708",
+      "createTx": "0x0da2ac8162c7032181c0a3f56dba13636da6d4c9c263455ef08b2a6d19d25722",
+      "reviewTx": "0x5712b1f63b704c4fc27871400c0f70c849852b6c9cbd1efb0b9df7e51470b271",
+      "reconcileTx": "0x2592341828d7ff1c413a98d71327c0842eec6d2e3554f98235e729d925274ff4",
+      "reviewCount": 1,
+      "reviews": [
+        {
+          "attempt_id": 0,
+          "requested_at": 1791549513,
+          "requested_by": "0x794678ad7e8b6c87dab33303a3a512c821e6de9a",
+          "snapshot_digest": "fdfcc99fdddff5581a7dba41f92fa1af827ca552efb173c38b5b9a316a54f71d",
+          "source_set_digest": "e263003c8491e41a4327d6f9c9dd0154380618bd5a244da2da278d083b0cb862",
+          "verdict": "BREACHED"
+        }
+      ],
+      "commitment": {
+        "attempt_count": 1,
+        "bond": 100000000000000,
+        "commitment_id": 2,
+        "created_at": 1791549420,
+        "final_review_deadline": 1791550708,
+        "issuer": "0x794678ad7e8b6c87dab33303a3a512c821e6de9a",
+        "last_attempt_at": 1791549513,
+        "last_settlement_at": 1791549513,
+        "late_review_attempts": 0,
+        "latest_snapshot_digest": "fdfcc99fdddff5581a7dba41f92fa1af827ca552efb173c38b5b9a316a54f71d",
+        "latest_source_set_digest": "e263003c8491e41a4327d6f9c9dd0154380618bd5a244da2da278d083b0cb862",
+        "latest_verdict": "BREACHED",
+        "maturity_at": 1791549508,
+        "outcome": "BREACHED",
+        "remedy": "0xff203bb65942f50cb81a8af98c5f5bd9d8a79b54",
+        "resolved_at": 1791549513,
+        "review_epoch": 497652,
+        "review_epoch_attempts": 1,
+        "settlement_attempts": 1,
+        "settlement_recipient": "0xff203bb65942f50cb81a8af98c5f5bd9d8a79b54",
+        "settlement_state": "CREDIT_CONFIRMED",
+        "statement": "The public evidence page contains the exact phrase VOWMARK-DOES-NOT-EXIST by maturity.",
+        "verification_rule": "FULFILLED requires the exact phrase VOWMARK-DOES-NOT-EXIST to appear in the frozen page content; its absence is direct evidence of breach."
+      },
+      "issuance": {
+        "bond": 100000000000000,
+        "commitment_id": 2,
+        "created_at": 1791549420,
+        "final_review_deadline": 1791550708,
+        "issuer": "0x794678ad7e8b6c87dab33303a3a512c821e6de9a",
+        "maturity_at": 1791549508,
+        "registered": true,
+        "remedy": "0xff203bb65942f50cb81a8af98c5f5bd9d8a79b54",
+        "settlement_recipient": "0x0000000000000000000000000000000000000000",
+        "settlement_state": "LOCKED",
+        "statement": "The public evidence page contains the exact phrase VOWMARK-DOES-NOT-EXIST by maturity.",
+        "verification_rule": "FULFILLED requires the exact phrase VOWMARK-DOES-NOT-EXIST to appear in the frozen page content; its absence is direct evidence of breach."
+      },
+      "vaultSettlement": {
+        "amount": 100000000000000,
+        "recipient": "0xff203bb65942f50cb81a8af98c5f5bd9d8a79b54",
+        "settled": true,
+        "state": "CREDIT_CONFIRMED"
+      }
+    }
+  ]
+}

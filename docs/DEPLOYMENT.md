@@ -13,9 +13,10 @@ This runbook contains two deliberately separate tracks:
   repaired bounded final-window reserve, and its Preview frontend is separate
   from the V1 production alias. It is not promoted to production.
 
-The above V4 canary was built before the shortened numeric-IP fix. Its
+The original V4 canary was built before the shortened numeric-IP fix. Its
 Registry/Vault addresses are historical evidence, not the corrected release.
-Do not wire those addresses as though they contain the new bytecode.
+The corrected V4 pair was freshly deployed on 2026-10-09; it remains a
+Preview-only candidate, not production.
 
 Never use V1 addresses as evidence that V4 has been deployed, and never read
 the V4 20-minute policy back from the V1 contracts.
@@ -67,30 +68,31 @@ a V4 preview or use them as V4 deployment evidence.
 
 ## Candidate V4 environment variables
 
-These values are configured for the V4 Preview branch after the fresh,
-finalized **historical canary** deployment and configuration readback. They
-must be replaced in a separately authorized corrected-V4 preview only after
-fresh deployment and finalized readback:
+These values are configured for the corrected V4 Preview branch after fresh,
+finalized deployment and configuration readback:
 
 ```text
 NEXT_PUBLIC_GENLAYER_CHAIN_ID=61999
 NEXT_PUBLIC_GENLAYER_RPC_URL=https://studio.genlayer.com/api
 NEXT_PUBLIC_GENLAYER_EXPLORER=https://explorer-studio.genlayer.com
-NEXT_PUBLIC_VOWMARK_REGISTRY_ADDRESS=0xE425f8c6E0780059b80cF34CB5e4A53e85a4Be26
-NEXT_PUBLIC_VOWMARK_VAULT_ADDRESS=0x36D41a7BBf88b89A166AE71Dd8D045d3734a462C
+NEXT_PUBLIC_VOWMARK_REGISTRY_ADDRESS=0x3cA983F7CC78d10d3970a6Da719b12e17E4e4eF7
+NEXT_PUBLIC_VOWMARK_VAULT_ADDRESS=0xE9e153dc4E33762B2bA468EaC74bEABfe9cED4Ce
 ```
 
 Do not leave stale V1 addresses or alternate networks in a V4 environment.
 The V4 branch Preview alias is
 [`vowmark-git-v4-security-remediation-bibidees-projects.vercel.app`](https://vowmark-git-v4-security-remediation-bibidees-projects.vercel.app/).
-The verified corrected-source snapshot on commit `869b70e` was
-[`vowmark-9t7jotj8w-bibidees-projects.vercel.app`](https://vowmark-9t7jotj8w-bibidees-projects.vercel.app/),
-deployment `dpl_7oj5inoBkucQVo35KAyQtSRTEdKf`. On 2026-10-09, `/`, `/issue`, `/activity`
-and `/commitment/1` returned HTTP 200; the public `/issue` JavaScript bundle
-contained both historical V4 addresses and the Studionet chain ID. This is
-route/configuration evidence, not a corrected-contract deployment.
+The previous corrected-pair Preview snapshot is
+[`vowmark-8e9ojygxj-bibidees-projects.vercel.app`](https://vowmark-8e9ojygxj-bibidees-projects.vercel.app/),
+deployment `dpl_H3PWWceADpvRcKJSvxaWny738cLr`. On 2026-10-09, `/`, `/issue`,
+`/activity`, and `/commitment/1` returned HTTP 200; the public `/issue`
+JavaScript contained the preceding V4 addresses. It is retained as historical
+evidence only because the final Vault adds recoverable-credit handling for
+rejected payable calls. The older snapshot on
+commit `869b70e` was a corrected-source build pointed at historical canary
+addresses and is not release evidence for the newly deployed pair.
 
-## Corrected V4 deployment sequence (requires new authorization)
+## Corrected V4 deployment sequence (authorized and executed 2026-10-09)
 
 1. Pin the final reviewed commit and run all local and exact-head CI gates.
 2. Obtain explicit deployment-wallet authorization for the new transactions.
@@ -104,6 +106,21 @@ route/configuration evidence, not a corrected-contract deployment.
    new live economic canary including changed URL rejection.
 6. Keep V1 production and its alias untouched until a separate promotion
    authorization after live acceptance.
+
+The final Registry deployment was finalized in
+[`0x88e4fce…b431e`](https://explorer-studio.genlayer.com/tx/0x88e4fce1aff18f5b1cd93d36111e8968bff7562ebbbc15cc7dba6236b0cb431e),
+the Vault in
+[`0xfefafc8…96efc`](https://explorer-studio.genlayer.com/tx/0xfefafc859f4509ec801e93f5f167d283d5c88f650f1bcdaa09422d8a02596efc),
+and one-time wiring in
+[`0x03a45b4…b309f`](https://explorer-studio.genlayer.com/tx/0x03a45b4dbebd5f87e2ea1c81efd1fbc5720606a084b6147872ab1875396b309f).
+The finalized readback confirmed both pointers, chain `61999`, and the
+policy below. A live `https://127.1/...` payable issuance returned the reserved
+rejection marker with `evidence URL host is not public`, consumed no commitment
+ID, credited the full bond to the issuer, and the issuer withdrew it in
+[`0x557c821…c40d`](https://explorer-studio.genlayer.com/tx/0x557c82110299e1eb71b37c461159db7640d910e497c378cdeef054ee6545c40d).
+This is the final custody-safe pair; the prior `0x1FB7…EE21` Registry and
+`0x3fBC…55EE` Vault are historical and must not be configured in a new V4
+Preview.
 
 The deployed V1 Registry readback is historically **900 seconds (15
 minutes)**. A fresh V4 Registry must read back this candidate timing policy

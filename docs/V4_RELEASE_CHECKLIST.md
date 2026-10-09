@@ -1,6 +1,8 @@
 # VOWMARK V4 release checklist
 
-This checklist is for the `v4-security-remediation` branch. It does not authorize deployment or production promotion.
+This checklist is for the `v4-security-remediation` branch. The controlled
+Studionet canary is complete; production promotion remains separately
+authorized and is intentionally not performed here.
 
 The production alias and addresses in [`../HANDOFF_STATUS.md`](../HANDOFF_STATUS.md)
 belong to V1 only. V4 has no assigned addresses until a fresh deployment is
@@ -30,13 +32,13 @@ separately authorized.
 
 ## Deployment gates
 
-- [ ] Fresh V4 Registry deployment finalized and recorded.
-- [ ] Fresh V4 Vault deployment finalized and recorded.
-- [ ] Finalized Registry/Vault wiring readback recorded.
-- [ ] Live V4 lifecycle canary recorded.
-- [ ] Live V4 expiry proof recorded after the real deadline.
-- [ ] Live V4 withdrawal proof recorded.
-- [ ] V4 frontend deployed to a separate preview and browser-smoke-tested.
+- [x] Fresh V4 Registry deployment finalized and recorded.
+- [x] Fresh V4 Vault deployment finalized and recorded.
+- [x] Finalized Registry/Vault wiring readback recorded.
+- [x] Live V4 lifecycle canary recorded for fulfilled, breached, and inconclusive outcomes.
+- [x] Live V4 expiry proof recorded after the real deadline.
+- [x] Live V4 withdrawal proof recorded.
+- [x] V4 frontend deployed to a separate preview and browser-smoke-tested.
 - [ ] Production promotion explicitly authorized.
 
-Until every deployment gate is checked, V4 must remain undeployed and the authorized V1 production release must remain unchanged.
+Until production promotion is explicitly authorized, the authorized V1 production release must remain unchanged.

@@ -8,10 +8,10 @@ This runbook contains two deliberately separate tracks:
   [`../HANDOFF_STATUS.md`](../HANDOFF_STATUS.md). Its minimum review window
   is **15 minutes**. Those contracts and the production alias must remain
   unchanged.
-- **Candidate V4:** this branch's undeployed release. Its minimum review
-  window is **20 minutes**, its capacity policy includes the repaired bounded
-  final-window reserve, and its Registry/Vault addresses are **unassigned**
-  until a separately authorized deployment.
+- **Candidate V4:** this branch's separately deployed Studionet canary. Its
+  minimum review window is **20 minutes**, its capacity policy includes the
+  repaired bounded final-window reserve, and its Preview frontend is separate
+  from the V1 production alias. It is not promoted to production.
 
 Never use V1 addresses as evidence that V4 has been deployed, and never read
 the V4 20-minute policy back from the V1 contracts.
@@ -63,15 +63,15 @@ a V4 preview or use them as V4 deployment evidence.
 
 ## Candidate V4 environment variables
 
-V4 has no contract addresses yet. Configure these only after a fresh,
-finalized V4 deployment and configuration readback:
+These values are configured for the V4 Preview branch after the fresh,
+finalized deployment and configuration readback:
 
 ```text
 NEXT_PUBLIC_GENLAYER_CHAIN_ID=61999
 NEXT_PUBLIC_GENLAYER_RPC_URL=https://studio.genlayer.com/api
 NEXT_PUBLIC_GENLAYER_EXPLORER=https://explorer-studio.genlayer.com
-NEXT_PUBLIC_VOWMARK_REGISTRY_ADDRESS=<fresh V4 Registry address>
-NEXT_PUBLIC_VOWMARK_VAULT_ADDRESS=<fresh V4 Vault address>
+NEXT_PUBLIC_VOWMARK_REGISTRY_ADDRESS=0xE425f8c6E0780059b80cF34CB5e4A53e85a4Be26
+NEXT_PUBLIC_VOWMARK_VAULT_ADDRESS=0x36D41a7BBf88b89A166AE71Dd8D045d3734a462C
 ```
 
 Do not leave stale V1 addresses or alternate networks in a V4 environment.
@@ -88,4 +88,4 @@ from `get_config()`:
 
 ## Submission rule
 
-`ACCEPTED` is not enough. Deployment/configuration/lifecycle transactions recorded as canonical evidence must be verified to the final state required by the current GenLayer runtime. Reread contract configuration after deployment. The V1 canonical addresses and evidence are in [`../HANDOFF_STATUS.md`](../HANDOFF_STATUS.md) and [`../evidence/fresh_deployment_2026-10-08_pagination.md`](../evidence/fresh_deployment_2026-10-08_pagination.md). V4 must receive a separate evidence artifact; no V4 deployment evidence exists yet.
+`ACCEPTED` is not enough. Deployment/configuration/lifecycle transactions recorded as canonical evidence must be verified to the final state required by the current GenLayer runtime. Reread contract configuration after deployment. The V1 canonical addresses and evidence are in [`../HANDOFF_STATUS.md`](../HANDOFF_STATUS.md) and [`../evidence/fresh_deployment_2026-10-08_pagination.md`](../evidence/fresh_deployment_2026-10-08_pagination.md). V4 deployment, lifecycle, expiry, withdrawal, and validator/model evidence are recorded in [`../evidence/live_v4_smoke_2026-10-09.md`](../evidence/live_v4_smoke_2026-10-09.md) and [`../evidence/live_v4_validator_model_2026-10-09.md`](../evidence/live_v4_validator_model_2026-10-09.md).

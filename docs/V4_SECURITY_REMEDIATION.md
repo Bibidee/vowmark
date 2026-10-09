@@ -1,23 +1,21 @@
 # VOWMARK V4 security remediation
 
-Status: implementation complete on `v4-security-remediation`; **not deployed** and **not promoted**.
+Status: implementation complete on `v4-security-remediation`; the controlled
+Studionet canary is deployed and verified; **not promoted to production**.
 
 ## Final verdict
 
-**V4 READY FOR CONTROLLED DEPLOYMENT AUTHORIZATION**
+**V4 CONTROLLED CANARY VERIFIED; READY FOR PRODUCTION PROMOTION REVIEW**
 
-This verdict covers the reviewed code and local gates. It does not authorize
-wallet signing, contract deployment, frontend promotion, or a claim that live
-V4 economic/model behavior has already been proven. Production promotion
-still requires a separately authorized Studionet canary and evidence review.
+This verdict covers the reviewed code, local gates, finalized deployment,
+live economic lifecycle, expiry, withdrawal, and validator/model receipt
+evidence. It does not authorize production promotion. The V4 Preview is wired
+to the fresh pair; production promotion remains a separate decision.
 
 The V1 production release remains the submitted Studionet release. Its
 Registry, Vault, frontend alias and historical evidence were not changed by
-this branch. The V4 candidate frontend is explicitly addressless until fresh
-V4 contracts are deployed; it must not reuse V1 addresses. V4 introduces a
-new commitment field and new evidence metadata, so it requires a fresh
-Registry/Vault deployment and a separately reviewed frontend configuration
-before it can be authorized for deployment.
+this branch. V4 introduces a new commitment field and new evidence metadata,
+so it uses the fresh Registry/Vault pair and a separate Preview configuration.
 
 ## Scope and disposition
 
@@ -29,18 +27,18 @@ before it can be authorized for deployment.
 | Review budget could be exhausted before the final window | Keep the normal 32-attempt hourly cap available throughout the review window, including the final five minutes. Only after normal capacity is exhausted may a separate four-attempt reserve be used during the final five minutes before the deadline. | **Remediated as a bounded liveness reserve.** This is not a claim that all Sybil resistance is solved; it guarantees only the configured reserve capacity under the contract’s reviewer cooldown and snapshot rules. If the final five minutes cross an epoch boundary, normal capacity resets for the new epoch while the commitment-scoped reserve remains bounded across the final window. |
 | Source authority was conflated with a source-kind label | Store derived authority, revision, and authority-status metadata. `VERSIONED_SOURCE` is limited to commit-addressed GitHub URLs; publication, on-chain, and third-party records are labeled unverified. | **Remediated as explicit classification.** Provider ownership, signatures, and historical content authenticity are outside the current runtime interface. |
 | Model output parser accepted ambiguous output | Bound raw response length, accept at most one JSON fence, reject additional text/fences, reject duplicate keys, require exactly `{\"verdict\": ...}`, and accept only the three closed verdict values. Parse failure occurs before any review state write. | **Remediated and mutation-tested.** The parser does not infer an economic recipient or amount from model output. |
-| Security evidence lacked adversarial release gates | Expanded simulator/direct tests and the executable mutation inventory; added frontend type/build checks and a V4 release checklist. | **Remediated for the executable local gates.** Live V4 deployment, live V4 lifecycle proofs, and model calibration remain intentionally unexecuted because deployment authorization was not provided. |
+| Security evidence lacked adversarial release gates | Expanded simulator/direct tests and the executable mutation inventory; added frontend type/build checks and a V4 release checklist. | **Remediated.** The fresh V4 canary, lifecycle proofs, expiry, withdrawal, and validator/model receipt audit are recorded separately. |
 
 ## Release identity
 
 | Track | Status | Timing policy | Addresses |
 | --- | --- | --- | --- |
 | Production V1 | Authorized and unchanged | 15-minute minimum review window | The Registry/Vault in [`HANDOFF_STATUS.md`](../HANDOFF_STATUS.md) |
-| Candidate V4 | Local code only; not deployed or promoted | 20-minute minimum review window plus bounded final-window reserve | Unassigned until a fresh authorized deployment |
+| Candidate V4 | Fresh Studionet canary deployed and Preview-wired; not promoted | 20-minute minimum review window plus bounded final-window reserve | [`0xE425f8c6…4Be26`](https://explorer-studio.genlayer.com/address/0xE425f8c6E0780059b80cF34CB5e4A53e85a4Be26) / [`0x36D41a7B…462C`](https://explorer-studio.genlayer.com/address/0x36D41a7BBf88b89A166AE71Dd8D045d3734a462C) |
 
-The V4 frontend configuration intentionally leaves contract addresses empty
-until deployment. This prevents a V4 preview from silently reading or writing
-the V1 production contracts.
+The V4 frontend configuration uses Preview-only environment values for the
+fresh pair. Production V1 remains isolated and continues to use its historical
+configuration.
 
 ## Runtime findings used for the withdrawal disposition
 
@@ -90,21 +88,30 @@ Executed from the managed Windows workspace with the repository’s `.venv-direc
 
 The package audit recheck was attempted with `npm audit --omit=dev`, but the managed sandbox could not resolve `registry.npmjs.org`. No security conclusion is drawn from that failed network request; the existing dependency audit artifact remains the historical record for the previously completed audit.
 
+## Controlled live canary
+
+The fresh V4 pair was deployed and reread on Studionet 61999. The separate
+Preview was wired to those addresses without changing V1 production. Live
+commitments produced `FULFILLED` (`#1`), `BREACHED` (`#2`),
+`INCONCLUSIVE`/open (`#3`), and `EXPIRED_UNRESOLVED` after the real 20-minute
+deadline (`#4`). Finalized withdrawal and credit readbacks passed for the
+fulfilled and expired paths. The complete transaction matrix is in
+[`../evidence/live_v4_smoke_2026-10-09.md`](../evidence/live_v4_smoke_2026-10-09.md);
+the receipt-level validator/model audit is in
+[`../evidence/live_v4_validator_model_2026-10-09.md`](../evidence/live_v4_validator_model_2026-10-09.md).
+
 ## Deliberately unexecuted actions
 
-- No V4 Registry or Vault was deployed.
-- No V4 wiring transaction was sent.
-- No production frontend alias or Vercel deployment was changed.
-- No V4 live fulfilled, breached, inconclusive, expired, or withdrawal proof is claimed.
+- No production frontend alias was changed or promoted to V4.
 - No existing V1 deployment address or production evidence was rewritten.
 
-## Deployment plan when separately authorized
+The V4 deployment and live canary are recorded in
+[`../evidence/live_v4_smoke_2026-10-09.md`](../evidence/live_v4_smoke_2026-10-09.md).
 
-1. Compile and schema-check the V4 Registry/Vault pair against the pinned GenLayer toolchain.
-2. Deploy fresh V4 Registry and Vault contracts on Studionet 61999; do not reuse V1 addresses because the storage/API shape changed.
-3. Wire Registry to Vault using the deployer-only initialization path and reread both configurations from finalized state.
-4. Run a short-lived live canary covering issue, finalized review, inconclusive retry, breached/fulfilled settlement, expiry, and withdrawal.
-5. Record exact transaction and explorer links, contract addresses, source commit, and frontend configuration in a new evidence artifact.
-6. Promote a V4 frontend only after the canary and evidence review; keep `https://the-vowmark.vercel.app/` pointed at the currently authorized V1 release until that decision.
+## Production promotion plan when separately authorized
+
+1. Review the finalized V4 deployment, lifecycle, expiry, withdrawal, and validator/model evidence.
+2. Authorize a V4 production promotion separately if desired.
+3. Keep `https://the-vowmark.vercel.app/` pointed at the currently authorized V1 release until that decision.
 
 Rollback is operationally simple before promotion: leave V1 contracts and frontend untouched. After a V4 promotion, rollback means restoring the previously authorized frontend configuration; V4 contract state is append-only and is not erased or silently substituted.

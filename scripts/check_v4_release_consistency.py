@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check that the V4 remediation branch is self-consistent and undeployed."""
+"""Check that the V4 remediation branch is self-consistent and not promoted."""
 
 from __future__ import annotations
 
@@ -88,14 +88,18 @@ def main() -> int:
                 fail(f"Vault is missing V4 marker: {marker}")
 
         release = read("docs/V4_SECURITY_REMEDIATION.md")
-        if "not deployed" not in release.lower() or "not promoted" not in release.lower():
-            fail("V4 report does not preserve the undeployed/not-promoted status")
+        if "not promoted" not in release.lower() or "live canary" not in release.lower():
+            fail("V4 report does not preserve the deployed-canary/not-promoted status")
         if "15-minute" not in release or "20-minute" not in release:
             fail("V4 report does not distinguish V1 and V4 timing policies")
         deployment = read("docs/DEPLOYMENT.md")
-        for marker in ("Production V1", "Candidate V4", "900", "1200", "V4 has no contract addresses yet"):
+        for marker in ("Production V1", "Candidate V4", "900", "1200", "V4 Preview"):
             if marker not in deployment:
                 fail(f"deployment runbook is missing V1/V4 separation marker: {marker}")
+        smoke = read("evidence/live_v4_smoke_2026-10-09.md")
+        for marker in ("0xE425f8c6E0780059b80cF34CB5e4A53e85a4Be26", "0x36D41a7BBf88b89A166AE71Dd8D045d3734a462C", "EXPIRED_UNRESOLVED"):
+            if marker not in smoke:
+                fail(f"live V4 evidence is missing deployment/lifecycle marker: {marker}")
         readme = read("README.md")
         for marker in ("Release tracks", "Production V1", "Candidate V4", "V1 contracts do not enforce V4"):
             if marker not in readme:

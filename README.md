@@ -4,9 +4,9 @@
 
 This branch is the **V4 candidate**. V4 uses a 20-minute minimum review
 window, the repaired final-window capacity policy, and the new source metadata
-surface. It is **not deployed** and has no assigned Registry or Vault
-addresses. A V4 frontend must receive newly deployed addresses through its
-environment configuration before it can be used.
+surface. Fresh V4 contracts are deployed on Studionet and the V4 frontend is
+available as a separate Preview deployment. Production V1 remains unchanged;
+V4 must not reuse V1 addresses or the V1 production alias.
 
 The authorized production release is **V1** at
 [`https://the-vowmark.vercel.app/`](https://the-vowmark.vercel.app/). V1 uses
@@ -123,9 +123,17 @@ The frontend records issuance hashes immediately, distinguishes provisional from
 ## Candidate V4 deployment state
 
 V4 requires a fresh Registry and Vault deployment because its storage and
-evidence metadata surface differ from V1. The V4 addresses, wiring
-transaction, lifecycle proofs and withdrawal proof are intentionally **not
-assigned** in this repository. Deployment, wallet signing, frontend preview
-configuration and production promotion require separate authorization after
-the local gates in [`docs/V4_RELEASE_CHECKLIST.md`](docs/V4_RELEASE_CHECKLIST.md)
-are reviewed.
+evidence metadata surface differ from V1. The controlled Studionet deployment
+and live canary evidence are recorded in
+[`evidence/live_v4_smoke_2026-10-09.md`](evidence/live_v4_smoke_2026-10-09.md).
+
+- Registry: [`0xE425f8c6E0780059b80cF34CB5e4A53e85a4Be26`](https://explorer-studio.genlayer.com/address/0xE425f8c6E0780059b80cF34CB5e4A53e85a4Be26)
+- Vault: [`0x36D41a7BBf88b89A166AE71Dd8D045d3734a462C`](https://explorer-studio.genlayer.com/address/0x36D41a7BBf88b89A166AE71Dd8D045d3734a462C)
+- Registry deployment: [`0xa89729b327ce510e46f0183dc95c2f7d57ba0073ae3c6f4f720010b048b3564f`](https://explorer-studio.genlayer.com/tx/0xa89729b327ce510e46f0183dc95c2f7d57ba0073ae3c6f4f720010b048b3564f)
+- Vault deployment: [`0x87f195ae06bb4eb66deff61bdc5012f35d15c9dbacf0b943806a55183d5ed9ed`](https://explorer-studio.genlayer.com/tx/0x87f195ae06bb4eb66deff61bdc5012f35d15c9dbacf0b943806a55183d5ed9ed)
+- Finalized wiring: [`0xc2c4bfae0fdb7f0b8c86459a4a5c8bb9ad61f6970fe642a6383fa8a1f60b36f4`](https://explorer-studio.genlayer.com/tx/0xc2c4bfae0fdb7f0b8c86459a4a5c8bb9ad61f6970fe642a6383fa8a1f60b36f4)
+- V4 Preview: [`vowmark-80l3g9uke-bibidees-projects.vercel.app`](https://vowmark-80l3g9uke-bibidees-projects.vercel.app/)
+
+The preview is wired to the fresh V4 addresses through Preview-only Vercel
+environment configuration. Production promotion remains a separate decision;
+`https://the-vowmark.vercel.app/` continues to serve the authorized V1 build.

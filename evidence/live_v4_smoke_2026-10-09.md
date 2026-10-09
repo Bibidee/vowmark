@@ -27,8 +27,8 @@ canary is historical evidence only.
 
 ## V4 Preview wiring
 
-- Latest verified Preview URL: [`https://vowmark-7xflueq8o-bibidees-projects.vercel.app/`](https://vowmark-7xflueq8o-bibidees-projects.vercel.app/)
-- Deployment: [`dpl_2KmXJ98a1UeATTvDnQ1FkzszKbwq`](https://vercel.com/bibidees-projects/vowmark/2KmXJ98a1UeATTvDnQ1FkzszKbwq), linked to pre-fix commit `5e6a917` by its GitHub Vercel status check. Earlier `dpl_GPxnW6KKQgtjuoyEfRRfTJQSgZ4a` remains historical.
+- Branch Preview alias: [`vowmark-git-v4-security-remediation-bibidees-projects.vercel.app`](https://vowmark-git-v4-security-remediation-bibidees-projects.vercel.app/)
+- Verified corrected-source Preview snapshot: [`https://vowmark-9t7jotj8w-bibidees-projects.vercel.app/`](https://vowmark-9t7jotj8w-bibidees-projects.vercel.app/) (`dpl_7oj5inoBkucQVo35KAyQtSRTEdKf`, commit `869b70e`). Earlier `dpl_2KmXJ98a1UeATTvDnQ1FkzszKbwq` and `dpl_GPxnW6KKQgtjuoyEfRRfTJQSgZ4a` remain historical.
 - Build state: `READY`
 - Configuration scope: Preview branch `v4-security-remediation` only
 - Bundle verification: the deployed client bundle contains both fresh V4

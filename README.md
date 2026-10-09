@@ -114,7 +114,7 @@ VOWMARK V1 is deployed on GenLayer Studionet 61999. The canonical frontend deplo
 - Registry deployment: [`0x9152e1d8560d7b3d0a8959ebf915973f832314bf21cf30397680def8447b1bd1`](https://explorer-studio.genlayer.com/tx/0x9152e1d8560d7b3d0a8959ebf915973f832314bf21cf30397680def8447b1bd1)
 - Vault deployment: [`0x3ed672661391d9fe4beab5577f8d27fc7649c99ff74f9909cd42a5d129420938`](https://explorer-studio.genlayer.com/tx/0x3ed672661391d9fe4beab5577f8d27fc7649c99ff74f9909cd42a5d129420938)
 - Finalized wiring: [`0xc05171edd4b81eb60ff6869e2df5f07b8bec3de504d704154caa9b3085a1fc6e`](https://explorer-studio.genlayer.com/tx/0xc05171edd4b81eb60ff6869e2df5f07b8bec3de504d704154caa9b3085a1fc6e)
-- Production frontend: [`the-vowmark.vercel.app`](https://the-vowmark.vercel.app/) — Vercel deployment `dpl_E7BqsrfqrsiPEEwEGnGS2iqQBXsd`, built from application SHA `8dbb131958d28f87d9f618a9d2bbd09744a6986b`
+- Production frontend: [`the-vowmark.vercel.app`](https://the-vowmark.vercel.app/) — the original release deployment was `dpl_E7BqsrfqrsiPEEwEGnGS2iqQBXsd` from SHA `8dbb131958d28f87d9f618a9d2bbd09744a6986b`. On 2026-10-09 the alias resolved to READY production deployment `dpl_3bjNZZ4b3FwHTeXj5a6k4RuoUFGH`; its public bundle still contained the authorized V1 pair and no V4 addresses.
 - Explorer: <https://explorer-studio.genlayer.com>
 
 The deployment and configuration readback are recorded in [`evidence/fresh_deployment_2026-10-08_pagination.md`](evidence/fresh_deployment_2026-10-08_pagination.md). Final lifecycle evidence is stored under `evidence/live_*_final.json`; artifacts for the superseded contract pair are historical only.
@@ -133,7 +133,7 @@ and live canary evidence are recorded in
 - Registry deployment: [`0xa89729b327ce510e46f0183dc95c2f7d57ba0073ae3c6f4f720010b048b3564f`](https://explorer-studio.genlayer.com/tx/0xa89729b327ce510e46f0183dc95c2f7d57ba0073ae3c6f4f720010b048b3564f)
 - Vault deployment: [`0x87f195ae06bb4eb66deff61bdc5012f35d15c9dbacf0b943806a55183d5ed9ed`](https://explorer-studio.genlayer.com/tx/0x87f195ae06bb4eb66deff61bdc5012f35d15c9dbacf0b943806a55183d5ed9ed)
 - Finalized wiring: [`0xc2c4bfae0fdb7f0b8c86459a4a5c8bb9ad61f6970fe642a6383fa8a1f60b36f4`](https://explorer-studio.genlayer.com/tx/0xc2c4bfae0fdb7f0b8c86459a4a5c8bb9ad61f6970fe642a6383fa8a1f60b36f4)
-- Latest verified pre-fix V4 Preview: [`vowmark-7xflueq8o-bibidees-projects.vercel.app`](https://vowmark-7xflueq8o-bibidees-projects.vercel.app/) (`dpl_2KmXJ98a1UeATTvDnQ1FkzszKbwq`, commit `5e6a917`).
+- V4 branch Preview alias: [`vowmark-git-v4-security-remediation-bibidees-projects.vercel.app`](https://vowmark-git-v4-security-remediation-bibidees-projects.vercel.app/). Verified corrected-source snapshot [`vowmark-9t7jotj8w-bibidees-projects.vercel.app`](https://vowmark-9t7jotj8w-bibidees-projects.vercel.app/) was READY on commit `869b70e` (`dpl_7oj5inoBkucQVo35KAyQtSRTEdKf`); it still bundles the historical canary addresses, not new contracts.
 
 The preview is wired to the fresh V4 addresses through Preview-only Vercel
 environment configuration. Production promotion remains a separate decision;

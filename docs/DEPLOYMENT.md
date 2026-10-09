@@ -81,10 +81,11 @@ NEXT_PUBLIC_VOWMARK_VAULT_ADDRESS=0x36D41a7BBf88b89A166AE71Dd8D045d3734a462C
 ```
 
 Do not leave stale V1 addresses or alternate networks in a V4 environment.
-The latest verified pre-fix Preview is
-[`vowmark-7xflueq8o-bibidees-projects.vercel.app`](https://vowmark-7xflueq8o-bibidees-projects.vercel.app/),
-deployment `dpl_2KmXJ98a1UeATTvDnQ1FkzszKbwq`, linked by the GitHub Vercel
-status check to commit `5e6a917`. On 2026-10-09, `/`, `/issue`, `/activity`
+The V4 branch Preview alias is
+[`vowmark-git-v4-security-remediation-bibidees-projects.vercel.app`](https://vowmark-git-v4-security-remediation-bibidees-projects.vercel.app/).
+The verified corrected-source snapshot on commit `869b70e` was
+[`vowmark-9t7jotj8w-bibidees-projects.vercel.app`](https://vowmark-9t7jotj8w-bibidees-projects.vercel.app/),
+deployment `dpl_7oj5inoBkucQVo35KAyQtSRTEdKf`. On 2026-10-09, `/`, `/issue`, `/activity`
 and `/commitment/1` returned HTTP 200; the public `/issue` JavaScript bundle
 contained both historical V4 addresses and the Studionet chain ID. This is
 route/configuration evidence, not a corrected-contract deployment.

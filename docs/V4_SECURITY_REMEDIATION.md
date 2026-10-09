@@ -43,9 +43,11 @@ The V4 frontend configuration uses Preview-only environment values for the
 fresh pair. Production V1 remains isolated and continues to use its historical
 configuration.
 
-The latest verified pre-fix Preview is
-[`vowmark-7xflueq8o-bibidees-projects.vercel.app`](https://vowmark-7xflueq8o-bibidees-projects.vercel.app/)
-(`dpl_2KmXJ98a1UeATTvDnQ1FkzszKbwq`, commit `5e6a917`). Four checked
+The V4 branch Preview alias is
+[`vowmark-git-v4-security-remediation-bibidees-projects.vercel.app`](https://vowmark-git-v4-security-remediation-bibidees-projects.vercel.app/).
+The verified corrected-source snapshot on commit `869b70e` was
+[`vowmark-9t7jotj8w-bibidees-projects.vercel.app`](https://vowmark-9t7jotj8w-bibidees-projects.vercel.app/)
+(`dpl_7oj5inoBkucQVo35KAyQtSRTEdKf`). Four checked
 routes returned 200 and its bundle contained the canary addresses. Historical
 repository contract source matches `9d4082c` through `5e6a917`; no separate
 on-chain source-bytecode attestation was established. The fix is not deployed.

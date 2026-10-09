@@ -5,9 +5,10 @@ import { studionet } from "genlayer-js/chains";
 import { TransactionStatus } from "genlayer-js/types";
 
 const RPC = "https://studio.genlayer.com/api";
-const REGISTRY = process.env.VOWMARK_REGISTRY_ADDRESS || "0x3Be513bB6CAe652826A6092C0715AF39E7189c71";
-const VAULT = process.env.VOWMARK_VAULT_ADDRESS || "0xf8D89f89aD160546780eD76Cd64C550d91bAf501";
-const REMEDY = process.env.VOWMARK_REMEDY_ADDRESS || "0xf883bce8fcb120f714b147446342d7e4545bc988";
+const REGISTRY = process.env.VOWMARK_REGISTRY_ADDRESS;
+const VAULT = process.env.VOWMARK_VAULT_ADDRESS;
+const REMEDY = process.env.VOWMARK_REMEDY_ADDRESS;
+if (!REGISTRY || !VAULT || !REMEDY) throw new Error("VOWMARK_REGISTRY_ADDRESS, VOWMARK_VAULT_ADDRESS, and VOWMARK_REMEDY_ADDRESS are required");
 const BOND = 100000000000000n;
 const chain = { ...studionet, rpcUrls: { ...studionet.rpcUrls, default: { http: [RPC] } } };
 
@@ -124,7 +125,11 @@ const allProofs = [
     label: "inconclusive",
     statement: "The commitment was fulfilled by maturity with a reliable time-bearing public proof.",
     rule: "The frozen page must contain an unambiguous, time-bearing signal proving fulfillment by the recorded maturity timestamp.",
-    url: "https://vowmark-unavailable-proof.invalid/",
+    // Use a real public host with a deliberately missing resource. The V4
+    // contract correctly rejects reserved/non-public suffixes such as .invalid
+    // at issuance, so an unavailable-evidence control must remain a valid
+    // public HTTPS anchor and become INCONCLUSIVE during review instead.
+    url: "https://example.com/vowmark-inconclusive-proof-2026-10-09",
     sourceKind: "PUBLICATION",
     purpose: "unavailable evidence control",
   },

@@ -1,0 +1,73 @@
+{
+  "generatedAt": "2026-10-09T16:23:29.382Z",
+  "network": "GenLayer Studionet",
+  "chainId": 61999,
+  "accountName": "thermo-sponsor",
+  "registry": "0x1FB76aD1Ed64674bF500980B7eF2cDd3951CEE21",
+  "vault": "0x3fBCDd7f1584d1ce078D296604283e4Fc86A55EE",
+  "account": "0x794678AD7e8B6c87dAb33303a3A512c821e6De9A",
+  "commitmentId": "0",
+  "reviewTx": null,
+  "reconcileTx": null,
+  "reviewCount": 1,
+  "reviews": [
+    {
+      "attempt_id": 0,
+      "requested_at": 1791549027,
+      "requested_by": "0x794678ad7e8b6c87dab33303a3a512c821e6de9a",
+      "snapshot_digest": "5a7ce1415fbc186fb39c7f6f7ca55b455652239156c6fed198ac0421fcf33638",
+      "source_set_digest": "224d3c2116800842b5149a9d9af63eacb504f3338d794d956d1096943cf02958",
+      "verdict": "INCONCLUSIVE"
+    }
+  ],
+  "commitment": {
+    "attempt_count": 1,
+    "bond": 100000000000000,
+    "commitment_id": 0,
+    "created_at": 1791548968,
+    "final_review_deadline": 1791550226,
+    "issuer": "0x794678ad7e8b6c87dab33303a3a512c821e6de9a",
+    "last_attempt_at": 1791549027,
+    "last_settlement_at": 1791562772,
+    "late_review_attempts": 0,
+    "latest_snapshot_digest": "5a7ce1415fbc186fb39c7f6f7ca55b455652239156c6fed198ac0421fcf33638",
+    "latest_source_set_digest": "224d3c2116800842b5149a9d9af63eacb504f3338d794d956d1096943cf02958",
+    "latest_verdict": "INCONCLUSIVE",
+    "maturity_at": 1791549026,
+    "outcome": "EXPIRED_UNRESOLVED",
+    "remedy": "0xff203bb65942f50cb81a8af98c5f5bd9d8a79b54",
+    "resolved_at": 1791562772,
+    "review_epoch": 497652,
+    "review_epoch_attempts": 1,
+    "settlement_attempts": 1,
+    "settlement_recipient": "0x794678ad7e8b6c87dab33303a3a512c821e6de9a",
+    "settlement_state": "CREDIT_CONFIRMED",
+    "statement": "The commitment remains unresolved until the final review deadline.",
+    "verification_rule": "The frozen page must contain an unambiguous, time-bearing signal proving fulfillment by the recorded maturity timestamp."
+  },
+  "issuance": {
+    "bond": 100000000000000,
+    "commitment_id": 0,
+    "created_at": 1791548968,
+    "final_review_deadline": 1791550226,
+    "issuer": "0x794678ad7e8b6c87dab33303a3a512c821e6de9a",
+    "maturity_at": 1791549026,
+    "registered": true,
+    "remedy": "0xff203bb65942f50cb81a8af98c5f5bd9d8a79b54",
+    "settlement_recipient": "0x794678ad7e8b6c87dab33303a3a512c821e6de9a",
+    "settlement_state": "CREDIT_CONFIRMED",
+    "statement": "The commitment remains unresolved until the final review deadline.",
+    "verification_rule": "The frozen page must contain an unambiguous, time-bearing signal proving fulfillment by the recorded maturity timestamp."
+  },
+  "vaultSettlement": {
+    "amount": 100000000000000,
+    "recipient": "0x794678ad7e8b6c87dab33303a3a512c821e6de9a",
+    "settled": true,
+    "state": "CREDIT_CONFIRMED"
+  },
+  "withdrawal": {
+    "withdrawalTx": "0x0e4a1f0f7e78e7faf9d6cc122e0140c2f9199a5d1fd542b801f4ee07c64b90fa",
+    "creditBefore": 100000000000000,
+    "creditAfter": 0
+  }
+}

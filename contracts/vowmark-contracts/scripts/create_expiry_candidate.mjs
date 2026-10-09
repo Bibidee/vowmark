@@ -5,12 +5,13 @@ import { studionet } from "genlayer-js/chains";
 import { TransactionStatus } from "genlayer-js/types";
 
 const RPC = "https://studio.genlayer.com/api";
-const REGISTRY = process.env.VOWMARK_REGISTRY_ADDRESS || "0x3Be513bB6CAe652826A6092C0715AF39E7189c71";
-const VAULT = process.env.VOWMARK_VAULT_ADDRESS || "0xf8D89f89aD160546780eD76Cd64C550d91bAf501";
-const REMEDY = process.env.VOWMARK_REMEDY_ADDRESS || "0xf883bce8fcb120f714b147446342d7e4545bc988";
+const REGISTRY = process.env.VOWMARK_REGISTRY_ADDRESS;
+const VAULT = process.env.VOWMARK_VAULT_ADDRESS;
+const REMEDY = process.env.VOWMARK_REMEDY_ADDRESS;
+if (!REGISTRY || !VAULT || !REMEDY) throw new Error("VOWMARK_REGISTRY_ADDRESS, VOWMARK_VAULT_ADDRESS, and VOWMARK_REMEDY_ADDRESS are required");
 const BOND = 100000000000000n;
 const maturityDelay = BigInt(process.env.VOWMARK_MATURITY_DELAY_SECONDS || "60");
-const reviewWindow = BigInt(process.env.VOWMARK_REVIEW_WINDOW_SECONDS || "900");
+const reviewWindow = BigInt(process.env.VOWMARK_REVIEW_WINDOW_SECONDS || "1200");
 const evidencePath = new URL(process.env.VOWMARK_EVIDENCE_FILE || "../../../evidence/live_expiry_candidate_final.json", import.meta.url);
 const chain = { ...studionet, rpcUrls: { ...studionet.rpcUrls, default: { http: [RPC] } } };
 
@@ -72,7 +73,10 @@ await client.initializeConsensusSmartContract();
 const now = BigInt(Math.floor(Date.now() / 1000));
 const maturity = now + maturityDelay;
 const deadline = maturity + reviewWindow;
-const proofUrl = "https://vowmark-unavailable-proof.invalid/";
+// Keep the expiry control issuable under V4's public-host validation. The
+// resource is intentionally missing, so review remains INCONCLUSIVE and the
+// commitment can be expired only after the enforced final deadline.
+const proofUrl = "https://example.com/vowmark-expiry-proof-2026-10-09";
 const created = await write(client, VAULT, "create_commitment", [
   "The commitment remains unresolved until the final review deadline.",
   "The frozen page must contain an unambiguous, time-bearing signal proving fulfillment by the recorded maturity timestamp.",

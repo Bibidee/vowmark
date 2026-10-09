@@ -1,4 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
+import { E2E_REGISTRY, E2E_VAULT } from "./e2e/config";
 
 export default defineConfig({
   testDir: "./e2e",
@@ -14,6 +15,10 @@ export default defineConfig({
     url: "http://127.0.0.1:3100",
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
+    env: {
+      NEXT_PUBLIC_VOWMARK_REGISTRY_ADDRESS: E2E_REGISTRY,
+      NEXT_PUBLIC_VOWMARK_VAULT_ADDRESS: E2E_VAULT,
+    },
   },
   projects: [
     { name: "chromium", testMatch: /(?:vowmark|activity)\.spec\.ts$/, use: { ...devices["Desktop Chrome"] } },

@@ -20,6 +20,7 @@ const base: Commitment = {
   last_attempt_at: 0n,
   review_epoch: 0n,
   review_epoch_attempts: 0n,
+  late_review_attempts: 0n,
   settlement_state: "LOCKED",
   settlement_recipient: "",
   settlement_attempts: 0n,

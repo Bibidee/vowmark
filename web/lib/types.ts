@@ -24,6 +24,7 @@ export type Commitment = {
   last_attempt_at: bigint;
   review_epoch: bigint;
   review_epoch_attempts: bigint;
+  late_review_attempts: bigint;
   settlement_state: "LOCKED" | "SETTLEMENT_PENDING" | "CREDIT_CONFIRMED";
   settlement_recipient: string;
   settlement_attempts: bigint;
@@ -37,6 +38,9 @@ export type EvidenceAnchor = {
   normalized_url: string;
   source_kind: SourceKind;
   purpose: string;
+  authority_id?: string;
+  revision_id?: string;
+  authority_status?: string;
 };
 
 export type ReviewAttempt = {
@@ -96,6 +100,7 @@ export function normalizeCommitment(value: unknown): Commitment {
     last_attempt_at: asBigInt(item.last_attempt_at),
     review_epoch: asBigInt(item.review_epoch),
     review_epoch_attempts: asBigInt(item.review_epoch_attempts),
+    late_review_attempts: asBigInt(item.late_review_attempts),
     settlement_state: (item.settlement_state || "LOCKED") as Commitment["settlement_state"],
     settlement_recipient: String(item.settlement_recipient || ""),
     settlement_attempts: asBigInt(item.settlement_attempts),
@@ -112,6 +117,9 @@ export function normalizeAnchor(value: unknown): EvidenceAnchor {
     normalized_url: String(item.normalized_url || item.url || ""),
     source_kind: String(item.source_kind || "PUBLICATION") as SourceKind,
     purpose: String(item.purpose || "Frozen evidence anchor"),
+    authority_id: typeof item.authority_id === "string" ? item.authority_id : undefined,
+    revision_id: typeof item.revision_id === "string" ? item.revision_id : undefined,
+    authority_status: typeof item.authority_status === "string" ? item.authority_status : undefined,
   };
 }
 

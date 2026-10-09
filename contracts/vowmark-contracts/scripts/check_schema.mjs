@@ -1,17 +1,10 @@
 import fs from "node:fs";
 import keytar from "keytar";
 import { createAccount, createClient } from "genlayer-js";
+import { studionet } from "genlayer-js/chains";
 
 const RPC = "https://studio.genlayer.com/api";
-const chain = {
-  id: 61999,
-  name: "GenLayer Studionet",
-  rpcUrls: { default: { http: [RPC] } },
-  nativeCurrency: { name: "GEN Token", symbol: "GEN", decimals: 18 },
-  consensusMainContract: null,
-  defaultNumberOfInitialValidators: 5,
-  defaultConsensusMaxRotations: 3,
-};
+const chain = { ...studionet, rpcUrls: { ...studionet.rpcUrls, default: { http: [RPC] } } };
 
 const privateKey = await keytar.getPassword("genlayer-cli", "account:thermo-sponsor");
 if (!privateKey) throw new Error("thermo-sponsor is not unlocked in the CLI keychain");

@@ -21,6 +21,20 @@ All source kinds currently pass through the same bounded web-rendering path. A
 source-kind label is immutable after issuance, but it remains a frozen claim
 about how the issuer intends the source to be read.
 
+`VERSIONED_SOURCE` is deliberately narrow: the contract checks only the URL
+shape for a 40- or 64-hex GitHub revision in the supported raw/blob forms. It
+does not call GitHub APIs, prove that the revision exists, authenticate the
+repository owner, or verify a signature. A valid-looking nonexistent commit
+therefore remains `STRUCTURALLY_VERIFIED_REVISION`, not authenticated proof.
+
+Future-publication commitments do not require an unknown future commit hash at
+issuance. They should freeze a stable public publication or third-party record
+URL using `PUBLICATION` or `THIRD_PARTY_RECORD`, with a verification rule that
+requires a dated, publicly inspectable result. If the final artifact is
+already known and immutable at issuance, `VERSIONED_SOURCE` may be used. The
+contract does not implement future commit discovery or post-issuance anchor
+replacement.
+
 ## Conservative judgment boundary
 
 Validators inspect only the exact frozen anchors. The judgment prompt treats

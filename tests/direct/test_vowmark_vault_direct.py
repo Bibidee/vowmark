@@ -46,46 +46,68 @@ def test_vault_rejects_zero_bond(direct_vm, direct_deploy, tmp_path):
             vault.create_commitment(*_issue_args())
 
 
-def test_vault_rejects_invalid_creation_roles_and_anchor_policy(direct_vm, direct_deploy, tmp_path):
+def test_vault_rejects_invalid_creation_roles_and_anchor_policy_without_stranding_value(direct_vm, direct_deploy, tmp_path):
     vault = direct_deploy(_direct_compatible_copy(VAULT, tmp_path), REGISTRY, sdk_version="v0.2.16")
     direct_vm.value = 100
+    direct_vm.origin = ISSUER
+    marker = vault.get_rejection_marker()
+
+    def rejected(args, reason=None):
+        before = vault.get_credit(ISSUER)
+        result = vault.create_commitment(*args)
+        assert result == marker
+        assert vault.get_credit(ISSUER) == before + 100
+        if reason is not None:
+            assert reason in vault.get_last_rejection_reason(ISSUER)
+        direct_vm.value = 0
+        vault.withdraw(100)
+        direct_vm.value = 100
+
     with direct_vm.prank(ISSUER):
-        with direct_vm.expect_revert("remedy address must differ from issuer"):
-            args = list(_issue_args())
-            args[4] = ISSUER
-            vault.create_commitment(*args)
-        with direct_vm.expect_revert("remedy address must be nonzero"):
-            args = list(_issue_args())
-            args[4] = "0x" + ("00" * 20)
-            vault.create_commitment(*args)
-        with direct_vm.expect_revert("evidence URL must use HTTPS"):
-            args = list(_issue_args())
-            args[5] = ["http://example.com/evidence"]
-            vault.create_commitment(*args)
-        with direct_vm.expect_revert("duplicate normalized evidence URL"):
-            args = list(_issue_args())
-            args[5] = ["https://example.com/evidence", "https://example.com/evidence"]
-            args[6] = ["PUBLICATION", "PUBLICATION"]
-            args[7] = ["one", "two"]
-            vault.create_commitment(*args)
-        with direct_vm.expect_revert("evidence anchor fields are invalid"):
-            args = list(_issue_args())
-            args[5] = [f"https://example.com/evidence-{index}" for index in range(6)]
-            args[6] = ["PUBLICATION"] * 6
-            args[7] = ["proof"] * 6
-            vault.create_commitment(*args)
-        with direct_vm.expect_revert("commitment statement length is invalid"):
-            args = list(_issue_args())
-            args[0] = "x" * 2_001
-            vault.create_commitment(*args)
-        with direct_vm.expect_revert("verification rule length is invalid"):
-            args = list(_issue_args())
-            args[1] = "x" * 3_001
-            vault.create_commitment(*args)
-        with direct_vm.expect_revert("final review deadline must be after maturity"):
-            args = list(_issue_args())
-            args[3] = args[2]
-            vault.create_commitment(*args)
+        args = list(_issue_args()); args[4] = ISSUER
+        rejected(args, "remedy address must differ from issuer")
+        args = list(_issue_args()); args[4] = "0x" + ("00" * 20)
+        rejected(args, "remedy address must be nonzero")
+        args = list(_issue_args()); args[5] = ["http://example.com/evidence"]
+        rejected(args, "evidence URL must use HTTPS")
+        for unsafe_url in (
+            "https://0x7f.1/evidence",
+            "https://0x7f.0.1/evidence",
+            "https://0x7f.0.0.1/evidence",
+            "https://0X7F.1/evidence",
+            "https://0177.1/evidence",
+            "https://0x7f.0001/evidence",
+            "https://0x7f.0x1/evidence",
+            "https://example.123/evidence",
+            "https://2130706433/evidence",
+            "https://0x7f000001/evidence",
+            "https://127.1/evidence",
+            "https://[::ffff:127.0.0.1]/evidence",
+            "https://example.com%2f/evidence",
+            "https://example_com.example/evidence",
+            "https://example.com:65536/evidence",
+            "https://example.com:not-a-port/evidence",
+            "https://:443/evidence",
+        ):
+            args = list(_issue_args()); args[5] = [unsafe_url]
+            rejected(args)
+        args = list(_issue_args()); args[5] = ["https://raw.githubusercontent.com/Bibidee/vowmark/main/evidence/proof.txt"]; args[6] = ["VERSIONED_SOURCE"]
+        rejected(args, "immutable GitHub commit URL")
+        args = list(_issue_args()); args[5] = ["https://example.com/evidence", "https://example.com/evidence"]; args[6] = ["PUBLICATION", "PUBLICATION"]; args[7] = ["one", "two"]
+        rejected(args, "duplicate normalized evidence URL")
+        args = list(_issue_args()); args[5] = ["https://example.com/evidence", "https://example.com.:443/evidence"]; args[6] = ["PUBLICATION", "PUBLICATION"]; args[7] = ["one", "same resource"]
+        rejected(args, "duplicate normalized evidence URL")
+        args = list(_issue_args()); args[5] = [f"https://example.com/evidence-{index}" for index in range(6)]; args[6] = ["PUBLICATION"] * 6; args[7] = ["proof"] * 6
+        rejected(args, "evidence anchor fields are invalid")
+        args = list(_issue_args()); args[0] = "x" * 2_001
+        rejected(args, "commitment statement length is invalid")
+        args = list(_issue_args()); args[1] = "x" * 3_001
+        rejected(args, "verification rule length is invalid")
+        args = list(_issue_args()); args[3] = args[2]
+        rejected(args, "final review deadline must be after maturity")
+    assert vault.get_next_commitment_id() == 0
+    assert vault.get_credit(ISSUER) == 0
+    direct_vm.origin = None
 
 
 def test_vault_starts_empty_and_binds_registry(direct_deploy, tmp_path):
@@ -153,6 +175,7 @@ def test_vault_rejects_withdrawal_above_credit_and_debits_before_send(direct_vm,
         vault.settle(commitment_id, "BREACHED")
     assert vault.get_credit(REMEDY) == 100
     assert vault.get_withdrawal_policy()["requires_sender_equals_origin"] is True
+    assert "does not distinguish" in vault.get_withdrawal_policy()["runtime_eoa_proof"]
     direct_vm.origin = REMEDY
     with direct_vm.prank(REMEDY):
         with direct_vm.expect_revert("withdrawal amount must be greater than zero"):
@@ -163,7 +186,7 @@ def test_vault_rejects_withdrawal_above_credit_and_debits_before_send(direct_vm,
         with direct_vm.expect_revert("withdrawal exceeds available credit"):
             vault.withdraw(60)
         direct_vm.origin = ISSUER
-        with direct_vm.expect_revert("withdrawal requires a direct EOA caller"):
+        with direct_vm.expect_revert("withdrawal requires a direct top-level caller"):
             vault.withdraw(1)
         direct_vm.origin = None
     direct_vm.origin = ISSUER

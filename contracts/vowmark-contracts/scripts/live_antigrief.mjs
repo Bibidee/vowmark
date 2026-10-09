@@ -5,9 +5,10 @@ import { studionet } from "genlayer-js/chains";
 import { TransactionStatus } from "genlayer-js/types";
 
 const RPC = "https://studio.genlayer.com/api";
-const REGISTRY = process.env.VOWMARK_REGISTRY_ADDRESS || "0x3Be513bB6CAe652826A6092C0715AF39E7189c71";
-const VAULT = process.env.VOWMARK_VAULT_ADDRESS || "0xf8D89f89aD160546780eD76Cd64C550d91bAf501";
-const REMEDY = process.env.VOWMARK_REMEDY_ADDRESS || "0xf883bce8fcb120f714b147446342d7e4545bc988";
+const REGISTRY = process.env.VOWMARK_REGISTRY_ADDRESS;
+const VAULT = process.env.VOWMARK_VAULT_ADDRESS;
+const REMEDY = process.env.VOWMARK_REMEDY_ADDRESS;
+if (!REGISTRY || !VAULT || !REMEDY) throw new Error("VOWMARK_REGISTRY_ADDRESS, VOWMARK_VAULT_ADDRESS, and VOWMARK_REMEDY_ADDRESS are required");
 const ANTI_GRIEF_URL = process.env.VOWMARK_ANTIGRIEF_URL || "https://raw.githubusercontent.com/Bibidee/vowmark/main/evidence/anti-grief-live.txt";
 const BOND = 100000000000000n;
 const chain = { ...studionet, rpcUrls: { ...studionet.rpcUrls, default: { http: [RPC] } } };

@@ -20,6 +20,8 @@ export const REVIEW_POLICY = {
   retryCooldownSeconds: 5 * 60,
   epochSeconds: 60 * 60,
   maxAttemptsPerEpoch: 32,
+  lateReserveSeconds: 5 * 60,
+  maxLateAttempts: 4,
   maximumWindowSeconds: 90 * 24 * 60 * 60,
 } as const;
 

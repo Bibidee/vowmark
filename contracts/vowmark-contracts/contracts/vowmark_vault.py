@@ -1,6 +1,8 @@
 # { "Depends": "py-genlayer:1jb45aa8ynh2a9c9xn3b7qqh8sm5q93hwfp7jqmwsfhh8jpz09h6" }
 
 from dataclasses import dataclass
+import ipaddress
+from urllib.parse import urlsplit, urlunsplit
 
 from genlayer import *
 
@@ -100,11 +102,11 @@ class VowmarkVault(gl.Contract):
         if self._address_text(address) == "0x" + ("0" * 40):
             raise gl.vm.UserError(label + " must be nonzero")
 
-    def _direct_eoa_sender(self) -> Address:
+    def _direct_top_level_sender(self) -> Address:
         sender = self._address_arg(gl.message.sender_address)
         origin = self._address_arg(gl.message.origin_address)
         if self._address_text(sender) != self._address_text(origin):
-            raise gl.vm.UserError("withdrawal requires a direct EOA caller")
+            raise gl.vm.UserError("withdrawal requires a direct top-level caller")
         return sender
 
     def _now(self) -> u256:
@@ -117,30 +119,63 @@ class VowmarkVault(gl.Contract):
         value = url.strip()
         if len(value) == 0 or len(value) > MAX_URL:
             raise gl.vm.UserError("evidence URL length is invalid")
-        if not value.startswith("https://"):
-            raise gl.vm.UserError("evidence URL must use HTTPS")
-        if "@" in value or "\\" in value or "\x00" in value:
+        if any(ord(character) < 0x20 or ord(character) == 0x7F for character in value) or "\\" in value:
             raise gl.vm.UserError("evidence URL contains a forbidden form")
-        authority_and_path = value[8:]
-        if "/" in authority_and_path:
-            authority, path = authority_and_path.split("/", 1)
-            path = "/" + path
-        else:
-            authority = authority_and_path
-            path = ""
-        if len(authority) == 0 or authority.startswith("."):
+        try:
+            parsed = urlsplit(value)
+            if parsed.scheme.lower() != "https":
+                raise gl.vm.UserError("evidence URL must use HTTPS")
+            if not parsed.netloc or parsed.username is not None or parsed.password is not None:
+                raise gl.vm.UserError("evidence URL must be a public HTTPS URL")
+            host = parsed.hostname
+            port = parsed.port
+        except (TypeError, ValueError):
+            raise gl.vm.UserError("evidence URL must be a public HTTPS URL")
+        if host is None or not host:
             raise gl.vm.UserError("evidence URL host is invalid")
-        host = authority.split(":", 1)[0].lower()
-        blocked_prefixes = ("127.", "10.", "192.168.", "169.254.", "0.")
-        if host in {"localhost", "::1", "[::1]", "0.0.0.0"} or host.endswith(".local") or host.endswith(".internal") or host.startswith(blocked_prefixes):
-            raise gl.vm.UserError("evidence URL host is not public")
-        if host.startswith("172."):
-            second_octet = host.split(".")[1] if "." in host else ""
-            if second_octet.isdigit() and 16 <= int(second_octet) <= 31:
-                raise gl.vm.UserError("evidence URL host is private")
-        if "." not in host and host != "[::1]":
-            raise gl.vm.UserError("evidence URL must use a public hostname")
-        return "https://" + authority.lower() + path
+        try:
+            host = host.rstrip(".").encode("idna").decode("ascii").lower()
+        except (UnicodeError, ValueError):
+            raise gl.vm.UserError("evidence URL host is invalid")
+        if port is not None and not 1 <= port <= 65535:
+            raise gl.vm.UserError("evidence URL port is invalid")
+        try:
+            ip = ipaddress.ip_address(host)
+        except ValueError:
+            ip = None
+        if ip is not None:
+            if not ip.is_global:
+                raise gl.vm.UserError("evidence URL host is not public")
+            normalized_host = "[" + host + "]" if ip.version == 6 else host
+        else:
+            if host == "localhost" or host.endswith((".localhost", ".local", ".internal", ".home", ".lan", ".test", ".invalid")):
+                raise gl.vm.UserError("evidence URL host is not public")
+            if "." not in host or host.isdigit():
+                raise gl.vm.UserError("evidence URL must use a public hostname")
+            labels = host.split(".")
+            if any(not label or len(label) > 63 or label.startswith("-") or label.endswith("-") for label in labels):
+                raise gl.vm.UserError("evidence URL host is invalid")
+            if all(label.isdigit() for label in labels):
+                if len(labels) != 4 or any((len(label) > 1 and label.startswith("0")) or int(label) > 255 for label in labels):
+                    raise gl.vm.UserError("evidence URL host is not public")
+                raise gl.vm.UserError("evidence URL host is not public")
+            normalized_host = host
+        normalized_netloc = normalized_host + ((":" + str(port)) if port is not None else "")
+        return urlunsplit(("https", normalized_netloc, parsed.path or "", parsed.query, parsed.fragment))
+
+    def _validate_source_identity(self, normalized_url: str, source_kind: str) -> None:
+        if source_kind != "VERSIONED_SOURCE":
+            return
+        parsed = urlsplit(normalized_url)
+        host = parsed.hostname or ""
+        parts = [part for part in parsed.path.split("/") if part]
+        revision = ""
+        if host == "raw.githubusercontent.com" and len(parts) >= 3:
+            revision = parts[2]
+        elif host == "github.com" and len(parts) >= 4 and parts[2] == "blob":
+            revision = parts[3]
+        if len(revision) not in {40, 64} or any(character not in "0123456789abcdef" for character in revision.lower()):
+            raise gl.vm.UserError("VERSIONED_SOURCE requires an immutable GitHub commit URL")
 
     def _validate_terms(self, issuer: Address, remedy: Address, statement: str, verification_rule: str, maturity_at: u256, final_review_deadline: u256, urls, source_kinds, purposes) -> list[PendingAnchor]:
         if len(statement.strip()) == 0 or len(statement) > MAX_STATEMENT:
@@ -166,6 +201,7 @@ class VowmarkVault(gl.Contract):
         for index in range(len(urls)):
             normalized = self._normalize_url(urls[index])
             kind = source_kinds[index].strip().upper()
+            self._validate_source_identity(normalized, kind)
             purpose = purposes[index].strip()
             if kind not in ALLOWED_SOURCE_KINDS:
                 raise gl.vm.UserError("unsupported evidence source kind")
@@ -278,7 +314,7 @@ class VowmarkVault(gl.Contract):
 
     @gl.public.write
     def withdraw(self, amount: u256) -> None:
-        sender = self._direct_eoa_sender()
+        sender = self._direct_top_level_sender()
         if amount == u256(0):
             raise gl.vm.UserError("withdrawal amount must be greater than zero")
         current_credit = self.credits.get(sender, u256(0))
@@ -292,10 +328,12 @@ class VowmarkVault(gl.Contract):
     @gl.public.view
     def get_withdrawal_policy(self) -> dict:
         return {
-            "supported_caller": "direct EOA",
+            "supported_caller": "direct top-level caller (sender equals origin)",
             "requires_sender_equals_origin": True,
+            "runtime_eoa_proof": "unavailable; sender equals origin does not distinguish an EOA from a top-level EVM contract",
             "delivery": "external finalized transfer",
             "debit_order": "before transfer",
+            "failure_recovery": "not exposed by the supported runtime; direct wallet recipients are the supported boundary",
         }
 
     @gl.public.view

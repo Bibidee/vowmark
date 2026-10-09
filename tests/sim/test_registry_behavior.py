@@ -178,6 +178,36 @@ def test_creation_rejects_anchor_policy_violations(deployed):
         _create_attempt(engine, vault_address, urls=[f"https://example.com/proof-{index}" for index in range(6)], source_kinds=["PUBLICATION"] * 6, purposes=["proof"] * 6)
 
 
+@pytest.mark.parametrize(
+    "url",
+    [
+        "https://127.0.0.1?x=1",
+        "https://foo.internal?x=1",
+        "https://foo.local#fragment",
+        "https://user:pass@example.com/proof",
+        "https://[::1]/proof",
+        "https://2130706433/proof",
+        "https://0177.0.0.1/proof",
+        "https://example.com:0/proof",
+    ],
+)
+def test_url_parser_rejects_authority_and_private_host_variants(deployed, url):
+    engine, registry_address, vault_address = deployed
+    with pytest.raises(Exception):
+        _create_attempt(engine, vault_address, urls=[url])
+
+
+def test_versioned_source_requires_immutable_provider_revision(deployed):
+    engine, registry_address, vault_address = deployed
+    with pytest.raises(Exception, match="immutable GitHub commit URL"):
+        _create_attempt(engine, vault_address, urls=["https://raw.githubusercontent.com/Bibidee/vowmark/main/evidence/fulfilled-proof-fixture.txt"], source_kinds=["VERSIONED_SOURCE"])
+    immutable = "https://raw.githubusercontent.com/Bibidee/vowmark/97b5ca8888eeaca3d2b1deb733c832c8448d4383/evidence/fulfilled-proof-fixture.txt"
+    commitment_id = _create_attempt(engine, vault_address, urls=[immutable], source_kinds=["VERSIONED_SOURCE"])
+    evidence = engine.call_method(registry_address, "get_evidence", [commitment_id], sender=ISSUER)
+    assert evidence[0]["revision_id"] == "97b5ca8888eeaca3d2b1deb733c832c8448d4383"
+    assert evidence[0]["authority_status"] == "STRUCTURALLY_VERIFIED_REVISION"
+
+
 def test_vault_constructor_and_registry_wiring_are_nonzero_and_immutable(deployed):
     engine, registry_address, vault_address = deployed
     with pytest.raises(Exception):
@@ -392,6 +422,44 @@ def test_sybil_reviewers_cannot_exhaust_future_review_capacity(deployed):
     assert [int(item["attempt_id"]) for item in bounded] == list(range(32, 7, -1))
 
 
+def test_late_review_reserve_survives_epoch_exhaustion_until_deadline(deployed):
+    engine, registry_address, vault_address = deployed
+    commitment_id = _issue(engine, vault_address, statement="A short-window late reserve commitment", maturity="2030-01-02T10:01:00Z", deadline="2030-01-02T10:16:00Z")
+    _warp(engine, "2030-01-02T10:01:00Z")
+    for index in range(32):
+        reviewer = "0x" + f"{300 + index:040x}"
+        engine.vm.clear_mocks()
+        _mock_review_evidence(engine, f"early reserved-window snapshot {index}")
+        engine.call_method(registry_address, "review_commitment", [commitment_id], sender=reviewer)
+    engine.vm.clear_mocks()
+    _mock_review_evidence(engine, "blocked before late reserve")
+    with pytest.raises(Exception, match="review epoch capacity reached"):
+        engine.call_method(registry_address, "review_commitment", [commitment_id], sender=REVIEWER_C)
+
+    _warp(engine, "2030-01-02T10:12:00Z")
+    engine.vm.clear_mocks()
+    _mock_review_evidence(engine, "legitimate late-window snapshot")
+    engine.call_method(registry_address, "review_commitment", [commitment_id], sender=REVIEWER_C)
+    for index in range(3):
+        reviewer = "0x" + f"{400 + index:040x}"
+        engine.vm.clear_mocks()
+        _mock_review_evidence(engine, f"additional late-window snapshot {index}")
+        engine.call_method(registry_address, "review_commitment", [commitment_id], sender=reviewer)
+    record = engine.call_method(registry_address, "get_commitment", [commitment_id], sender=REVIEWER_C)
+    assert int(record["attempt_count"]) == 36
+    assert int(record["review_epoch_attempts"]) == 32
+    assert int(record["late_review_attempts"]) == 4
+
+    engine.vm.clear_mocks()
+    _mock_review_evidence(engine, "late-window capacity must remain bounded")
+    with pytest.raises(Exception, match="late review reserve capacity reached"):
+        engine.call_method(registry_address, "review_commitment", [commitment_id], sender="0x" + ("5" * 40))
+
+    _warp(engine, "2030-01-02T10:16:00Z")
+    with pytest.raises(Exception, match="review window has closed"):
+        engine.call_method(registry_address, "review_commitment", [commitment_id], sender=REVIEWER_B)
+
+
 def test_review_history_is_bounded_and_pages_without_gaps(deployed):
     engine, registry_address, vault_address = deployed
     commitment_id = _issue(engine, vault_address, statement="A paginated review history commitment")
@@ -580,6 +648,8 @@ def test_equivalent_content_at_different_urls_has_distinct_snapshot_identity(dep
         "",
         "{",
         "[]",
+        '{"verdict":"INCONCLUSIVE"}{"verdict":"FULFILLED"}',
+        '{' + (" " * 300) + '"verdict":"INCONCLUSIVE"}',
         '{"foo":"FULFILLED"}',
         '{"verdict":"MAYBE"}',
     ],
@@ -605,29 +675,28 @@ def test_fenced_inconclusive_judgment_is_accepted(deployed):
     assert engine.call_method(registry_address, "get_commitment", [commitment_id], sender=REVIEWER_A)["latest_verdict"] == "INCONCLUSIVE"
 
 
-def test_judgment_extra_economic_fields_cannot_redirect_settlement(deployed):
+def test_judgment_extra_economic_fields_are_rejected(deployed):
     engine, registry_address, vault_address = deployed
     commitment_id = _issue(engine, vault_address, statement="Judgment economic field boundary")
     _warp(engine, "2030-01-02T00:00:00Z")
     response = '```json\n{"verdict":"FULFILLED","recipient":"0x6666666666666666666666666666666666666666","amount":"999999"}\n```'
     _mock_review_url(engine, "https://example.com/vowmark-proof", "fulfilled evidence", response)
-    engine.call_method(registry_address, "review_commitment", [commitment_id], sender=REVIEWER_A)
-    engine.call_method(vault_address, "get_issuance", [commitment_id], sender=ISSUER)
-    assert engine.call_method(vault_address, "get_credit", [ISSUER], sender=ISSUER) == 100
-    assert engine.call_method(vault_address, "get_credit", ["0x" + ("66" * 20)], sender=ISSUER) == 0
-    assert engine.call_method(registry_address, "get_commitment", [commitment_id], sender=ISSUER)["outcome"] == "FULFILLED"
+    with pytest.raises(Exception, match="schema is not exact"):
+        engine.call_method(registry_address, "review_commitment", [commitment_id], sender=REVIEWER_A)
+    assert engine.call_method(registry_address, "get_review_count", [commitment_id], sender=ISSUER) == 0
+    assert engine.call_method(vault_address, "get_credit", [ISSUER], sender=ISSUER) == 0
 
 
-def test_duplicate_verdict_key_follows_parser_last_value_without_extra_effects(deployed):
+def test_duplicate_verdict_key_is_rejected_without_extra_effects(deployed):
     engine, registry_address, vault_address = deployed
     commitment_id = _issue(engine, vault_address, statement="Duplicate JSON key parser boundary")
     _warp(engine, "2030-01-02T00:00:00Z")
     response = '```json\n{"verdict":"BREACHED","verdict":"FULFILLED"}\n```'
     _mock_review_url(engine, "https://example.com/vowmark-proof", "fulfilled evidence", response)
-    engine.call_method(registry_address, "review_commitment", [commitment_id], sender=REVIEWER_A)
-    engine.call_method(vault_address, "get_issuance", [commitment_id], sender=ISSUER)
-    assert engine.call_method(registry_address, "get_commitment", [commitment_id], sender=ISSUER)["outcome"] == "FULFILLED"
-    assert engine.call_method(vault_address, "get_credit", [ISSUER], sender=ISSUER) == 100
+    with pytest.raises(Exception, match="invalid or ambiguous"):
+        engine.call_method(registry_address, "review_commitment", [commitment_id], sender=REVIEWER_A)
+    assert engine.call_method(registry_address, "get_review_count", [commitment_id], sender=ISSUER) == 0
+    assert engine.call_method(vault_address, "get_credit", [ISSUER], sender=ISSUER) == 0
 
 
 @pytest.mark.parametrize(

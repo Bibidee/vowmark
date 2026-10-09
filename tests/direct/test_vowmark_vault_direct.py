@@ -62,6 +62,11 @@ def test_vault_rejects_invalid_creation_roles_and_anchor_policy(direct_vm, direc
             args = list(_issue_args())
             args[5] = ["http://example.com/evidence"]
             vault.create_commitment(*args)
+        with direct_vm.expect_revert("immutable GitHub commit URL"):
+            args = list(_issue_args())
+            args[5] = ["https://raw.githubusercontent.com/Bibidee/vowmark/main/evidence/proof.txt"]
+            args[6] = ["VERSIONED_SOURCE"]
+            vault.create_commitment(*args)
         with direct_vm.expect_revert("duplicate normalized evidence URL"):
             args = list(_issue_args())
             args[5] = ["https://example.com/evidence", "https://example.com/evidence"]
@@ -153,6 +158,7 @@ def test_vault_rejects_withdrawal_above_credit_and_debits_before_send(direct_vm,
         vault.settle(commitment_id, "BREACHED")
     assert vault.get_credit(REMEDY) == 100
     assert vault.get_withdrawal_policy()["requires_sender_equals_origin"] is True
+    assert "does not distinguish" in vault.get_withdrawal_policy()["runtime_eoa_proof"]
     direct_vm.origin = REMEDY
     with direct_vm.prank(REMEDY):
         with direct_vm.expect_revert("withdrawal amount must be greater than zero"):
@@ -163,7 +169,7 @@ def test_vault_rejects_withdrawal_above_credit_and_debits_before_send(direct_vm,
         with direct_vm.expect_revert("withdrawal exceeds available credit"):
             vault.withdraw(60)
         direct_vm.origin = ISSUER
-        with direct_vm.expect_revert("withdrawal requires a direct EOA caller"):
+        with direct_vm.expect_revert("withdrawal requires a direct top-level caller"):
             vault.withdraw(1)
         direct_vm.origin = None
     direct_vm.origin = ISSUER

@@ -1,0 +1,68 @@
+{
+  "generatedAt": "2026-10-09T20:24:28.217Z",
+  "network": "GenLayer Studionet",
+  "chainId": 61999,
+  "registry": "0xA3319fE2B8BCFEEe819284FF5dA90F0BAb3B8707",
+  "vault": "0x7cd9B38266eC92024c938354c498245D34314bd7",
+  "account": "0x794678AD7e8B6c87dAb33303a3A512c821e6De9A",
+  "commitmentId": "0",
+  "createTx": "0x69d37a22f65c62ae48869012c72989fb2675d44bbcbce7de071064634b79b207",
+  "deployment": {
+    "registry": "0xA3319fE2B8BCFEEe819284FF5dA90F0BAb3B8707",
+    "vault": "0x7cd9B38266eC92024c938354c498245D34314bd7",
+    "registryConfig": {
+      "chain_id": 61999,
+      "late_review_reserve_seconds": 300,
+      "max_late_review_attempts": 4,
+      "max_review_attempts_per_epoch": 32,
+      "max_review_page": 25,
+      "max_review_window": 7776000,
+      "min_review_window": 1200,
+      "network": "GenLayer Studionet",
+      "retry_cooldown": 300,
+      "review_attempts_are_not_lifetime_capped": true,
+      "review_cooldown_scope": "per_reviewer",
+      "review_epoch_seconds": 3600,
+      "vault_address": "0x7cd9b38266ec92024c938354c498245d34314bd7"
+    },
+    "vaultRegistry": "0xa3319fe2b8bcfeee819284ff5da90f0bab3b8707"
+  },
+  "expireTx": "0xec1f1ede30807d13107a5a236c93177d7a1e3fd89fd3ea837d14cbcf29697dcd",
+  "reconcileTx": "0x36ca88fe7db63be804c53ae75003eb936df6fb878a40e695a7ab6e506df66668",
+  "commitment": {
+    "attempt_count": 1,
+    "bond": 100000000000000,
+    "commitment_id": 0,
+    "created_at": 1791576073,
+    "final_review_deadline": 1791577332,
+    "issuer": "0x794678ad7e8b6c87dab33303a3a512c821e6de9a",
+    "last_attempt_at": 1791576133,
+    "last_settlement_at": 1791577340,
+    "late_review_attempts": 0,
+    "latest_snapshot_digest": "5a7ce1415fbc186fb39c7f6f7ca55b455652239156c6fed198ac0421fcf33638",
+    "latest_source_set_digest": "224d3c2116800842b5149a9d9af63eacb504f3338d794d956d1096943cf02958",
+    "latest_verdict": "INCONCLUSIVE",
+    "maturity_at": 1791576132,
+    "outcome": "EXPIRED_UNRESOLVED",
+    "remedy": "0xff203bb65942f50cb81a8af98c5f5bd9d8a79b54",
+    "resolved_at": 1791577340,
+    "review_epoch": 497660,
+    "review_epoch_attempts": 1,
+    "settlement_attempts": 1,
+    "settlement_recipient": "0x794678ad7e8b6c87dab33303a3a512c821e6de9a",
+    "settlement_state": "CREDIT_CONFIRMED",
+    "statement": "The commitment remains unresolved until the final review deadline.",
+    "verification_rule": "The frozen page must contain an unambiguous, time-bearing signal proving fulfillment by the recorded maturity timestamp."
+  },
+  "vaultSettlement": {
+    "amount": 100000000000000,
+    "recipient": "0x794678ad7e8b6c87dab33303a3a512c821e6de9a",
+    "settled": true,
+    "state": "CREDIT_CONFIRMED"
+  },
+  "withdrawal": {
+    "withdrawalTx": "0x75b85a59f0356f4acf665ad4cb910787c23012b81c3d4b9d8562060f0a642091",
+    "creditBefore": 100000000000000,
+    "creditAfter": 0
+  }
+}

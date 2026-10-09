@@ -1,0 +1,53 @@
+{
+  "generatedAt": "2026-10-09T20:03:04.015Z",
+  "network": "GenLayer Studionet",
+  "chainId": 61999,
+  "registry": "0xA3319fE2B8BCFEEe819284FF5dA90F0BAb3B8707",
+  "vault": "0x7cd9B38266eC92024c938354c498245D34314bd7",
+  "account": "0x794678AD7e8B6c87dAb33303a3A512c821e6De9A",
+  "commitmentId": "0",
+  "maturity": "1791576132",
+  "deadline": "1791577332",
+  "createTx": "0x69d37a22f65c62ae48869012c72989fb2675d44bbcbce7de071064634b79b207",
+  "reviewTx": "0x9e2de7c1adcc126dee1e5d2a1b068cc7ec23f0e57d1c0fb37029595eaf043018",
+  "commitment": {
+    "attempt_count": 1,
+    "bond": 100000000000000,
+    "commitment_id": 0,
+    "created_at": 1791576073,
+    "final_review_deadline": 1791577332,
+    "issuer": "0x794678ad7e8b6c87dab33303a3a512c821e6de9a",
+    "last_attempt_at": 1791576133,
+    "last_settlement_at": 0,
+    "late_review_attempts": 0,
+    "latest_snapshot_digest": "5a7ce1415fbc186fb39c7f6f7ca55b455652239156c6fed198ac0421fcf33638",
+    "latest_source_set_digest": "224d3c2116800842b5149a9d9af63eacb504f3338d794d956d1096943cf02958",
+    "latest_verdict": "INCONCLUSIVE",
+    "maturity_at": 1791576132,
+    "outcome": "OPEN",
+    "remedy": "0xff203bb65942f50cb81a8af98c5f5bd9d8a79b54",
+    "resolved_at": 0,
+    "review_epoch": 497660,
+    "review_epoch_attempts": 1,
+    "settlement_attempts": 0,
+    "settlement_recipient": "0x0000000000000000000000000000000000000000",
+    "settlement_state": "LOCKED",
+    "statement": "The commitment remains unresolved until the final review deadline.",
+    "verification_rule": "The frozen page must contain an unambiguous, time-bearing signal proving fulfillment by the recorded maturity timestamp."
+  },
+  "reviews": [
+    {
+      "attempt_id": 0,
+      "requested_at": 1791576133,
+      "requested_by": "0x794678ad7e8b6c87dab33303a3a512c821e6de9a",
+      "snapshot_digest": "5a7ce1415fbc186fb39c7f6f7ca55b455652239156c6fed198ac0421fcf33638",
+      "source_set_digest": "224d3c2116800842b5149a9d9af63eacb504f3338d794d956d1096943cf02958",
+      "verdict": "INCONCLUSIVE"
+    }
+  ],
+  "deployment": {
+    "registryTx": "0x5701dc1cc4e401ba1d2fac4c33f7569066cb0b5a09640399ba668137472909a6",
+    "vaultTx": "0xf51dc5f59ecd5f13993a559d810e9266138227f8d788ef0d71d7a70daa375a33",
+    "wiringTx": "0x4617ff6909478706602912b3ea135c1b234088d1c080486d8d5407218aa92a2b"
+  }
+}

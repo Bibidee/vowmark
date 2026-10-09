@@ -1,0 +1,90 @@
+{
+  "generatedAt": "2026-10-09T20:18:52.100Z",
+  "network": "GenLayer Studionet",
+  "chainId": 61999,
+  "accountName": "thermo-sponsor",
+  "registry": "0xA3319fE2B8BCFEEe819284FF5dA90F0BAb3B8707",
+  "vault": "0x7cd9B38266eC92024c938354c498245D34314bd7",
+  "account": "0x794678AD7e8B6c87dAb33303a3A512c821e6De9A",
+  "bond": "100000000000000",
+  "deployment": {
+    "registryTx": "0x5701dc1cc4e401ba1d2fac4c33f7569066cb0b5a09640399ba668137472909a6",
+    "vaultTx": "0xf51dc5f59ecd5f13993a559d810e9266138227f8d788ef0d71d7a70daa375a33",
+    "wiringTx": "0x4617ff6909478706602912b3ea135c1b234088d1c080486d8d5407218aa92a2b"
+  },
+  "results": [
+    {
+      "label": "breached-candidate",
+      "proof": {
+        "label": "breached-candidate",
+        "statement": "The public evidence page contains the exact phrase VOWMARK-DOES-NOT-EXIST by maturity.",
+        "rule": "FULFILLED requires the exact phrase VOWMARK-DOES-NOT-EXIST to appear in the frozen page content; its absence is direct evidence of breach.",
+        "url": "https://example.com/",
+        "sourceKind": "PUBLICATION",
+        "purpose": "negative control page"
+      },
+      "commitmentId": "2",
+      "maturity": "1791577029",
+      "deadline": "1791578229",
+      "createTx": "0xc72c7341393bfa59c6cf1d4d0d833a7170d00e418a2608000321bc3d6019a8bd",
+      "reviewTx": "0x7550f3549b61a6c342815ba666406e340c6f8ea6d6de4b86a46bd45bd66c2c1f",
+      "reconcileTx": "0xdfa66b87a32f04dce83965c57448816ca187ae226a20d9d9cdb77d0f588b2bed",
+      "reviewCount": 1,
+      "reviews": [
+        {
+          "attempt_id": 0,
+          "requested_at": 1791577031,
+          "requested_by": "0x794678ad7e8b6c87dab33303a3a512c821e6de9a",
+          "snapshot_digest": "fdfcc99fdddff5581a7dba41f92fa1af827ca552efb173c38b5b9a316a54f71d",
+          "source_set_digest": "e263003c8491e41a4327d6f9c9dd0154380618bd5a244da2da278d083b0cb862",
+          "verdict": "BREACHED"
+        }
+      ],
+      "commitment": {
+        "attempt_count": 1,
+        "bond": 100000000000000,
+        "commitment_id": 2,
+        "created_at": 1791576731,
+        "final_review_deadline": 1791578229,
+        "issuer": "0x794678ad7e8b6c87dab33303a3a512c821e6de9a",
+        "last_attempt_at": 1791577031,
+        "last_settlement_at": 1791577031,
+        "late_review_attempts": 0,
+        "latest_snapshot_digest": "fdfcc99fdddff5581a7dba41f92fa1af827ca552efb173c38b5b9a316a54f71d",
+        "latest_source_set_digest": "e263003c8491e41a4327d6f9c9dd0154380618bd5a244da2da278d083b0cb862",
+        "latest_verdict": "BREACHED",
+        "maturity_at": 1791577029,
+        "outcome": "BREACHED",
+        "remedy": "0xff203bb65942f50cb81a8af98c5f5bd9d8a79b54",
+        "resolved_at": 1791577031,
+        "review_epoch": 497660,
+        "review_epoch_attempts": 1,
+        "settlement_attempts": 1,
+        "settlement_recipient": "0xff203bb65942f50cb81a8af98c5f5bd9d8a79b54",
+        "settlement_state": "CREDIT_CONFIRMED",
+        "statement": "The public evidence page contains the exact phrase VOWMARK-DOES-NOT-EXIST by maturity.",
+        "verification_rule": "FULFILLED requires the exact phrase VOWMARK-DOES-NOT-EXIST to appear in the frozen page content; its absence is direct evidence of breach."
+      },
+      "issuance": {
+        "bond": 100000000000000,
+        "commitment_id": 2,
+        "created_at": 1791576731,
+        "final_review_deadline": 1791578229,
+        "issuer": "0x794678ad7e8b6c87dab33303a3a512c821e6de9a",
+        "maturity_at": 1791577029,
+        "registered": true,
+        "remedy": "0xff203bb65942f50cb81a8af98c5f5bd9d8a79b54",
+        "settlement_recipient": "0x0000000000000000000000000000000000000000",
+        "settlement_state": "LOCKED",
+        "statement": "The public evidence page contains the exact phrase VOWMARK-DOES-NOT-EXIST by maturity.",
+        "verification_rule": "FULFILLED requires the exact phrase VOWMARK-DOES-NOT-EXIST to appear in the frozen page content; its absence is direct evidence of breach."
+      },
+      "vaultSettlement": {
+        "amount": 100000000000000,
+        "recipient": "0xff203bb65942f50cb81a8af98c5f5bd9d8a79b54",
+        "settled": true,
+        "state": "CREDIT_CONFIRMED"
+      }
+    }
+  ]
+}

@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import re
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -46,7 +47,7 @@ def count(report: str, label: str) -> int:
 
 def main() -> int:
     try:
-        branch = git_output("branch", "--show-current")
+        branch = os.environ.get("GITHUB_HEAD_REF") or os.environ.get("GITHUB_REF_NAME") or git_output("branch", "--show-current")
         if branch != "v4-security-remediation":
             fail(f"expected v4-security-remediation branch, found {branch or 'detached HEAD'}")
 

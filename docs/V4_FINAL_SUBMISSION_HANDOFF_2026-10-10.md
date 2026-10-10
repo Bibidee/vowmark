@@ -19,7 +19,7 @@ credits the immutable remedy address.
 - Repository: [`https://github.com/Bibidee/vowmark`](https://github.com/Bibidee/vowmark)
 - Source branch: [`v4-final-certification`](https://github.com/Bibidee/vowmark/tree/v4-final-certification)
 - Exact source commit: [`67afe8ef5b029bf54ef6f9cf18f811881532c240`](https://github.com/Bibidee/vowmark/tree/67afe8ef5b029bf54ef6f9cf18f811881532c240)
-- Exact-head CI: [GitHub Actions run 37987011353](https://github.com/Bibidee/vowmark/actions/runs/37987011353)
+- Exact-head CI: [GitHub Actions run 38021463258](https://github.com/Bibidee/vowmark/actions/runs/38021463258)
 - Network: GenLayer Studionet, chain `61999`
 - Registry: [`0xA3319fE2B8BCFEEe819284FF5dA90F0BAb3B8707`](https://explorer-studio.genlayer.com/address/0xA3319fE2B8BCFEEe819284FF5dA90F0BAb3B8707)
 - Vault: [`0x7cd9B38266eC92024c938354c498245D34314bd7`](https://explorer-studio.genlayer.com/address/0x7cd9B38266eC92024c938354c498245D34314bd7)

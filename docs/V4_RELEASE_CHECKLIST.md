@@ -76,5 +76,5 @@ Current release identity:
 
 ## Exact-head evidence
 
-- GitHub Actions: [run 37987011353](https://github.com/Bibidee/vowmark/actions/runs/37987011353)
+- GitHub Actions: [run 38021463258](https://github.com/Bibidee/vowmark/actions/runs/38021463258)
 - Current evidence: [`../evidence/live_v4_final_submission_2026-10-10.md`](../evidence/live_v4_final_submission_2026-10-10.md)

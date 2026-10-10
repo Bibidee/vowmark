@@ -128,7 +128,7 @@ No contract change or redeployment was made for this concern.
 
 ## CI and security disposition
 
-- Exact-head GitHub Actions run: [37987011353](https://github.com/Bibidee/vowmark/actions/runs/37987011353) — passed.
+- Exact-head GitHub Actions run: [38021463258](https://github.com/Bibidee/vowmark/actions/runs/38021463258) — passed.
 - Simulator: `90 passed`.
 - Direct Mode: `9 passed`.
 - Mutation inventory: `49/49` valid mutants killed.

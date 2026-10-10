@@ -1,5 +1,9 @@
 # V4 canary withdrawal delivery audit (2026-10-09)
 
+> Historical canary report for the superseded V4 pair. The remedy-wallet
+> signature was later completed on the current production pair; see
+> [`live_v4_final_submission_2026-10-10.md`](live_v4_final_submission_2026-10-10.md).
+
 Scope: historical Studionet canary only. These observations do **not** prove
 that the corrected URL-validation bytecode is deployed.
 

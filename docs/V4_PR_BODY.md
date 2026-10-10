@@ -1,4 +1,9 @@
-## V4 security closure — corrected source, fresh deployment pending
+## Historical PR #2 body — V4 security closure
+
+> This file is retained as PR #2 provenance for the earlier
+> `v4-security-remediation` review. It is not the current release description.
+> The current submission handoff is
+> [`V4_FINAL_SUBMISSION_HANDOFF_2026-10-10.md`](V4_FINAL_SUBMISSION_HANDOFF_2026-10-10.md).
 
 This PR hardens VOWMARK's V4 Registry and Vault while preserving the 20-minute
 minimum review window, normal 32/hour capacity, four-attempt final-window
@@ -46,7 +51,7 @@ Evidence: [live canary](https://github.com/Bibidee/vowmark/blob/v4-security-reme
 [security report](https://github.com/Bibidee/vowmark/blob/v4-security-remediation/docs/V4_SECURITY_REMEDIATION.md), and
 [release checklist](https://github.com/Bibidee/vowmark/blob/v4-security-remediation/docs/V4_RELEASE_CHECKLIST.md).
 
-### Release gate
+### Historical release gate
 
 The corrected source requires green exact-head CI and separate
 fresh-deployment authorization. Do **not** merge, deploy, promote, change V1 production,

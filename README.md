@@ -127,14 +127,30 @@ The frontend records issuance hashes immediately, distinguishes provisional from
 V4 required a fresh Registry and Vault deployment because its storage and
 evidence metadata surface differ from V1. The controlled Studionet deployment
 and live acceptance evidence are recorded in
-[`evidence/live_v4_smoke_2026-10-09.md`](evidence/live_v4_smoke_2026-10-09.md).
+[`evidence/live_v4_final_submission_2026-10-10.md`](evidence/live_v4_final_submission_2026-10-10.md).
 
-- Registry: [`0x3cA983F7CC78d10d3970a6Da719b12e17E4e4eF7`](https://explorer-studio.genlayer.com/address/0x3cA983F7CC78d10d3970a6Da719b12e17E4e4eF7)
-- Vault: [`0xE9e153dc4E33762B2bA468EaC74bEABfe9cED4Ce`](https://explorer-studio.genlayer.com/address/0xE9e153dc4E33762B2bA468EaC74bEABfe9cED4Ce)
-- Production frontend: [`the-vowmark.vercel.app`](https://the-vowmark.vercel.app/), deployment `dpl_4AiV9vKmC2nEKtyv3AXYzJ7d17Dp`, source `3f170f98b524088882961969631612e150cdd051`.
+- Registry: [`0xA3319fE2B8BCFEEe819284FF5dA90F0BAb3B8707`](https://explorer-studio.genlayer.com/address/0xA3319fE2B8BCFEEe819284FF5dA90F0BAb3B8707)
+- Vault: [`0x7cd9B38266eC92024c938354c498245D34314bd7`](https://explorer-studio.genlayer.com/address/0x7cd9B38266eC92024c938354c498245D34314bd7)
+- Registry deployment: [`0x5701dc1cc4e401ba1d2fac4c33f7569066cb0b5a09640399ba668137472909a6`](https://explorer-studio.genlayer.com/tx/0x5701dc1cc4e401ba1d2fac4c33f7569066cb0b5a09640399ba668137472909a6)
+- Vault deployment: [`0xf51dc5f59ecd5f13993a559d810e9266138227f8d788ef0d71d7a70daa375a33`](https://explorer-studio.genlayer.com/tx/0xf51dc5f59ecd5f13993a559d810e9266138227f8d788ef0d71d7a70daa375a33)
+- Registry/Vault wiring: [`0x4617ff6909478706602912b3ea135c1b234088d1c080486d8d5407218aa92a2b`](https://explorer-studio.genlayer.com/tx/0x4617ff6909478706602912b3ea135c1b234088d1c080486d8d5407218aa92a2b)
+- Production frontend: [`the-vowmark.vercel.app`](https://the-vowmark.vercel.app/), deployment `dpl_FUeNAXRgLLzKoUCUtb4QSNCXR9Ez`, source `67afe8ef5b029bf54ef6f9cf18f811881532c240`.
 
-Withdrawal parent calls and emitted external messages are verified, but
-independent child delivery remains a runtime limitation; see
-[`evidence/live_v4_withdrawal_delivery_2026-10-09.md`](evidence/live_v4_withdrawal_delivery_2026-10-09.md).
-The sparse-registration source change on this branch is newer than the live
-pair and therefore needs fresh deployment authorization before promotion.
+The finalized readback confirms the two-way pointers and the V4 policy:
+`1200`-second minimum review window, `300`-second per-reviewer cooldown,
+`3600`-second review epoch, `32` normal attempts per epoch, four late-reserve
+attempts, and a `7776000`-second maximum review window. The current pair was
+used for the fulfilled, breached, inconclusive-then-expired, and remedy-wallet
+withdrawal acceptance records. The final Vault accounting readback is zero
+balance, zero locked bond, zero issuer credit, zero remedy credit and zero
+accounted liabilities.
+
+The sparse-registration fix is present in the audited source and is covered by
+the simulator regression test. The available Studionet RPC evidence does not
+provide a source-verified bytecode attestation, so the live address is not
+described as cryptographically source-verified; the deployment, frontend
+bundle, finalized behavior and readbacks are recorded separately.
+
+The earlier `0x3cA983...` / `0xE9e153...` V4 pair remains historical evidence
+only. Its rejected-payable recovery transaction is preserved and clearly
+labeled as historical rather than attributed to the current production pair.

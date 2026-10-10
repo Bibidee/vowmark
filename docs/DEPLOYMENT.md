@@ -9,15 +9,17 @@ This runbook contains three deliberately separate tracks:
   historical and must not be presented as V4 evidence.
 - **Production V4:** the authorized Studionet release at
   [`https://the-vowmark.vercel.app/`](https://the-vowmark.vercel.app/). It uses
-  the 20-minute policy, Registry `0x3cA983F7CC78d10d3970a6Da719b12e17E4e4eF7`,
-  and Vault `0xE9e153dc4E33762B2bA468EaC74bEABfe9cED4Ce`.
+  the 20-minute policy, Registry `0xA3319fE2B8BCFEEe819284FF5dA90F0BAb3B8707`,
+  and Vault `0x7cd9B38266eC92024c938354c498245D34314bd7`.
 - **V4 Preview:** any later contract-source change must use a fresh pair and a
   separate Preview until exact-head tests, live acceptance, and production
   promotion receive fresh authorization.
 
-The original V4 canary built before the shortened numeric-IP fix is historical
-evidence only. The corrected pair above was deployed, lifecycle-tested, and
-subsequently promoted to production on 2026-10-09.
+The original V4 canary and the earlier V4 production pair are historical
+evidence only. The current pair above was deployed, lifecycle-tested, and
+promoted to production on 2026-10-10. The latest exact-head frontend source is
+the `v4-final-certification` branch at commit
+`67afe8ef5b029bf54ef6f9cf18f811881532c240`.
 
 Never use V1 addresses as evidence that V4 has been deployed, and never read
 the V4 20-minute policy back from the V1 contracts.
@@ -76,24 +78,21 @@ configuration readback, live acceptance, and promotion:
 NEXT_PUBLIC_GENLAYER_CHAIN_ID=61999
 NEXT_PUBLIC_GENLAYER_RPC_URL=https://studio.genlayer.com/api
 NEXT_PUBLIC_GENLAYER_EXPLORER=https://explorer-studio.genlayer.com
-NEXT_PUBLIC_VOWMARK_REGISTRY_ADDRESS=0x3cA983F7CC78d10d3970a6Da719b12e17E4e4eF7
-NEXT_PUBLIC_VOWMARK_VAULT_ADDRESS=0xE9e153dc4E33762B2bA468EaC74bEABfe9cED4Ce
+NEXT_PUBLIC_VOWMARK_REGISTRY_ADDRESS=0xA3319fE2B8BCFEEe819284FF5dA90F0BAb3B8707
+NEXT_PUBLIC_VOWMARK_VAULT_ADDRESS=0x7cd9B38266eC92024c938354c498245D34314bd7
 ```
 
 Do not leave stale V1 addresses or alternate networks in a V4 environment.
-The V4 branch Preview alias is
-[`vowmark-git-v4-security-remediation-bibidees-projects.vercel.app`](https://vowmark-git-v4-security-remediation-bibidees-projects.vercel.app/).
-The previous corrected-pair Preview snapshot is
-[`vowmark-8e9ojygxj-bibidees-projects.vercel.app`](https://vowmark-8e9ojygxj-bibidees-projects.vercel.app/),
-deployment `dpl_H3PWWceADpvRcKJSvxaWny738cLr`. On 2026-10-09, `/`, `/issue`,
-`/activity`, and `/commitment/1` returned HTTP 200; the public `/issue`
-JavaScript contained the preceding V4 addresses. It is retained as historical
-evidence only because the final Vault adds recoverable-credit handling for
-rejected payable calls. The older snapshot on
-commit `869b70e` was a corrected-source build pointed at historical canary
-addresses and is not release evidence for the newly deployed pair.
+The only canonical VOWMARK production URL is
+[`https://the-vowmark.vercel.app/`](https://the-vowmark.vercel.app/). Vercel
+deployment `dpl_FUeNAXRgLLzKoUCUtb4QSNCXR9Ez` is `READY`/`production`; its
+deployment URL is
+[`vowmark-gesqbdt6o-bibidees-projects.vercel.app`](https://vowmark-gesqbdt6o-bibidees-projects.vercel.app/).
+The production HTML/JavaScript bundle contains the current Registry, Vault and
+Studionet explorer configuration. Older V4 Preview aliases and deployments
+are historical snapshots only.
 
-## Corrected V4 deployment sequence (authorized and executed 2026-10-09)
+## Current V4 deployment sequence (authorized and executed)
 
 1. Pin the final reviewed commit and run all local and exact-head CI gates.
 2. Obtain explicit deployment-wallet authorization for the new transactions.
@@ -102,26 +101,25 @@ addresses and is not release evidence for the newly deployed pair.
    hashes. Do not move GEN from either historical pair.
 4. Wire the Registry to the new Vault with the authorized deployer, finalize,
    then read back addresses and the 1200-second policy.
-5. Set Preview-only Vercel environment variables to the new pair, deploy a
-   separate Preview, verify bundled addresses/routes and run an essential
-   new live economic canary including changed URL rejection.
-6. Promote only after separate authorization following live acceptance; until
-   then keep the existing Production V4 alias and addresses untouched.
+5. Set the Vercel production configuration to the authorized pair, deploy the
+   exact frontend commit, verify bundled addresses/routes and run the live
+   economic canary.
+6. Promote only after separate authorization following live acceptance.
 
-The final Registry deployment was finalized in
-[`0x88e4fce…b431e`](https://explorer-studio.genlayer.com/tx/0x88e4fce1aff18f5b1cd93d36111e8968bff7562ebbbc15cc7dba6236b0cb431e),
+The current Registry deployment was finalized in
+[`0x5701dc1c…2909a6`](https://explorer-studio.genlayer.com/tx/0x5701dc1cc4e401ba1d2fac4c33f7569066cb0b5a09640399ba668137472909a6),
 the Vault in
-[`0xfefafc8…96efc`](https://explorer-studio.genlayer.com/tx/0xfefafc859f4509ec801e93f5f167d283d5c88f650f1bcdaa09422d8a02596efc),
+[`0xf51dc5f5…75a33`](https://explorer-studio.genlayer.com/tx/0xf51dc5f59ecd5f13993a559d810e9266138227f8d788ef0d71d7a70daa375a33),
 and one-time wiring in
-[`0x03a45b4…b309f`](https://explorer-studio.genlayer.com/tx/0x03a45b4dbebd5f87e2ea1c81efd1fbc5720606a084b6147872ab1875396b309f).
-The finalized readback confirmed both pointers, chain `61999`, and the
-policy below. A live `https://127.1/...` payable issuance returned the reserved
-rejection marker with `evidence URL host is not public`, consumed no commitment
-ID, credited the full bond to the issuer, and the issuer withdrew it in
-[`0x557c821…c40d`](https://explorer-studio.genlayer.com/tx/0x557c82110299e1eb71b37c461159db7640d910e497c378cdeef054ee6545c40d).
-This is the final custody-safe pair; the prior `0x1FB7…EE21` Registry and
-`0x3fBC…55EE` Vault are historical and must not be configured in a new V4
-Preview.
+[`0x4617ff69…92a2b`](https://explorer-studio.genlayer.com/tx/0x4617ff6909478706602912b3ea135c1b234088d1c080486d8d5407218aa92a2b).
+Finalized readback confirmed both pointers, chain `61999`, and the policy
+below. Current-pair live lifecycle evidence is in
+[`../evidence/live_v4_final_submission_2026-10-10.md`](../evidence/live_v4_final_submission_2026-10-10.md).
+
+The rejected-payable recovery transaction in
+[`../evidence/live_v4_final_rejected_value_2026-10-09.json`](../evidence/live_v4_final_rejected_value_2026-10-09.json)
+belongs to the superseded `0x3cA983…` / `0xE9e153…` pair and is retained as
+historical evidence. It must not be relabeled as a current-pair transaction.
 
 The deployed V1 Registry readback is historically **900 seconds (15
 minutes)**. A fresh V4 Registry must read back this candidate timing policy
@@ -135,4 +133,4 @@ from `get_config()`:
 
 ## Submission rule
 
-`ACCEPTED` is not enough. Deployment/configuration/lifecycle transactions recorded as canonical evidence must be verified to the final state required by the current GenLayer runtime. Reread contract configuration after deployment. The V1 canonical addresses and evidence are in [`../HANDOFF_STATUS.md`](../HANDOFF_STATUS.md) and [`../evidence/fresh_deployment_2026-10-08_pagination.md`](../evidence/fresh_deployment_2026-10-08_pagination.md). V4 deployment, lifecycle, expiry, withdrawal, and validator/model evidence are recorded in [`../evidence/live_v4_smoke_2026-10-09.md`](../evidence/live_v4_smoke_2026-10-09.md) and [`../evidence/live_v4_validator_model_2026-10-09.md`](../evidence/live_v4_validator_model_2026-10-09.md).
+`ACCEPTED` is not enough. Deployment/configuration/lifecycle transactions recorded as canonical evidence must be verified to the final state required by the current GenLayer runtime. Reread contract configuration after deployment. The V1 canonical addresses and evidence are in [`../HANDOFF_STATUS.md`](../HANDOFF_STATUS.md) and [`../evidence/fresh_deployment_2026-10-08_pagination.md`](../evidence/fresh_deployment_2026-10-08_pagination.md). Current V4 deployment, lifecycle, expiry, withdrawal, validator/model and browser evidence are recorded in [`../evidence/live_v4_final_submission_2026-10-10.md`](../evidence/live_v4_final_submission_2026-10-10.md). The older V4 reports remain historical and are not rewritten.

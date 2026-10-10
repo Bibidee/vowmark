@@ -1,5 +1,9 @@
 # VOWMARK V4 final live acceptance — 2026-10-09
 
+> Historical acceptance report for the superseded `0x3cA983…` / `0xE9e153…`
+> pair. The current production pair and final accounting are recorded in
+> [`live_v4_final_submission_2026-10-10.md`](live_v4_final_submission_2026-10-10.md).
+
 ## Scope
 
 This report covers the final custody-safe V4 candidate on GenLayer Studionet

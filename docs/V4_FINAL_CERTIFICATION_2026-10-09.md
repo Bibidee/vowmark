@@ -1,14 +1,19 @@
-# VOWMARK V4 final certification checkpoint — 2026-10-09
+# VOWMARK V4 historical certification checkpoint — 2026-10-09
+
+> This is an archived checkpoint from before the current pair was promoted.
+> The current release certification is in
+> [`../evidence/live_v4_final_submission_2026-10-10.md`](../evidence/live_v4_final_submission_2026-10-10.md).
 
 ## Verdict
 
-The currently deployed V4 release is live at
+At this checkpoint, the then-deployed V4 release was live at
 [`https://the-vowmark.vercel.app/`](https://the-vowmark.vercel.app/) on
 GenLayer Studionet 61999. Its configured pair is Registry
 `0x3cA983F7CC78d10d3970a6Da719b12e17E4e4eF7` and Vault
 `0xE9e153dc4E33762B2bA468EaC74bEABfe9cED4Ce`.
 
-This certification branch is **source-ready but not deployment-certified**.
+At this checkpoint, the certification branch was **source-ready but not
+deployment-certified**.
 It adds a Registry bytecode change that preserves visibility when asynchronous
 registrations finalize out of order. The change therefore requires a fresh
 Registry/Vault pair, fresh live lifecycle acceptance, and separate production
@@ -49,9 +54,10 @@ finalized transaction hashes. A live browser console check exposed stale local
 activity attempting readback against the current pair; the source remediation
 above prevents that deployment mismatch for both legacy and future records.
 
-## Authorization boundary
+## Authorization boundary at this checkpoint
 
 No replacement contract was deployed, no Vercel environment was changed, no
 production alias was promoted, and no wallet transaction was requested during
 this checkpoint. Those actions remain blocked pending explicit authorization
-after review of this source diff.
+after review of that source diff. Those actions were subsequently authorized
+and executed; see the current final submission evidence linked above.
